@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Lab2\Lab2\Lab2\main.asm Mon Feb 12 13:23:15 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm Mon Feb 12 16:21:35 2018
 
 
 EQU  SIGNATURE_000 0000001e
@@ -439,7 +439,22 @@ EQU  WDTaddr      0000000c
 EQU  USI_STARTaddr 0000000d
 EQU  USI_OVFaddr  0000000e
 EQU  INT_VECTORS_SIZE 0000000f
-CSEG display      00000005
-CSEG loop         0000000a
-CSEG set_ser_in_1 0000000e
-CSEG end          0000000f
+CSEG rotate       0000001c
+CSEG display      00000004
+CSEG loop         00000009
+CSEG set_ser_in_1 0000000d
+CSEG end          0000000e
+CSEG zero         00000021
+CSEG delay        00000035
+CSEG one          00000023
+CSEG two          00000025
+CSEG three        00000027
+CSEG four         00000029
+CSEG five         0000002b
+CSEG six          0000002d
+CSEG seven        0000002f
+CSEG eight        00000031
+CSEG nine         00000033
+CSEG d1           00000036
+CSEG d2           00000037
+CSEG d3           00000038
