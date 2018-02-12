@@ -7,7 +7,7 @@ sbi DDRB, 2 ; set PORTB, 2 to output (rck)
 sbi DDRB, 0 ; set PORTB, 0 to input (ser_in)
 ...
 ; display a digit
-ldi R16, 0b00111111 ; load pattern to display
+ldi R16, 0b01101101 ; load pattern to display
 rcall display ; call display subroutine
 
 display:
@@ -17,31 +17,30 @@ display:
 	in R17, SREG
 	push R17
 	ldi R17, 8 ; loop --> test all 8 bits
+
 loop:
 	rol R16 ; rotate left trough Carry
 	BRCS set_ser_in_1 ; branch if Carry set
 	; put code here to set SER_IN to 0
 	cbi PORTB, 0 ; maybe
 	rjmp end
+
 set_ser_in_1:
 	; put code here to set SER_IN to 1
 	sbi PORTB, 0 ; maybe
+
 end:
 	; put code here to generate SRCK pulse
 	sbi PORTB, 1 ; set srck high
-	nop
-	nop
+	nop			 ; wait
 	cbi PORTB, 1 ; set srck low
-
-	nop
 	nop
 	dec R17
 	brne loop
 	; put code here to generate RCK pulse
-	sbi PORTB, 2 ; set rck low
-	nop
-	nop
-	cbi PORTB, 2
+	sbi PORTB, 2 ; set rck high
+	nop			 ; wait
+	cbi PORTB, 2 ; set rck low
 
 
 	; restore registers from stack
