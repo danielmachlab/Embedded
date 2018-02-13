@@ -4,13 +4,16 @@
 ; start main program
 sbi DDRB, 1 ; set PORTB, 1 to output (srck)
 sbi DDRB, 2 ; set PORTB, 2 to output (rck)
-sbi DDRB, 0 ; set PORTB, 0 to input (ser_in)
+sbi DDRB, 0 ; set PORTB, 0 to output (ser_in)
+cbi DDRB, 4 ; pet PINB, 4 to input
 ...
 ; display a digit
 ;ldi R16, 0b01100111 ; load pattern to display
 ;rcall five
 ;rcall display ; call display subroutine
-rcall rotate ;goal: display all numbers starting at 0 going to 9
+;rcall pbtest
+;rcall rotate ;goal: display all numbers starting at 0 going to 9
+rcall pbtest
 
 display:
 	; backup used registers on stack
@@ -34,14 +37,11 @@ set_ser_in_1:
 end:
 	; put code here to generate SRCK pulse
 	sbi PORTB, 1 ; set srck high
-	nop			 ; wait
 	cbi PORTB, 1 ; set srck low
-	nop
 	dec R17
 	brne loop
 	; put code here to generate RCK pulse
 	sbi PORTB, 2 ; set rck high
-	nop			 ; wait
 	cbi PORTB, 2 ; set rck low
 
 	; restore registers from stack
@@ -51,7 +51,7 @@ end:
 	pop R16
 	ret
 
-rotate: ;doesn't work as planned :/
+rotate: ;
 	rcall zero
 	rcall display
 	rcall delay
@@ -70,6 +70,16 @@ rotate: ;doesn't work as planned :/
 
 	ret
 	;etc downto 9
+
+
+pbtest:
+		in r19, $4
+		inc r19
+		dec r19
+		brne k1
+		rjmp zero
+	
+	
 	
 
 zero:
@@ -135,3 +145,5 @@ delay:
       dec   r23
       brne  d1
       ret
+
+k1:rjmp one
