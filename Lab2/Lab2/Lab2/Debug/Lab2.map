@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm Mon Feb 12 16:21:35 2018
+AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm Mon Feb 12 20:18:53 2018
 
 
 EQU  SIGNATURE_000 0000001e
@@ -444,17 +444,17 @@ CSEG display      00000004
 CSEG loop         00000009
 CSEG set_ser_in_1 0000000d
 CSEG end          0000000e
-CSEG zero         00000021
-CSEG delay        00000035
-CSEG one          00000023
-CSEG two          00000025
-CSEG three        00000027
-CSEG four         00000029
-CSEG five         0000002b
-CSEG six          0000002d
-CSEG seven        0000002f
-CSEG eight        00000031
-CSEG nine         00000033
-CSEG d1           00000036
-CSEG d2           00000037
-CSEG d3           00000038
+CSEG zero         00000029
+CSEG delay        0000003d
+CSEG one          0000002b
+CSEG two          0000002d
+CSEG three        0000002f
+CSEG four         00000031
+CSEG five         00000033
+CSEG six          00000035
+CSEG seven        00000037
+CSEG eight        00000039
+CSEG nine         0000003b
+CSEG d1           0000003e
+CSEG d2           0000003f
+CSEG d3           00000040
