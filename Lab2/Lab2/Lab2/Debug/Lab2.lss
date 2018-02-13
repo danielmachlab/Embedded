@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm Mon Feb 12 23:12:06 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm Tue Feb 13 13:00:31 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
@@ -744,99 +744,98 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\
 000019 9508                      	ret
                                  
                                  rotate: ;
-00001a d011                      	rcall zero
+00001a d00f                      	rcall zero
 00001b dfe9                      	rcall display
-00001c d023                      	rcall delay
+00001c d021                      	rcall delay
                                  
-00001d d010                      	rcall one
+00001d d00e                      	rcall one
 00001e dfe6                      	rcall display
-00001f d020                      	rcall delay
+00001f d01e                      	rcall delay
                                  
-000020 d00f                      	rcall two
+000020 d00d                      	rcall two
 000021 dfe3                      	rcall display
-000022 d01d                      	rcall delay
+000022 d01b                      	rcall delay
                                  
-000023 d00e                      	rcall three
+000023 d00c                      	rcall three
 000024 dfe0                      	rcall display
-000025 d01a                      	rcall delay
+000025 d018                      	rcall delay
                                  
 000026 9508                      	ret
                                  	;etc downto 9
                                  
                                  
                                  pbtest:
-000027 b134                      		in r19, $4
-000028 9533                      		inc r19
-000029 953a                      		dec r19
-00002a f501                      		brne k1
-00002b c000                      		rjmp zero
+                                 		;in r19, PINB
+000027 99b4                      		SBIC PINB, 4
+000028 c003                      		rjmp one
+000029 c000                      		rjmp zero
                                  	
                                  	
                                  	
                                  
                                  zero:
-00002c e30f                      	ldi R16, 0b00111111
-00002d 9508                      	ret
+00002a e30f                      	ldi R16, 0b00111111
+00002b 9508                      	ret
                                  	;rjmp display
                                  	
                                  one:
-00002e e006                      	ldi R16, 0b00000110
-00002f 9508                      	ret
+00002c e006                      	ldi R16, 0b00000110
+00002d 9508                      	ret
                                  	;rjmp display
                                  	
                                  two:
-000030 e50b                      	ldi R16, 0b01011011
-000031 9508                      	ret
+00002e e50b                      	ldi R16, 0b01011011
+00002f 9508                      	ret
                                  	;rjmp display
                                  	
                                  three:
-000032 e40f                      	ldi R16, 0b01001111
-000033 9508                      	ret
+000030 e40f                      	ldi R16, 0b01001111
+000031 9508                      	ret
                                  	;rjmp display
                                  	
                                  four:
-000034 e606                      	ldi R16, 0b01100110
-000035 9508                      	ret
+000032 e606                      	ldi R16, 0b01100110
+000033 9508                      	ret
                                  	;rjmp display
                                  	
                                  five:
-000036 e60d                      	ldi R16, 0b01101101
-000037 9508                      	ret
+000034 e60d                      	ldi R16, 0b01101101
+000035 9508                      	ret
                                  	;rjmp display
                                  	
                                  six:
-000038 e70d                      	ldi R16, 0b01111101
-000039 9508                      	ret
+000036 e70d                      	ldi R16, 0b01111101
+000037 9508                      	ret
                                  	;rjmp display
                                  	
                                  seven:
-00003a e007                      	ldi R16, 0b00000111
-00003b 9508                      	ret
+000038 e007                      	ldi R16, 0b00000111
+000039 9508                      	ret
                                  	;rjmp display
                                  
                                  eight:
-00003c e70f                      	ldi R16, 0b01111111
-00003d 9508                      	ret
+00003a e70f                      	ldi R16, 0b01111111
+00003b 9508                      	ret
                                  	;rjmp display
                                  
                                  nine: 
-00003e e607                      	ldi R16, 0b01100111
-00003f 9508                      	ret
+00003c e607                      	ldi R16, 0b01100111
+00003d 9508                      	ret
                                  	;rjmp display
                                  
                                  
                                  delay:
-000040 e074                            ldi   r23, 4      ; r23 <-- Counter for outer loop
-000041 ef8f                        d1: ldi   r24, 255    ; r24 <-- Counter for level 2 loop 
-000042 ef96                        d2: ldi   r25, 246    ; r25 <-- Counter for inner loop
-000043 959a                        d3: dec   r25
-000044 0000                            nop               ; no operation
-000045 f7e9                            brne  d3 
-000046 958a                            dec   r24
-000047 f7d1                            brne  d2
-000048 957a                            dec   r23
-000049 f7b9                            brne  d1
-00004a 9508                            ret
+00003e e074                            ldi   r23, 4      ; r23 <-- Counter for outer loop
+00003f ef8f                        d1: ldi   r24, 255    ; r24 <-- Counter for level 2 loop 
+000040 ef96                        d2: ldi   r25, 246    ; r25 <-- Counter for inner loop
+000041 959a                        d3: dec   r25
+000042 0000                            nop               ; no operation
+000043 f7e9                            brne  d3 
+000044 958a                            dec   r24
+000045 f7d1                            brne  d2
+000046 957a                            dec   r23
+000047 f7b9                            brne  d1
+000048 9508                            ret
                                  
 
 
@@ -857,26 +856,26 @@ counted separately from r26..r31 here.
 "ATtiny45" register use summary:
 x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:  13 r17:   8 r18:   0 r19:   3 r20:   0 
+r13:   0 r14:   0 r15:   0 r16:  13 r17:   8 r18:   0 r19:   0 r20:   0 
 r21:   0 r22:   0 r23:   2 r24:   2 r25:   2 r26:   0 r27:   0 r28:   0 
 r29:   0 r30:   0 r31:   0 
-Registers used: 6 out of 35 (17.1%)
+Registers used: 5 out of 35 (14.3%)
 
 "ATtiny45" instruction use summary:
 .lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
 andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
 brcc  :   0 brcs  :   1 break :   0 breq  :   0 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :   5 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
+brne  :   4 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 cbi   :   4 cbr   :   0 clc   :   0 
 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 clt   :   0 
 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 cpi   :   0 
-cpse  :   0 dec   :   5 eor   :   0 icall :   0 ijmp  :   0 in    :   2 
-inc   :   1 ld    :   0 ldd   :   0 ldi   :  14 lds   :   0 lpm   :   0 
+cpse  :   0 dec   :   4 eor   :   0 icall :   0 ijmp  :   0 in    :   1 
+inc   :   0 ld    :   0 ldd   :   0 ldi   :  14 lds   :   0 lpm   :   0 
 lsl   :   0 lsr   :   0 mov   :   0 movw  :   0 neg   :   0 nop   :   1 
 or    :   0 ori   :   0 out   :   1 pop   :   3 push  :   3 rcall :  13 
-ret   :  13 reti  :   0 rjmp  :   3 rol   :   1 ror   :   0 sbc   :   0 
-sbci  :   0 sbi   :   6 sbic  :   0 sbis  :   0 sbiw  :   0 sbr   :   0 
+ret   :  13 reti  :   0 rjmp  :   4 rol   :   1 ror   :   0 sbc   :   0 
+sbci  :   0 sbi   :   6 sbic  :   1 sbis  :   0 sbiw  :   0 sbr   :   0 
 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 sei   :   0 sen   :   0 
 ser   :   0 ses   :   0 set   :   0 sev   :   0 sez   :   0 sleep :   0 
 spm   :   0 st    :   0 std   :   0 sts   :   0 sub   :   0 subi  :   0 
@@ -886,7 +885,7 @@ Instructions used: 16 out of 105 (15.2%)
 "ATtiny45" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000098    152      0    152    4096   3.7%
+[.cseg] 0x000000 0x000094    148      0    148    4096   3.6%
 [.dseg] 0x000060 0x000060      0      0      0     256   0.0%
 [.eseg] 0x000000 0x000000      0      0      0     256   0.0%
 

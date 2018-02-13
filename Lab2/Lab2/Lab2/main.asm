@@ -73,10 +73,9 @@ rotate: ;
 
 
 pbtest:
-		in r19, $4
-		inc r19
-		dec r19
-		brne k1
+		;in r19, PINB
+		SBIC PINB, 4 ;skip next instruction if input is cleared or something. works with input direct to 5v bus.
+		rjmp one
 		rjmp zero
 	
 	
