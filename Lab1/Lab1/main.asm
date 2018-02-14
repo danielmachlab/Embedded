@@ -30,8 +30,8 @@
 ; Generate a delay using three nested loops that does nothing. 
 ; With a 10 MHz clock, the values below produce ~261 ms delay.
    delay_long:
-      ldi   r23, 10      ; r23 <-- Counter for outer loop
-  d1: ldi   r24,255     ; r24 <-- Counter for level 2 loop 
+      ldi   r23, 4 ;10     ; r23 <-- Counter for outer loop
+  d1: ldi   r24, 203 ;255    ; r24 <-- Counter for level 2 loop 
   d2: ldi   r25, 246    ; r25 <-- Counter for inner loop
   d3: dec   r25
       nop               ; no operation 
@@ -41,13 +41,12 @@
       dec   r23
       brne  d1
 
-	  ldi r26, 98 
+	  ldi r26, 10 ;98
   d4: ldi r27, 20
   d5: dec r27
 	  nop
 	  brne d5
 	  dec r26
 	  brne d4
-
       ret
 .exit

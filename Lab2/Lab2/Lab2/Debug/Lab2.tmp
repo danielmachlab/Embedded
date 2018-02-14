@@ -1,18 +1,18 @@
 <ASSEMBLER_INFO>
  <VERSION>2.2.7</VERSION>
  <DEVICE>"ATtiny45"</DEVICE>
- <WORKING_DIR>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\Debug</WORKING_DIR>
+ <WORKING_DIR>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\Debug</WORKING_DIR>
  <INCLUDE_PATH>
   <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc</DIR>
   <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
   <DIR></DIR>
  </INCLUDE_PATH>
- <SOURCE_FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</SOURCE_FILE>
+ <SOURCE_FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</SOURCE_FILE>
  <INCLUDED_FILES>
   <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc</FILE>
  </INCLUDED_FILES>
  <OBJECT_FILES>
-  <FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\Debug\Lab2.obj</FILE>
+  <FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\Debug\Lab2.obj</FILE>
  </OBJECT_FILES>
  <HEX_FILES>
   <FILE>Lab2.hex</FILE>
@@ -22,31 +22,35 @@
   <FILE>Lab2.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <zero><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>160</LINE></zero>
-  <pbtest><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>114</LINE></pbtest>
-  <display><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>58</LINE></display>
-  <loop><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>66</LINE></loop>
-  <set_ser_in_1><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>73</LINE></set_ser_in_1>
-  <end><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>77</LINE></end>
-  <rotate><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>93</LINE></rotate>
-  <delay><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>215</LINE></delay>
-  <one><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>166</LINE></one>
-  <two><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>172</LINE></two>
-  <three><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>178</LINE></three>
-  <nextnum><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>127</LINE></nextnum>
-  <four><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>184</LINE></four>
-  <five><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>189</LINE></five>
-  <six><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>194</LINE></six>
-  <seven><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>199</LINE></seven>
-  <eight><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>204</LINE></eight>
-  <nine><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>209</LINE></nine>
-  <d1><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>217</LINE></d1>
-  <d2><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>218</LINE></d2>
-  <d3><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>219</LINE></d3>
-  <delay_short><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>228</LINE></delay_short>
-  <e1><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>230</LINE></e1>
-  <e2><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>231</LINE></e2>
-  <e3><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>232</LINE></e3>
-  <k1><FILE>C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm</FILE><LINE>241</LINE></k1>
+  <four><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>208</LINE></four>
+  <runcounter><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>96</LINE></runcounter>
+  <display><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>52</LINE></display>
+  <loop><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>59</LINE></loop>
+  <set_ser_in_1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>66</LINE></set_ser_in_1>
+  <end><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>70</LINE></end>
+  <count><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>86</LINE></count>
+  <count_loop><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>88</LINE></count_loop>
+  <delay_short><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>260</LINE></delay_short>
+  <one><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>190</LINE></one>
+  <zero><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>184</LINE></zero>
+  <lastnum><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>117</LINE></lastnum>
+  <nine><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>214</LINE></nine>
+  <two><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>196</LINE></two>
+  <three><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>202</LINE></three>
+  <five><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>220</LINE></five>
+  <six><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>226</LINE></six>
+  <seven><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>232</LINE></seven>
+  <eight><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>238</LINE></eight>
+  <nextnum><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>151</LINE></nextnum>
+  <delay><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>247</LINE></delay>
+  <d1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>249</LINE></d1>
+  <d2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>250</LINE></d2>
+  <d3><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>251</LINE></d3>
+  <t1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>262</LINE></t1>
+  <t2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>263</LINE></t2>
+  <t3><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>264</LINE></t3>
+  <t4><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>273</LINE></t4>
+  <t5><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>274</LINE></t5>
+  <k1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm</FILE><LINE>281</LINE></k1>
  </LABELS>
 </ASSEMBLER_INFO>

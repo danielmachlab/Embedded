@@ -14,8 +14,9 @@ cbi DDRB, 4 ; pet PINB, 4 to input
 ;rcall pbtest
 ;rcall rotate ;goal: display all numbers starting at 0 going to 9
 ldi R20, 1
-rcall zero
-rcall pbtest
+ldi R28, 0
+rcall four
+rcall runcounter
 
 ;init:
 	; show zero
@@ -47,13 +48,6 @@ rcall pbtest
 	;	if it is medium --> incr
 	;	else dec R16, display
 
-;count:
-	;ldi R20, 0x00 ; set count back to zero
-;loop:
-	;inc R20 ; increment register
-	;sbis PINB, 4 ; check if push button is still down
-	;ret ; if its not still pushed down, ret, else delay
-	;rcall delay_short ; delay for 100ms
 
 display:
 	; backup used registers on stack
@@ -62,7 +56,6 @@ display:
 	in R17, SREG
 	push R17
 	ldi R17, 8 ; loop --> test all 8 bits
-
 loop:
 	rol R16 ; rotate left trough Carry
 	BRCS set_ser_in_1 ; branch if Carry set
@@ -88,41 +81,72 @@ end:
 	out SREG, R17
 	pop R17
 	pop R16
-	ret
+	ret ;rjmp runcounter ; ret
 
-rotate:
-	rcall zero
-	rcall display
-	rcall delay
-
-	rcall one
-	rcall display
-	rcall delay
-
-	rcall two
-	rcall display
-	rcall delay
-
-	rcall three
-	rcall display
-	rcall delay
-
-	ret
-	;etc downto 9
+count:
+	ldi R28, 0x00 ; set count back to zero
+count_loop:
+	inc R28 ; increment register
+	sbic PINB, 4 ; check if push button is still down
+	ret ; if its not still pushed down, ret, else delay
+	rcall delay_short ; delay for 100ms
+	rjmp count_loop
 
 
-pbtest:
-	;in r19, PINB
-	ldi   r21, 255
-	;sbic PINB, 4 ;skip next instruction if input is cleared or something. works with input direct to 5v bus.
-	;rcall zero
-	
+runcounter:
 	sbis PINB, 4
-	rcall nextnum
+	rcall count;	rcall nextnum
 
-	rcall delay
-	dec r21
-	brne pbtest
+	;subi R28, 0x0A ; minus 1s
+	cpi R28, 0x0A
+	brsh one
+	cpi R28, 0x0A
+	brlo zero
+	;brne one ; t<1s
+
+	;subi R28, 0x0A
+	;brne one ; switch mode
+
+	;subi R28, 0x0A
+	;brne zero ; reset
+
+	;rcall delay
+	rjmp runcounter
+
+
+lastnum:
+	cpi R16, 0b00111111 ; zero
+	breq nine
+
+	cpi R16, 0b00000110
+	breq zero
+
+	cpi R16, 0b01011011
+	breq one
+
+	cpi R16, 0b01001111
+	breq two
+	
+	cpi R16, 0b01100110
+	breq three
+	
+	cpi R16, 0b01101101
+	breq four
+	
+	cpi R16, 0b01111101
+	breq five
+	
+	cpi R16, 0b00000111
+	breq six
+	
+	cpi R16, 0b01111111
+	breq seven
+	
+	cpi R16, 0b01100111
+	breq eight
+
+
+
 
 nextnum:
 	cpi R16, 0b00111111 ; zero
@@ -160,56 +184,64 @@ nextnum:
 zero:
 	ldi R16, 0b00111111
 	rcall display
-	ret
+	rjmp runcounter
 	;rjmp display
 	
 one:
 	ldi R16, 0b00000110
 	rcall display
-	ret
+	rjmp runcounter
 	;rjmp display
 	
 two:
 	ldi R16, 0b01011011
 	rcall display
-	ret
+	rjmp runcounter
 	;rjmp display
 	
 three:
 	ldi R16, 0b01001111
 	rcall display
-	ret
+	rjmp runcounter
 	;rjmp display
 	
 four:
 	ldi R16, 0b01100110
-	ret
-	;rjmp display
-	
-five:
-	ldi R16, 0b01101101
-	ret
-	;rjmp display
-	
-six:
-	ldi R16, 0b01111101
-	ret
-	;rjmp display
-	
-seven:
-	ldi R16, 0b00000111
-	ret
-	;rjmp display
-
-eight:
-	ldi R16, 0b01111111
-	ret
+	rcall display
+	rjmp runcounter
 	;rjmp display
 
 nine: 
 	ldi R16, 0b01100111
-	ret
+	rcall display
+	rjmp runcounter
 	;rjmp display
+		
+five:
+	ldi R16, 0b01101101
+	rcall display
+	rjmp runcounter
+	;rjmp display
+	
+six:
+	ldi R16, 0b01111101
+	rcall display
+	rjmp runcounter
+	;rjmp display
+	
+seven:
+	ldi R16, 0b00000111
+	rcall display
+	rjmp runcounter
+	;rjmp display
+
+eight:
+	ldi R16, 0b01111111
+	rcall display
+	rjmp runcounter
+	;rjmp display
+
+
 
 
 delay:
@@ -226,16 +258,24 @@ delay:
       ret
 
 delay_short:
-	  ldi   r23, 4      ; r23 <-- Counter for outer loop
-  e1: ldi   r24, 255    ; r24 <-- Counter for level 2 loop 
-  e2: ldi   r25, 246    ; r25 <-- Counter for inner loop
-  e3: dec   r25
-      nop               ; no operation
-      brne  e3 
+      ldi   r23, 4 ;10     ; r23 <-- Counter for outer loop
+  t1: ldi   r24, 203     ; r24 <-- Counter for level 2 loop 
+  t2: ldi   r25, 246    ; r25 <-- Counter for inner loop
+  t3: dec   r25
+      nop               ; no operation 
+      brne  t3 
       dec   r24
-      brne  e2
+      brne  t2
       dec   r23
-      brne  e1
+      brne  t1
+
+	  ldi r26, 10 ;98
+  t4: ldi r27, 20
+  t5: dec r27
+	  nop
+	  brne t5
+	  dec r26
+	  brne t4
       ret
 
 k1:rjmp one

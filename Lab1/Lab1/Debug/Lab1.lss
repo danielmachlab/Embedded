@@ -1,10 +1,10 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Lab1\Lab1\main.asm Fri Jan 26 09:58:10 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab1\Lab1\main.asm Wed Feb 14 11:40:36 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
-C:\Users\danie\OneDrive\Embedded Systems\Lab1\Lab1\main.asm(10): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
+C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab1\Lab1\main.asm(10): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
-C:\Users\danie\OneDrive\Embedded Systems\Lab1\Lab1\main.asm(10): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
+C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab1\Lab1\main.asm(10): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
                                  
                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                  
@@ -767,8 +767,8 @@ C:\Users\danie\OneDrive\Embedded Systems\Lab1\Lab1\main.asm(10): Including file 
                                  ; Generate a delay using three nested loops that does nothing. 
                                  ; With a 10 MHz clock, the values below produce ~261 ms delay.
                                     delay_long:
-000009 e07a                            ldi   r23, 10      ; r23 <-- Counter for outer loop
-00000a ef8f                        d1: ldi   r24,255     ; r24 <-- Counter for level 2 loop 
+000009 e074                            ldi   r23, 4 ;10     ; r23 <-- Counter for outer loop
+00000a ec8b                        d1: ldi   r24, 203 ;255    ; r24 <-- Counter for level 2 loop 
 00000b ef96                        d2: ldi   r25, 246    ; r25 <-- Counter for inner loop
 00000c 959a                        d3: dec   r25
 00000d 0000                            nop               ; no operation 
@@ -778,14 +778,13 @@ C:\Users\danie\OneDrive\Embedded Systems\Lab1\Lab1\main.asm(10): Including file 
 000011 957a                            dec   r23
 000012 f7b9                            brne  d1
                                  
-000013 e6a2                      	  ldi r26, 98 
+000013 e0aa                      	  ldi r26, 10 ;98
 000014 e1b4                        d4: ldi r27, 20
 000015 95ba                        d5: dec r27
 000016 0000                      	  nop
 000017 f7e9                      	  brne d5
 000018 95aa                      	  dec r26
 000019 f7d1                      	  brne d4
-                                 
 00001a 9508                            ret
 
 
