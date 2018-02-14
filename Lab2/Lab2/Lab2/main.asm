@@ -13,7 +13,7 @@ cbi DDRB, 4 ; pet PINB, 4 to input
 ;rcall display ; call display subroutine
 ;rcall pbtest
 ;rcall rotate ;goal: display all numbers starting at 0 going to 9
-ldi R20, 1
+ldi R20, 1 ;start in countup mode
 ldi R28, 0
 rcall four
 rcall buttonlistener
@@ -98,24 +98,33 @@ buttonlistener:
 	rjmp buttonlistener
 
 runcounter:
-	;subi R28, 0x0A ; minus 1s
-	cpi R28, 0x0A
+	
+	cpi R28, 0x14 ;if button is held longer than 2 seconds
 	brsh zero
-	cpi R28, 0x0A
+
+	cpi R28, 0x0A ;if button is held longer than 1 second but less than 2 seconds
+	brsh switchcount
+
+	cpi R28, 0x0A ;if button is held less than 1 second
 	brlo nextnum
-	;brne one ; t<1s
-
-	;subi R28, 0x0A
-	;brne one ; switch mode
-
-	;subi R28, 0x0A
-	;brne zero ; reset
-
-	;rcall delay
+		
 	rjmp buttonlistener
 
+nextnum:
+	cpi R20, 0x01 ;0x01 represents countup mode
+	brsh countup 
+	cpi R20, 0x00 ;0x00 represents countdown mode
+	brsh countdown
 
-lastnum:
+switchcount:
+	cpi R20, 0x01
+	brsh countdown ;if in countup mode, change to countdown mode
+	cpi R20, 0x00
+	brsh countup ; if in countdown mode, change to countup mode
+
+countdown:
+	ldi r20, 0x00 ; set mode to countdown
+	
 	cpi R16, 0b00111111 ; zero
 	breq nine
 
@@ -149,7 +158,9 @@ lastnum:
 
 
 
-nextnum:
+countup:
+	ldi R20, 0x01 ;set mode to countup
+
 	cpi R16, 0b00111111 ; zero
 	breq one
 
