@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm Wed Feb 14 12:54:34 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm Wed Feb 14 13:21:28 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
@@ -707,8 +707,8 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\
                                  ;rcall rotate ;goal: display all numbers starting at 0 going to 9
 000004 e041                      ldi R20, 1
 000005 e0c0                      ldi R28, 0
-000006 d057                      rcall four
-000007 d01b                      rcall runcounter
+000006 d058                      rcall four
+000007 d01b                      rcall buttonlistener
                                  
                                  ;init:
                                  	; show zero
@@ -780,20 +780,21 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\
                                  count_loop:
 00001e 95c3                      	inc R28 ; increment register
 00001f 99b4                      	sbic PINB, 4 ; check if push button is still down
-000020 9508                      	ret ; if its not still pushed down, ret, else delay
-000021 d059                      	rcall delay_short ; delay for 100ms
+000020 c005                      	rjmp runcounter ; if its not still pushed down, ret, else delay
+000021 d05a                      	rcall delay_short ; delay for 100ms
 000022 cffb                      	rjmp count_loop
                                  
+                                 buttonlistener:
+000023 9bb4                      	sbis PINB, 4
+000024 dff8                      	rcall count
+000025 cffd                      	rjmp buttonlistener
                                  
                                  runcounter:
-000023 9bb4                      	sbis PINB, 4
-000024 dff8                      	rcall count;	rcall nextnum
-                                 
                                  	;subi R28, 0x0A ; minus 1s
-000025 30ca                      	cpi R28, 0x0A
-000026 f570                      	brsh one
-000027 30ca                      	cpi R28, 0x0A
-000028 f148                      	brlo zero
+000026 30ca                      	cpi R28, 0x0A
+000027 f558                      	brsh zero
+000028 30ca                      	cpi R28, 0x0A
+000029 f0a8                      	brlo nextnum
                                  	;brne one ; t<1s
                                  
                                  	;subi R28, 0x0A
@@ -803,172 +804,172 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\
                                  	;brne zero ; reset
                                  
                                  	;rcall delay
-000029 cff9                      	rjmp runcounter
+00002a cff8                      	rjmp buttonlistener
                                  
                                  
                                  lastnum:
-00002a 330f                      	cpi R16, 0b00111111 ; zero
-00002b f1a9                      	breq nine
+00002b 330f                      	cpi R16, 0b00111111 ; zero
+00002c f1a9                      	breq nine
                                  
-00002c 3006                      	cpi R16, 0b00000110
-00002d f121                      	breq zero
+00002d 3006                      	cpi R16, 0b00000110
+00002e f121                      	breq zero
                                  
-00002e 350b                      	cpi R16, 0b01011011
-00002f f129                      	breq one
+00002f 350b                      	cpi R16, 0b01011011
+000030 f129                      	breq one
                                  
-000030 340f                      	cpi R16, 0b01001111
-000031 f131                      	breq two
+000031 340f                      	cpi R16, 0b01001111
+000032 f131                      	breq two
                                  	
-000032 3606                      	cpi R16, 0b01100110
-000033 f139                      	breq three
+000033 3606                      	cpi R16, 0b01100110
+000034 f139                      	breq three
                                  	
-000034 360d                      	cpi R16, 0b01101101
-000035 f141                      	breq four
+000035 360d                      	cpi R16, 0b01101101
+000036 f141                      	breq four
                                  	
-000036 370d                      	cpi R16, 0b01111101
-000037 f161                      	breq five
+000037 370d                      	cpi R16, 0b01111101
+000038 f161                      	breq five
                                  	
-000038 3007                      	cpi R16, 0b00000111
-000039 f169                      	breq six
+000039 3007                      	cpi R16, 0b00000111
+00003a f169                      	breq six
                                  	
-00003a 370f                      	cpi R16, 0b01111111
-00003b f171                      	breq seven
+00003b 370f                      	cpi R16, 0b01111111
+00003c f171                      	breq seven
                                  	
-00003c 3607                      	cpi R16, 0b01100111
-00003d f179                      	breq eight
+00003d 3607                      	cpi R16, 0b01100111
+00003e f179                      	breq eight
                                  
                                  
                                  
                                  
                                  nextnum:
-00003e 330f                      	cpi R16, 0b00111111 ; zero
-00003f f0a9                      	breq one
+00003f 330f                      	cpi R16, 0b00111111 ; zero
+000040 f0a9                      	breq one
                                  
-000040 3006                      	cpi R16, 0b00000110
-000041 f0b1                      	breq two
+000041 3006                      	cpi R16, 0b00000110
+000042 f0b1                      	breq two
                                  
-000042 350b                      	cpi R16, 0b01011011
-000043 f0b9                      	breq three
+000043 350b                      	cpi R16, 0b01011011
+000044 f0b9                      	breq three
                                  
-000044 340f                      	cpi R16, 0b01001111
-000045 f0c1                      	breq four
+000045 340f                      	cpi R16, 0b01001111
+000046 f0c1                      	breq four
                                  	
-000046 3606                      	cpi R16, 0b01100110
-000047 f0e1                      	breq five
+000047 3606                      	cpi R16, 0b01100110
+000048 f0e1                      	breq five
                                  	
-000048 360d                      	cpi R16, 0b01101101
-000049 f0e9                      	breq six
+000049 360d                      	cpi R16, 0b01101101
+00004a f0e9                      	breq six
                                  	
-00004a 370d                      	cpi R16, 0b01111101
-00004b f0f1                      	breq seven
+00004b 370d                      	cpi R16, 0b01111101
+00004c f0f1                      	breq seven
                                  	
-00004c 3007                      	cpi R16, 0b00000111
-00004d f0f9                      	breq eight
+00004d 3007                      	cpi R16, 0b00000111
+00004e f0f9                      	breq eight
                                  	
-00004e 370f                      	cpi R16, 0b01111111
-00004f f089                      	breq nine
+00004f 370f                      	cpi R16, 0b01111111
+000050 f089                      	breq nine
                                  	
-000050 3607                      	cpi R16, 0b01100111
-000051 f001                      	breq zero
+000051 3607                      	cpi R16, 0b01100111
+000052 f001                      	breq zero
                                  	
                                  	;rcall delay
                                  
                                  zero:
-000052 e30f                      	ldi R16, 0b00111111
-000053 dfb4                      	rcall display
-000054 cfce                      	rjmp runcounter
+000053 e30f                      	ldi R16, 0b00111111
+000054 dfb3                      	rcall display
+000055 cfcd                      	rjmp buttonlistener
                                  	;rjmp display
                                  	
                                  one:
-000055 e006                      	ldi R16, 0b00000110
-000056 dfb1                      	rcall display
-000057 cfcb                      	rjmp runcounter
+000056 e006                      	ldi R16, 0b00000110
+000057 dfb0                      	rcall display
+000058 cfca                      	rjmp buttonlistener
                                  	;rjmp display
                                  	
                                  two:
-000058 e50b                      	ldi R16, 0b01011011
-000059 dfae                      	rcall display
-00005a cfc8                      	rjmp runcounter
+000059 e50b                      	ldi R16, 0b01011011
+00005a dfad                      	rcall display
+00005b cfc7                      	rjmp buttonlistener
                                  	;rjmp display
                                  	
                                  three:
-00005b e40f                      	ldi R16, 0b01001111
-00005c dfab                      	rcall display
-00005d cfc5                      	rjmp runcounter
+00005c e40f                      	ldi R16, 0b01001111
+00005d dfaa                      	rcall display
+00005e cfc4                      	rjmp buttonlistener
                                  	;rjmp display
                                  	
                                  four:
-00005e e606                      	ldi R16, 0b01100110
-00005f dfa8                      	rcall display
-000060 cfc2                      	rjmp runcounter
+00005f e606                      	ldi R16, 0b01100110
+000060 dfa7                      	rcall display
+000061 cfc1                      	rjmp buttonlistener
                                  	;rjmp display
                                  
                                  nine: 
-000061 e607                      	ldi R16, 0b01100111
-000062 dfa5                      	rcall display
-000063 cfbf                      	rjmp runcounter
+000062 e607                      	ldi R16, 0b01100111
+000063 dfa4                      	rcall display
+000064 cfbe                      	rjmp buttonlistener
                                  	;rjmp display
                                  		
                                  five:
-000064 e60d                      	ldi R16, 0b01101101
-000065 dfa2                      	rcall display
-000066 cfbc                      	rjmp runcounter
+000065 e60d                      	ldi R16, 0b01101101
+000066 dfa1                      	rcall display
+000067 cfbb                      	rjmp buttonlistener
                                  	;rjmp display
                                  	
                                  six:
-000067 e70d                      	ldi R16, 0b01111101
-000068 df9f                      	rcall display
-000069 cfb9                      	rjmp runcounter
+000068 e70d                      	ldi R16, 0b01111101
+000069 df9e                      	rcall display
+00006a cfb8                      	rjmp buttonlistener
                                  	;rjmp display
                                  	
                                  seven:
-00006a e007                      	ldi R16, 0b00000111
-00006b df9c                      	rcall display
-00006c cfb6                      	rjmp runcounter
+00006b e007                      	ldi R16, 0b00000111
+00006c df9b                      	rcall display
+00006d cfb5                      	rjmp buttonlistener
                                  	;rjmp display
                                  
                                  eight:
-00006d e70f                      	ldi R16, 0b01111111
-00006e df99                      	rcall display
-00006f cfb3                      	rjmp runcounter
+00006e e70f                      	ldi R16, 0b01111111
+00006f df98                      	rcall display
+000070 cfb2                      	rjmp buttonlistener
                                  	;rjmp display
                                  
                                  
                                  
                                  
                                  delay:
-000070 e074                            ldi   r23, 4      ; r23 <-- Counter for outer loop
-000071 e684                        d1: ldi   r24, 100    ; r24 <-- Counter for level 2 loop 
-000072 e694                        d2: ldi   r25, 100    ; r25 <-- Counter for inner loop
-000073 959a                        d3: dec   r25
-000074 0000                            nop               ; no operation
-000075 f7e9                            brne  d3 
-000076 958a                            dec   r24
-000077 f7d1                            brne  d2
-000078 957a                            dec   r23
-000079 f7b9                            brne  d1
-00007a 9508                            ret
+000071 e074                            ldi   r23, 4      ; r23 <-- Counter for outer loop
+000072 e684                        d1: ldi   r24, 100    ; r24 <-- Counter for level 2 loop 
+000073 e694                        d2: ldi   r25, 100    ; r25 <-- Counter for inner loop
+000074 959a                        d3: dec   r25
+000075 0000                            nop               ; no operation
+000076 f7e9                            brne  d3 
+000077 958a                            dec   r24
+000078 f7d1                            brne  d2
+000079 957a                            dec   r23
+00007a f7b9                            brne  d1
+00007b 9508                            ret
                                  
                                  delay_short:
-00007b e074                            ldi   r23, 4 ;10     ; r23 <-- Counter for outer loop
-00007c ec8b                        t1: ldi   r24, 203     ; r24 <-- Counter for level 2 loop 
-00007d ef96                        t2: ldi   r25, 246    ; r25 <-- Counter for inner loop
-00007e 959a                        t3: dec   r25
-00007f 0000                            nop               ; no operation 
-000080 f7e9                            brne  t3 
-000081 958a                            dec   r24
-000082 f7d1                            brne  t2
-000083 957a                            dec   r23
-000084 f7b9                            brne  t1
+00007c e074                            ldi   r23, 4 ;10     ; r23 <-- Counter for outer loop
+00007d ec8b                        t1: ldi   r24, 203     ; r24 <-- Counter for level 2 loop 
+00007e ef96                        t2: ldi   r25, 246    ; r25 <-- Counter for inner loop
+00007f 959a                        t3: dec   r25
+000080 0000                            nop               ; no operation 
+000081 f7e9                            brne  t3 
+000082 958a                            dec   r24
+000083 f7d1                            brne  t2
+000084 957a                            dec   r23
+000085 f7b9                            brne  t1
                                  
-000085 e0aa                      	  ldi r26, 10 ;98
-000086 e1b4                        t4: ldi r27, 20
-000087 95ba                        t5: dec r27
-000088 0000                      	  nop
-000089 f7e9                      	  brne t5
-00008a 95aa                      	  dec r26
-00008b f7d1                      	  brne t4
-00008c 9508                            ret
+000086 e0aa                      	  ldi r26, 10 ;98
+000087 e1b4                        t4: ldi r27, 20
+000088 95ba                        t5: dec r27
+000089 0000                      	  nop
+00008a f7e9                      	  brne t5
+00008b 95aa                      	  dec r26
+00008c f7d1                      	  brne t4
+00008d 9508                            ret
                                  
 
 
@@ -1007,7 +1008,7 @@ cpse  :   0 dec   :   9 eor   :   0 icall :   0 ijmp  :   0 in    :   1
 inc   :   1 ld    :   0 ldd   :   0 ldi   :  22 lds   :   0 lpm   :   0 
 lsl   :   0 lsr   :   0 mov   :   0 movw  :   0 neg   :   0 nop   :   3 
 or    :   0 ori   :   0 out   :   1 pop   :   3 push  :   3 rcall :  14 
-ret   :   4 reti  :   0 rjmp  :  14 rol   :   1 ror   :   0 sbc   :   0 
+ret   :   3 reti  :   0 rjmp  :  16 rol   :   1 ror   :   0 sbc   :   0 
 sbci  :   0 sbi   :   6 sbic  :   1 sbis  :   1 sbiw  :   0 sbr   :   0 
 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 sei   :   0 sen   :   0 
 ser   :   0 ses   :   0 set   :   0 sev   :   0 sez   :   0 sleep :   0 
@@ -1018,7 +1019,7 @@ Instructions used: 22 out of 105 (21.0%)
 "ATtiny45" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x00011c    284      0    284    4096   6.9%
+[.cseg] 0x000000 0x00011e    286      0    286    4096   7.0%
 [.dseg] 0x000060 0x000060      0      0      0     256   0.0%
 [.eseg] 0x000000 0x000000      0      0      0     256   0.0%
 

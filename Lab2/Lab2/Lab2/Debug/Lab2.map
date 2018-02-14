@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm Wed Feb 14 12:54:34 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm Wed Feb 14 13:21:28 2018
 
 
 EQU  SIGNATURE_000 0000001e
@@ -439,33 +439,34 @@ EQU  WDTaddr      0000000c
 EQU  USI_STARTaddr 0000000d
 EQU  USI_OVFaddr  0000000e
 EQU  INT_VECTORS_SIZE 0000000f
-CSEG four         0000005e
-CSEG runcounter   00000023
+CSEG four         0000005f
+CSEG buttonlistener 00000023
 CSEG display      00000008
 CSEG loop         0000000d
 CSEG set_ser_in_1 00000011
 CSEG end          00000012
 CSEG count        0000001d
 CSEG count_loop   0000001e
-CSEG delay_short  0000007b
-CSEG one          00000055
-CSEG zero         00000052
-CSEG lastnum      0000002a
-CSEG nine         00000061
-CSEG two          00000058
-CSEG three        0000005b
-CSEG five         00000064
-CSEG six          00000067
-CSEG seven        0000006a
-CSEG eight        0000006d
-CSEG nextnum      0000003e
-CSEG delay        00000070
-CSEG d1           00000071
-CSEG d2           00000072
-CSEG d3           00000073
-CSEG t1           0000007c
-CSEG t2           0000007d
-CSEG t3           0000007e
-CSEG t4           00000086
-CSEG t5           00000087
-CSEG k1           0000008d
+CSEG runcounter   00000026
+CSEG delay_short  0000007c
+CSEG zero         00000053
+CSEG nextnum      0000003f
+CSEG lastnum      0000002b
+CSEG nine         00000062
+CSEG one          00000056
+CSEG two          00000059
+CSEG three        0000005c
+CSEG five         00000065
+CSEG six          00000068
+CSEG seven        0000006b
+CSEG eight        0000006e
+CSEG delay        00000071
+CSEG d1           00000072
+CSEG d2           00000073
+CSEG d3           00000074
+CSEG t1           0000007d
+CSEG t2           0000007e
+CSEG t3           0000007f
+CSEG t4           00000087
+CSEG t5           00000088
+CSEG k1           0000008e

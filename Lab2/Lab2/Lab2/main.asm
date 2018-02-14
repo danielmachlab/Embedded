@@ -16,7 +16,7 @@ cbi DDRB, 4 ; pet PINB, 4 to input
 ldi R20, 1
 ldi R28, 0
 rcall four
-rcall runcounter
+rcall buttonlistener
 
 ;init:
 	; show zero
@@ -88,20 +88,21 @@ count:
 count_loop:
 	inc R28 ; increment register
 	sbic PINB, 4 ; check if push button is still down
-	ret ; if its not still pushed down, ret, else delay
+	rjmp runcounter ; if its not still pushed down, ret, else delay
 	rcall delay_short ; delay for 100ms
 	rjmp count_loop
 
+buttonlistener:
+	sbis PINB, 4
+	rcall count
+	rjmp buttonlistener
 
 runcounter:
-	sbis PINB, 4
-	rcall count;	rcall nextnum
-
 	;subi R28, 0x0A ; minus 1s
 	cpi R28, 0x0A
-	brsh one
+	brsh zero
 	cpi R28, 0x0A
-	brlo zero
+	brlo nextnum
 	;brne one ; t<1s
 
 	;subi R28, 0x0A
@@ -111,7 +112,7 @@ runcounter:
 	;brne zero ; reset
 
 	;rcall delay
-	rjmp runcounter
+	rjmp buttonlistener
 
 
 lastnum:
@@ -184,61 +185,61 @@ nextnum:
 zero:
 	ldi R16, 0b00111111
 	rcall display
-	rjmp runcounter
+	rjmp buttonlistener
 	;rjmp display
 	
 one:
 	ldi R16, 0b00000110
 	rcall display
-	rjmp runcounter
+	rjmp buttonlistener
 	;rjmp display
 	
 two:
 	ldi R16, 0b01011011
 	rcall display
-	rjmp runcounter
+	rjmp buttonlistener
 	;rjmp display
 	
 three:
 	ldi R16, 0b01001111
 	rcall display
-	rjmp runcounter
+	rjmp buttonlistener
 	;rjmp display
 	
 four:
 	ldi R16, 0b01100110
 	rcall display
-	rjmp runcounter
+	rjmp buttonlistener
 	;rjmp display
 
 nine: 
 	ldi R16, 0b01100111
 	rcall display
-	rjmp runcounter
+	rjmp buttonlistener
 	;rjmp display
 		
 five:
 	ldi R16, 0b01101101
 	rcall display
-	rjmp runcounter
+	rjmp buttonlistener
 	;rjmp display
 	
 six:
 	ldi R16, 0b01111101
 	rcall display
-	rjmp runcounter
+	rjmp buttonlistener
 	;rjmp display
 	
 seven:
 	ldi R16, 0b00000111
 	rcall display
-	rjmp runcounter
+	rjmp buttonlistener
 	;rjmp display
 
 eight:
 	ldi R16, 0b01111111
 	rcall display
-	rjmp runcounter
+	rjmp buttonlistener
 	;rjmp display
 
 
