@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm Wed Feb 14 13:59:13 2018
+AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm Wed Feb 14 18:06:55 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
@@ -705,282 +705,256 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\
                                  ;rcall display ; call display subroutine
                                  ;rcall pbtest
                                  ;rcall rotate ;goal: display all numbers starting at 0 going to 9
-000004 e041                      ldi R20, 1 ;start in countup mode
-000005 e0c0                      ldi R28, 0
-000006 d064                      rcall four
-000007 d01b                      rcall buttonlistener
-                                 
-                                 ;init:
-                                 	; show zero
-                                 	;rcall zero
-                                 	;rcall display
-                                 	;rcall delay
-                                 	; go to increment mode
-                                 	;rjmp incr
-                                 
-                                 ;incr:
-                                 ;loop:
-                                 	; check input pin for push button active
-                                 	;	if it is pushed, branch to count
-                                 	;	else do nothing
-                                 	;
-                                 	; check value of reg from count
-                                 	;	if it is high --> reset
-                                 	;	if it is medium --> decr
-                                 	;	else inc R16, display
-                                 
-                                 ;decr:
-                                 ;loop:
-                                 	; check if pin is active
-                                 	;	if it is pushed, branch to count
-                                 	;	else do nothing
-                                 	;
-                                 	; check value of reg from count
-                                 	;	if it is high --> reset
-                                 	;	if it is medium --> incr
-                                 	;	else dec R16, display
-                                 
+000004 e060                      ldi R22, 0x00
+000005 e040                      ldi R20, 0b00000000 ;start in countup mode
+000006 e0c0                      ldi R28, 0
+000007 d05d                      rcall zero
+000008 d01e                      rcall buttonlistener
                                  
                                  display:
+000009 2f60                      	mov R22, R16 ; backup R16
+00000a 2b04                      	or R16, R20 ; or R30 with R16
                                  	; backup used registers on stack
-000008 930f                      	push R16
-000009 931f                      	push R17
-00000a b71f                      	in R17, SREG
-00000b 931f                      	push R17
-00000c e018                      	ldi R17, 8 ; loop --> test all 8 bits
+00000b 930f                      	push R16
+00000c 931f                      	push R17
+00000d b71f                      	in R17, SREG
+00000e 931f                      	push R17
+00000f e018                      	ldi R17, 8 ; loop --> test all 8 bits
                                  loop:
-00000d 1f00                      	rol R16 ; rotate left trough Carry
-00000e f010                      	BRCS set_ser_in_1 ; branch if Carry set
+000010 1f00                      	rol R16 ; rotate left trough Carry
+000011 f010                      	BRCS set_ser_in_1 ; branch if Carry set
                                  	; put code here to set SER_IN to 0
-00000f 98c0                      	cbi PORTB, 0 ; maybe
-000010 c001                      	rjmp end
+000012 98c0                      	cbi PORTB, 0 ; maybe
+000013 c001                      	rjmp end
                                  
                                  set_ser_in_1:
                                  	; put code here to set SER_IN to 1
-000011 9ac0                      	sbi PORTB, 0 ; maybe
+000014 9ac0                      	sbi PORTB, 0 ; maybe
                                  
                                  end:
                                  	; put code here to generate SRCK pulse
-000012 9ac1                      	sbi PORTB, 1 ; set srck high
-000013 98c1                      	cbi PORTB, 1 ; set srck low
-000014 951a                      	dec R17
-000015 f7b9                      	brne loop
+000015 9ac1                      	sbi PORTB, 1 ; set srck high
+000016 98c1                      	cbi PORTB, 1 ; set srck low
+000017 951a                      	dec R17
+000018 f7b9                      	brne loop
                                  	; put code here to generate RCK pulse
-000016 9ac2                      	sbi PORTB, 2 ; set rck high
-000017 98c2                      	cbi PORTB, 2 ; set rck low
+000019 9ac2                      	sbi PORTB, 2 ; set rck high
+00001a 98c2                      	cbi PORTB, 2 ; set rck low
                                  	; restore registers from stack
-000018 911f                      	pop R17
-000019 bf1f                      	out SREG, R17
-00001a 911f                      	pop R17
-00001b 910f                      	pop R16
-00001c 9508                      	ret ;rjmp runcounter ; ret
+00001b 911f                      	pop R17
+00001c bf1f                      	out SREG, R17
+00001d 911f                      	pop R17
+00001e 910f                      	pop R16
+00001f 2f06                      	mov R16, R22 ; reset R16 from backup
+000020 9508                      	ret ;rjmp runcounter ; ret
                                  
                                  count:
-00001d e0c0                      	ldi R28, 0x00 ; set count back to zero
+000021 e0c0                      	ldi R28, 0x00 ; set count back to zero
                                  count_loop:
-00001e 95c3                      	inc R28 ; increment register
-00001f 99b4                      	sbic PINB, 4 ; check if push button is still down
-000020 c005                      	rjmp runcounter ; if its not still pushed down, ret, else delay
-000021 d066                      	rcall delay_short ; delay for 100ms
-000022 cffb                      	rjmp count_loop
+000022 95c3                      	inc R28 ; increment register
+000023 99b4                      	sbic PINB, 4 ; check if push button is still down
+000024 c005                      	rjmp runcounter ; if its not still pushed down, ret, else delay
+000025 d068                      	rcall delay_short ; delay for 100ms
+000026 cffb                      	rjmp count_loop
                                  
                                  buttonlistener:
-000023 9bb4                      	sbis PINB, 4
-000024 dff8                      	rcall count
-000025 cffd                      	rjmp buttonlistener
+000027 9bb4                      	sbis PINB, 4
+000028 dff8                      	rcall count
+000029 cffd                      	rjmp buttonlistener
                                  
                                  runcounter:
-                                 	
-000026 31c4                      	cpi R28, 0x14 ;if button is held longer than 2 seconds
-000027 f5b8                      	brsh zero
+00002a 31c4                      	cpi R28, 0x14 ;if button is held longer than 2 seconds
+00002b f428                      	brsh reset
                                  
-000028 30ca                      	cpi R28, 0x0A ;if button is held longer than 1 second but less than 2 seconds
-000029 f438                      	brsh switchcount
+00002c 30ca                      	cpi R28, 0x0A ;if button is held longer than 1 second but less than 2 seconds
+00002d f448                      	brsh switchcount
                                  
-00002a 30ca                      	cpi R28, 0x0A ;if button is held less than 1 second
-00002b f008                      	brlo nextnum
+00002e 30ca                      	cpi R28, 0x0A ;if button is held less than 1 second
+00002f f018                      	brlo nextnum
                                  		
-00002c cff6                      	rjmp buttonlistener
+000030 cff6                      	rjmp buttonlistener
+                                 
+                                 reset:
+000031 e040                      	ldi R20, 0b00000000
+000032 c032                      	rjmp zero
                                  
                                  nextnum:
-00002d 3041                      	cpi R20, 0x01 ;0x01 represents countup mode
-00002e f4d8                      	brsh countup 
-00002f 3040                      	cpi R20, 0x00 ;0x00 represents countdown mode
-000030 f420                      	brsh countdown
+000033 3040                      	cpi R20, 0x00 ;0x00 represents countup mode
+000034 f0d9                      	breq countup 
+000035 3840                      	cpi R20, 0b10000000 ;0b10000000 represents countdown mode
+000036 f021                      	breq countdown
                                  
                                  switchcount:
-000031 3041                      	cpi R20, 0x01
-000032 f410                      	brsh countdown ;if in countup mode, change to countdown mode
-000033 3040                      	cpi R20, 0x00
-000034 f4a8                      	brsh countup ; if in countdown mode, change to countup mode
+000037 3040                      	cpi R20, 0x00
+000038 f011                      	breq countdown ;if in countup mode, change to countdown mode
+000039 3840                      	cpi R20, 0b10000000
+00003a f0a9                      	breq countup ; if in countdown mode, change to countup mode
                                  
                                  countdown:
-000035 e040                      	ldi r20, 0x00 ; set mode to countdown
+00003b e840                      	ldi r20, 0b10000000 ; set mode to countdown
                                  	
-000036 330f                      	cpi R16, 0b00111111 ; zero
-000037 f1b1                      	breq nine
+00003c 330f                      	cpi R16, 0b00111111 ; zero
+00003d f1b1                      	breq nine
                                  
-000038 3006                      	cpi R16, 0b00000110
-000039 f129                      	breq zero
+00003e 3006                      	cpi R16, 0b00000110
+00003f f129                      	breq zero
                                  
-00003a 350b                      	cpi R16, 0b01011011
-00003b f131                      	breq one
+000040 350b                      	cpi R16, 0b01011011
+000041 f131                      	breq one
                                  
-00003c 340f                      	cpi R16, 0b01001111
-00003d f139                      	breq two
+000042 340f                      	cpi R16, 0b01001111
+000043 f139                      	breq two
                                  	
-00003e 3606                      	cpi R16, 0b01100110
-00003f f141                      	breq three
+000044 3606                      	cpi R16, 0b01100110
+000045 f141                      	breq three
                                  	
-000040 360d                      	cpi R16, 0b01101101
-000041 f149                      	breq four
+000046 360d                      	cpi R16, 0b01101101
+000047 f149                      	breq four
                                  	
-000042 370d                      	cpi R16, 0b01111101
-000043 f169                      	breq five
+000048 370d                      	cpi R16, 0b01111101
+000049 f169                      	breq five
                                  	
-000044 3007                      	cpi R16, 0b00000111
-000045 f171                      	breq six
+00004a 3007                      	cpi R16, 0b00000111
+00004b f171                      	breq six
                                  	
-000046 370f                      	cpi R16, 0b01111111
-000047 f179                      	breq seven
+00004c 370f                      	cpi R16, 0b01111111
+00004d f179                      	breq seven
                                  	
-000048 3607                      	cpi R16, 0b01100111
-000049 f181                      	breq eight
-                                 
-                                 
+00004e 3607                      	cpi R16, 0b01100111
+00004f f181                      	breq eight
                                  
                                  
                                  countup:
-00004a e041                      	ldi R20, 0x01 ;set mode to countup
+000050 e040                      	ldi R20, 0x00 ;set mode to countup
                                  
-00004b 330f                      	cpi R16, 0b00111111 ; zero
-00004c f0a9                      	breq one
+000051 330f                      	cpi R16, 0b00111111 ; zero
+000052 f0a9                      	breq one
                                  
-00004d 3006                      	cpi R16, 0b00000110
-00004e f0b1                      	breq two
+000053 3006                      	cpi R16, 0b00000110
+000054 f0b1                      	breq two
                                  
-00004f 350b                      	cpi R16, 0b01011011
-000050 f0b9                      	breq three
+000055 350b                      	cpi R16, 0b01011011
+000056 f0b9                      	breq three
                                  
-000051 340f                      	cpi R16, 0b01001111
-000052 f0c1                      	breq four
+000057 340f                      	cpi R16, 0b01001111
+000058 f0c1                      	breq four
                                  	
-000053 3606                      	cpi R16, 0b01100110
-000054 f0e1                      	breq five
+000059 3606                      	cpi R16, 0b01100110
+00005a f0e1                      	breq five
                                  	
-000055 360d                      	cpi R16, 0b01101101
-000056 f0e9                      	breq six
+00005b 360d                      	cpi R16, 0b01101101
+00005c f0e9                      	breq six
                                  	
-000057 370d                      	cpi R16, 0b01111101
-000058 f0f1                      	breq seven
+00005d 370d                      	cpi R16, 0b01111101
+00005e f0f1                      	breq seven
                                  	
-000059 3007                      	cpi R16, 0b00000111
-00005a f0f9                      	breq eight
+00005f 3007                      	cpi R16, 0b00000111
+000060 f0f9                      	breq eight
                                  	
-00005b 370f                      	cpi R16, 0b01111111
-00005c f089                      	breq nine
+000061 370f                      	cpi R16, 0b01111111
+000062 f089                      	breq nine
                                  	
-00005d 3607                      	cpi R16, 0b01100111
-00005e f001                      	breq zero
+000063 3607                      	cpi R16, 0b01100111
+000064 f001                      	breq zero
                                  	
                                  	;rcall delay
                                  
                                  zero:
-00005f e30f                      	ldi R16, 0b00111111
-000060 dfa7                      	rcall display
-000061 cfc1                      	rjmp buttonlistener
+000065 e30f                      	ldi R16, 0b00111111
+000066 dfa2                      	rcall display
+000067 cfbf                      	rjmp buttonlistener
                                  	;rjmp display
                                  	
                                  one:
-000062 e006                      	ldi R16, 0b00000110
-000063 dfa4                      	rcall display
-000064 cfbe                      	rjmp buttonlistener
+000068 e006                      	ldi R16, 0b00000110
+000069 df9f                      	rcall display
+00006a cfbc                      	rjmp buttonlistener
                                  	;rjmp display
                                  	
                                  two:
-000065 e50b                      	ldi R16, 0b01011011
-000066 dfa1                      	rcall display
-000067 cfbb                      	rjmp buttonlistener
+00006b e50b                      	ldi R16, 0b01011011
+00006c df9c                      	rcall display
+00006d cfb9                      	rjmp buttonlistener
                                  	;rjmp display
                                  	
                                  three:
-000068 e40f                      	ldi R16, 0b01001111
-000069 df9e                      	rcall display
-00006a cfb8                      	rjmp buttonlistener
+00006e e40f                      	ldi R16, 0b01001111
+00006f df99                      	rcall display
+000070 cfb6                      	rjmp buttonlistener
                                  	;rjmp display
                                  	
                                  four:
-00006b e606                      	ldi R16, 0b01100110
-00006c df9b                      	rcall display
-00006d cfb5                      	rjmp buttonlistener
+000071 e606                      	ldi R16, 0b01100110
+000072 df96                      	rcall display
+000073 cfb3                      	rjmp buttonlistener
                                  	;rjmp display
                                  
                                  nine: 
-00006e e607                      	ldi R16, 0b01100111
-00006f df98                      	rcall display
-000070 cfb2                      	rjmp buttonlistener
+000074 e607                      	ldi R16, 0b01100111
+000075 df93                      	rcall display
+000076 cfb0                      	rjmp buttonlistener
                                  	;rjmp display
                                  		
                                  five:
-000071 e60d                      	ldi R16, 0b01101101
-000072 df95                      	rcall display
-000073 cfaf                      	rjmp buttonlistener
+000077 e60d                      	ldi R16, 0b01101101
+000078 df90                      	rcall display
+000079 cfad                      	rjmp buttonlistener
                                  	;rjmp display
                                  	
                                  six:
-000074 e70d                      	ldi R16, 0b01111101
-000075 df92                      	rcall display
-000076 cfac                      	rjmp buttonlistener
+00007a e70d                      	ldi R16, 0b01111101
+00007b df8d                      	rcall display
+00007c cfaa                      	rjmp buttonlistener
                                  	;rjmp display
                                  	
                                  seven:
-000077 e007                      	ldi R16, 0b00000111
-000078 df8f                      	rcall display
-000079 cfa9                      	rjmp buttonlistener
+00007d e007                      	ldi R16, 0b00000111
+00007e df8a                      	rcall display
+00007f cfa7                      	rjmp buttonlistener
                                  	;rjmp display
                                  
                                  eight:
-00007a e70f                      	ldi R16, 0b01111111
-00007b df8c                      	rcall display
-00007c cfa6                      	rjmp buttonlistener
+000080 e70f                      	ldi R16, 0b01111111
+000081 df87                      	rcall display
+000082 cfa4                      	rjmp buttonlistener
                                  	;rjmp display
                                  
                                  
                                  
                                  
                                  delay:
-00007d e074                            ldi   r23, 4      ; r23 <-- Counter for outer loop
-00007e e684                        d1: ldi   r24, 100    ; r24 <-- Counter for level 2 loop 
-00007f e694                        d2: ldi   r25, 100    ; r25 <-- Counter for inner loop
-000080 959a                        d3: dec   r25
-000081 0000                            nop               ; no operation
-000082 f7e9                            brne  d3 
-000083 958a                            dec   r24
-000084 f7d1                            brne  d2
-000085 957a                            dec   r23
-000086 f7b9                            brne  d1
-000087 9508                            ret
+000083 e074                            ldi   r23, 4      ; r23 <-- Counter for outer loop
+000084 e684                        d1: ldi   r24, 100    ; r24 <-- Counter for level 2 loop 
+000085 e694                        d2: ldi   r25, 100    ; r25 <-- Counter for inner loop
+000086 959a                        d3: dec   r25
+000087 0000                            nop               ; no operation
+000088 f7e9                            brne  d3 
+000089 958a                            dec   r24
+00008a f7d1                            brne  d2
+00008b 957a                            dec   r23
+00008c f7b9                            brne  d1
+00008d 9508                            ret
                                  
                                  delay_short:
-000088 e074                            ldi   r23, 4 ;10     ; r23 <-- Counter for outer loop
-000089 ec8b                        t1: ldi   r24, 203     ; r24 <-- Counter for level 2 loop 
-00008a ef96                        t2: ldi   r25, 246    ; r25 <-- Counter for inner loop
-00008b 959a                        t3: dec   r25
-00008c 0000                            nop               ; no operation 
-00008d f7e9                            brne  t3 
-00008e 958a                            dec   r24
-00008f f7d1                            brne  t2
-000090 957a                            dec   r23
-000091 f7b9                            brne  t1
+00008e e074                            ldi   r23, 4 ;10     ; r23 <-- Counter for outer loop
+00008f ec8b                        t1: ldi   r24, 203     ; r24 <-- Counter for level 2 loop 
+000090 ef96                        t2: ldi   r25, 246    ; r25 <-- Counter for inner loop
+000091 959a                        t3: dec   r25
+000092 0000                            nop               ; no operation 
+000093 f7e9                            brne  t3 
+000094 958a                            dec   r24
+000095 f7d1                            brne  t2
+000096 957a                            dec   r23
+000097 f7b9                            brne  t1
                                  
-000092 e0aa                      	  ldi r26, 10 ;98
-000093 e1b4                        t4: ldi r27, 20
-000094 95ba                        t5: dec r27
-000095 0000                      	  nop
-000096 f7e9                      	  brne t5
-000097 95aa                      	  dec r26
-000098 f7d1                      	  brne t4
-000099 9508                            ret
+000098 e0aa                      	  ldi r26, 10 ;98
+000099 e1b4                        t4: ldi r27, 20
+00009a 95ba                        t5: dec r27
+00009b 0000                      	  nop
+00009c f7e9                      	  brne t5
+00009d 95aa                      	  dec r26
+00009e f7d1                      	  brne t4
+00009f 9508                            ret
                                  
 
 
@@ -1001,36 +975,36 @@ counted separately from r26..r31 here.
 "ATtiny45" register use summary:
 x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:  33 r17:   8 r18:   0 r19:   0 r20:   7 
-r21:   0 r22:   0 r23:   4 r24:   4 r25:   4 r26:   2 r27:   2 r28:   6 
+r13:   0 r14:   0 r15:   0 r16:  36 r17:   8 r18:   0 r19:   0 r20:   9 
+r21:   0 r22:   3 r23:   4 r24:   4 r25:   4 r26:   2 r27:   2 r28:   6 
 r29:   0 r30:   0 r31:   0 
-Registers used: 9 out of 35 (25.7%)
+Registers used: 10 out of 35 (28.6%)
 
 "ATtiny45" instruction use summary:
 .lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
 andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   1 break :   0 breq  :  20 brge  :   0 brhc  :   0 
+brcc  :   0 brcs  :   1 break :   0 breq  :  24 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   1 brlt  :   0 brmi  :   0 
-brne  :   9 brpl  :   0 brsh  :   6 brtc  :   0 brts  :   0 brvc  :   0 
+brne  :   9 brpl  :   0 brsh  :   2 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 cbi   :   4 cbr   :   0 clc   :   0 
 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 clt   :   0 
 clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 cpi   :  27 
 cpse  :   0 dec   :   9 eor   :   0 icall :   0 ijmp  :   0 in    :   1 
-inc   :   1 ld    :   0 ldd   :   0 ldi   :  24 lds   :   0 lpm   :   0 
-lsl   :   0 lsr   :   0 mov   :   0 movw  :   0 neg   :   0 nop   :   3 
-or    :   0 ori   :   0 out   :   1 pop   :   3 push  :   3 rcall :  14 
-ret   :   3 reti  :   0 rjmp  :  16 rol   :   1 ror   :   0 sbc   :   0 
+inc   :   1 ld    :   0 ldd   :   0 ldi   :  26 lds   :   0 lpm   :   0 
+lsl   :   0 lsr   :   0 mov   :   2 movw  :   0 neg   :   0 nop   :   3 
+or    :   1 ori   :   0 out   :   1 pop   :   3 push  :   3 rcall :  14 
+ret   :   3 reti  :   0 rjmp  :  17 rol   :   1 ror   :   0 sbc   :   0 
 sbci  :   0 sbi   :   6 sbic  :   1 sbis  :   1 sbiw  :   0 sbr   :   0 
 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 sei   :   0 sen   :   0 
 ser   :   0 ses   :   0 set   :   0 sev   :   0 sez   :   0 sleep :   0 
 spm   :   0 st    :   0 std   :   0 sts   :   0 sub   :   0 subi  :   0 
 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 22 out of 105 (21.0%)
+Instructions used: 24 out of 105 (22.9%)
 
 "ATtiny45" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000136    310      0    310    4096   7.6%
+[.cseg] 0x000000 0x000142    322      0    322    4096   7.9%
 [.dseg] 0x000060 0x000060      0      0      0     256   0.0%
 [.eseg] 0x000000 0x000000      0      0      0     256   0.0%
 

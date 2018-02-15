@@ -13,43 +13,15 @@ cbi DDRB, 4 ; pet PINB, 4 to input
 ;rcall display ; call display subroutine
 ;rcall pbtest
 ;rcall rotate ;goal: display all numbers starting at 0 going to 9
-ldi R20, 1 ;start in countup mode
+ldi R22, 0x00
+ldi R20, 0b00000000 ;start in countup mode
 ldi R28, 0
-rcall four
+rcall zero
 rcall buttonlistener
 
-;init:
-	; show zero
-	;rcall zero
-	;rcall display
-	;rcall delay
-	; go to increment mode
-	;rjmp incr
-
-;incr:
-;loop:
-	; check input pin for push button active
-	;	if it is pushed, branch to count
-	;	else do nothing
-	;
-	; check value of reg from count
-	;	if it is high --> reset
-	;	if it is medium --> decr
-	;	else inc R16, display
-
-;decr:
-;loop:
-	; check if pin is active
-	;	if it is pushed, branch to count
-	;	else do nothing
-	;
-	; check value of reg from count
-	;	if it is high --> reset
-	;	if it is medium --> incr
-	;	else dec R16, display
-
-
 display:
+	mov R22, R16 ; backup R16
+	or R16, R20 ; or R30 with R16
 	; backup used registers on stack
 	push R16
 	push R17
@@ -81,6 +53,7 @@ end:
 	out SREG, R17
 	pop R17
 	pop R16
+	mov R16, R22 ; reset R16 from backup
 	ret ;rjmp runcounter ; ret
 
 count:
@@ -98,9 +71,8 @@ buttonlistener:
 	rjmp buttonlistener
 
 runcounter:
-	
 	cpi R28, 0x14 ;if button is held longer than 2 seconds
-	brsh zero
+	brsh reset
 
 	cpi R28, 0x0A ;if button is held longer than 1 second but less than 2 seconds
 	brsh switchcount
@@ -110,20 +82,24 @@ runcounter:
 		
 	rjmp buttonlistener
 
+reset:
+	ldi R20, 0b00000000
+	rjmp zero
+
 nextnum:
-	cpi R20, 0x01 ;0x01 represents countup mode
-	brsh countup 
-	cpi R20, 0x00 ;0x00 represents countdown mode
-	brsh countdown
+	cpi R20, 0x00 ;0x00 represents countup mode
+	breq countup 
+	cpi R20, 0b10000000 ;0b10000000 represents countdown mode
+	breq countdown
 
 switchcount:
-	cpi R20, 0x01
-	brsh countdown ;if in countup mode, change to countdown mode
 	cpi R20, 0x00
-	brsh countup ; if in countdown mode, change to countup mode
+	breq countdown ;if in countup mode, change to countdown mode
+	cpi R20, 0b10000000
+	breq countup ; if in countdown mode, change to countup mode
 
 countdown:
-	ldi r20, 0x00 ; set mode to countdown
+	ldi r20, 0b10000000 ; set mode to countdown
 	
 	cpi R16, 0b00111111 ; zero
 	breq nine
@@ -156,10 +132,8 @@ countdown:
 	breq eight
 
 
-
-
 countup:
-	ldi R20, 0x01 ;set mode to countup
+	ldi R20, 0x00 ;set mode to countup
 
 	cpi R16, 0b00111111 ; zero
 	breq one

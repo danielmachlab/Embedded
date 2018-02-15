@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab2\Lab2\Lab2\main.asm Wed Feb 14 13:59:13 2018
+AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\sp18\embedded\Embedded\Lab2\Lab2\Lab2\main.asm Wed Feb 14 18:06:55 2018
 
 
 EQU  SIGNATURE_000 0000001e
@@ -439,36 +439,37 @@ EQU  WDTaddr      0000000c
 EQU  USI_STARTaddr 0000000d
 EQU  USI_OVFaddr  0000000e
 EQU  INT_VECTORS_SIZE 0000000f
-CSEG four         0000006b
-CSEG buttonlistener 00000023
-CSEG display      00000008
-CSEG loop         0000000d
-CSEG set_ser_in_1 00000011
-CSEG end          00000012
-CSEG count        0000001d
-CSEG count_loop   0000001e
-CSEG runcounter   00000026
-CSEG delay_short  00000088
-CSEG zero         0000005f
-CSEG switchcount  00000031
-CSEG nextnum      0000002d
-CSEG countup      0000004a
-CSEG countdown    00000035
-CSEG nine         0000006e
-CSEG one          00000062
-CSEG two          00000065
-CSEG three        00000068
-CSEG five         00000071
-CSEG six          00000074
-CSEG seven        00000077
-CSEG eight        0000007a
-CSEG delay        0000007d
-CSEG d1           0000007e
-CSEG d2           0000007f
-CSEG d3           00000080
-CSEG t1           00000089
-CSEG t2           0000008a
-CSEG t3           0000008b
-CSEG t4           00000093
-CSEG t5           00000094
-CSEG k1           0000009a
+CSEG zero         00000065
+CSEG buttonlistener 00000027
+CSEG display      00000009
+CSEG loop         00000010
+CSEG set_ser_in_1 00000014
+CSEG end          00000015
+CSEG count        00000021
+CSEG count_loop   00000022
+CSEG runcounter   0000002a
+CSEG delay_short  0000008e
+CSEG reset        00000031
+CSEG switchcount  00000037
+CSEG nextnum      00000033
+CSEG countup      00000050
+CSEG countdown    0000003b
+CSEG nine         00000074
+CSEG one          00000068
+CSEG two          0000006b
+CSEG three        0000006e
+CSEG four         00000071
+CSEG five         00000077
+CSEG six          0000007a
+CSEG seven        0000007d
+CSEG eight        00000080
+CSEG delay        00000083
+CSEG d1           00000084
+CSEG d2           00000085
+CSEG d3           00000086
+CSEG t1           0000008f
+CSEG t2           00000090
+CSEG t3           00000091
+CSEG t4           00000099
+CSEG t5           0000009a
+CSEG k1           000000a0
