@@ -1,12 +1,12 @@
-;
-; Lab3.asm
-;
-; Created: 2/20/2018 10:09:54 PM
-; Author : ted
-;
+;; Lab 3
+;; Ted Paulsen, Daniel Machlab
+;; Embedded Systems
 
+cbi DDRB, 0
+cbi DDRB, 1
+sbi DDRB, 2
 
-; Replace with your application code
-start:
-    inc r16
-    rjmp start
+loop:
+	inc R16
+	dec R16
+	rjmp loop
