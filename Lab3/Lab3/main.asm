@@ -18,11 +18,63 @@ andi curr, 0b00000011 ; mask out all signals but A & B
 mov prev, curr ; copy contents of curr into prev
 rcall delay ; delay a lil bit
 
+
+
+infloop:
+	in r20, PINB
+	andi r20, 0b00000011
+	rcall delay
+	in r21, PINB
+	andi r21, 0b00000011
+	rcall delay
+
+	cp r20, r21
+	brne lighton
+	rjmp lightoff
+	
+
+rjmp infloop
+
+lighton:
+	sbi PORTB, 5
+	rjmp infloop
+
+lightoff:
+	cbi PORTB,5
+	rjmp infloop
+
+
+
+midlab:
+	rcall delay
+	rcall delay
+
+
+	in curr, PINB
+	andi curr, 0b00000011
+
+	cpi curr, 0b00000000
+	breq lighton
+
+	cpi curr, 0b00000011
+	breq lighton
+
+	cpi curr, 0b00000001
+	breq lightoff
+
+	cpi curr, 0b00000010
+	breq lightoff
+
+
+rjmp midlab
+
 ; This is the infinite loop which reads new inputs
 ; and handles the changes
 loop:
 	; rcall delay
 	rcall read_input
+	rcall delay
+
 
 	; we need to put a routine here to do that cross xor thing
 	; that he talked about in class. it vaguely talks about it in 
@@ -44,9 +96,19 @@ loop:
 	; if (t1, t0) == (1, 0) ==> counter-clockwise rotation
 	; if (t1, t0) == (0, 0) OR (1, 1) ==> stationary
 
+	cpi curr, 0b00000000
+	breq exor_prev
 
+	cpi curr, 0b00000011
+	breq exor_prev
 
+	mov R17, curr
+	ldi R18, 0b00000011
+	eor R17, R18
+	rjmp exor_prev
 
+exor_prev: 
+	eor R17, prev
 
 	; check if AB == 00
 	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
@@ -97,9 +159,13 @@ counterclockwise:
 
 ; a delay routine
 delay:
-	ldi r26, 255
+	ldi r26, 4
 t4: ldi r27, 255
-t5: dec r27
+t5:	ldi r28, 255
+t6:	dec r28
+	nop
+	brne t6
+    dec r27
 	nop
 	brne t5
 	dec r26

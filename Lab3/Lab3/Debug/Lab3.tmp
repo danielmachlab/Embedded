@@ -22,13 +22,19 @@
   <FILE>Lab3.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <delay><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>95</LINE></delay>
-  <loop><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>23</LINE></loop>
-  <read_input><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>67</LINE></read_input>
-  <stationary><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>75</LINE></stationary>
-  <clockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>82</LINE></clockwise>
-  <counterclockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>89</LINE></counterclockwise>
-  <t4><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>97</LINE></t4>
-  <t5><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>98</LINE></t5>
+  <delay><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>161</LINE></delay>
+  <infloop><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>23</LINE></infloop>
+  <lighton><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>38</LINE></lighton>
+  <lightoff><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>42</LINE></lightoff>
+  <midlab><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>48</LINE></midlab>
+  <loop><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>73</LINE></loop>
+  <read_input><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>133</LINE></read_input>
+  <exor_prev><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>110</LINE></exor_prev>
+  <stationary><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>141</LINE></stationary>
+  <clockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>148</LINE></clockwise>
+  <counterclockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>155</LINE></counterclockwise>
+  <t4><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>163</LINE></t4>
+  <t5><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>164</LINE></t5>
+  <t6><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>165</LINE></t6>
  </LABELS>
 </ASSEMBLER_INFO>
