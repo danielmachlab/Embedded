@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm Wed Feb 21 15:34:28 2018
+AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab3\Lab3\main.asm Mon Feb 26 01:17:22 2018
 
 
 EQU  SIGNATURE_000 0000001e
@@ -439,5 +439,13 @@ EQU  WDTaddr      0000000c
 EQU  USI_STARTaddr 0000000d
 EQU  USI_OVFaddr  0000000e
 EQU  INT_VECTORS_SIZE 0000000f
-CSEG loop         00000004
-CSEG infiniteloopcheckingforturnofRPG 00000007
+DEF  curr         r16
+DEF  prev         r15
+CSEG delay        0000001f
+CSEG loop         00000008
+CSEG read_input   00000012
+CSEG stationary   00000016
+CSEG clockwise    00000019
+CSEG counterclockwise 0000001c
+CSEG t4           00000020
+CSEG t5           00000021

@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm Wed Feb 21 15:34:28 2018
+AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab3\Lab3\main.asm Mon Feb 26 01:17:22 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
@@ -694,25 +694,104 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.
                                  ;; Ted Paulsen, Daniel Machlab
                                  ;; Embedded Systems
                                  
-                                 ;cbi is input sbi is output
+                                 ; cbi is input sbi is output
 000000 98b8                      cbi DDRB, 0 ; input - from A
 000001 98b9                      cbi DDRB, 1 ; input - from B
-000002 9aba                      sbi DDRB, 2 ; output - turn left(A side) LED
-000003 9abd                      sbi DDRB, 5 ; output - turn right(B side) LED
+000002 9aba                      sbi DDRB, 2 ; output - clockwise (A side) LED
+000003 9abd                      sbi DDRB, 5 ; output - counterclockwise (B side) LED
                                  
+                                 ; SETUP WORK 
+                                 .def curr = R16 ; R16 is the current rpg reading
+                                 .def prev = R15 ; R15 is the previous rpg reading 
                                  
+                                 ; load both prev and curr with same initial readings
+000004 b306                      in curr, PINB ; load inputs into prev
+000005 7003                      andi curr, 0b00000011 ; mask out all signals but A & B
+000006 2ef0                      mov prev, curr ; copy contents of curr into prev
+000007 d017                      rcall delay ; delay a lil bit
                                  
+                                 ; This is the infinite loop which reads new inputs
+                                 ; and handles the changes
                                  loop:
-000004 9503                      	inc R16
-000005 950a                      	dec R16
-000006 cffd                      	rjmp loop
+                                 	; rcall delay
+000008 d009                      	rcall read_input
                                  
-                                 infiniteloopcheckingforturnofRPG:
-000007 b306                      	in R16, PINB
-                                 	
-                                 ;	andi rpg, 	
+                                 	; we need to put a routine here to do that cross xor thing
+                                 	; that he talked about in class. it vaguely talks about it in 
+                                 	; the slides where it mentions the gray code for turning.
+                                 	; basically we need to do this:
+                                 	;    p1  p0
+                                 	;      \/
+                                 	;      /\
+                                 	;     /  \
+                                 	;    c1  c0   (XOR)
+                                 	;   ---------------
+                                 	;    t1  t0
+                                 	;
+                                 	; where p0, p1 represent the 0 and 1 bit of prev and 
+                                 	; c0, c1 represent the 0 and 1 bit of curr and
+                                 	; t0, t1 are the 0 and 1 bit of the destination register (R17)
+                                 	;
+                                 	; if (t1, t0) == (0, 1) ==> clockwise rotation
+                                 	; if (t1, t0) == (1, 0) ==> counter-clockwise rotation
+                                 	; if (t1, t0) == (0, 0) OR (1, 1) ==> stationary
                                  
+                                 	; check if AB == 00
+000009 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
+00000a f059                      	breq stationary ; branch if Z flag set, else continue
                                  
+                                 	; check if AB == 01
+00000b 951a                      	dec R17 ; sets Z flag if the result of the dec operation is 0
+00000c f061                      	breq clockwise ; branch if Z flag set, else continue
+                                 
+                                 	; check if AB == 10
+00000d 951a                      	dec R17 ; sets Z flag if the result of the dec operation is 0
+00000e f069                      	breq counterclockwise ; branch if Z flag set, else continue
+                                 
+                                 	; check if AB == 11
+00000f 951a                      	dec R17 ; sets Z flag if the result of the dec operation is 0
+000010 f029                      	breq stationary ; branch if Z flag set, else continue
+                                 
+000011 cff6                      	rjmp loop ; finally, continue the loop
+                                 
+                                 ; subroutine which transfers curr into prev
+                                 ; and then loads new reading into curr
+                                 read_input:
+000012 2ef0                      	mov prev, curr ; copy current readings into prev
+000013 b306                      	in curr, PINB ; load new readings
+000014 7003                      	andi curr, 0b00000011 ; mask out only signals A & B
+000015 9508                      	ret
+                                 
+                                 ; subroutine to handle when the rpg is stationary
+                                 ; currently it turns off both LEDs
+                                 stationary:
+000016 98c2                      	cbi PORTB, 2 ; turn off LED A
+000017 98c5                      	cbi PORTB, 5 ; turn off LED B
+000018 cfef                      	rjmp loop
+                                 
+                                 ; subroutine to hande when rpg is turning clockwise
+                                 ; currently it runs on the right LED
+                                 clockwise:
+000019 98c2                      	cbi PORTB, 2 ; turn off LED A
+00001a 9ac5                      	sbi PORTB, 5 ; turn on LED B
+00001b cfec                      	rjmp loop
+                                 
+                                 ; subroutine to hande when rpg is turning counter-clockwise
+                                 ; currently it runs on the left LED 
+                                 counterclockwise:
+00001c 9ac2                      	sbi PORTB, 2 ; turn on LED A
+00001d 98c5                      	cbi PORTB, 5 ; turn off LED B
+00001e cfe9                      	rjmp loop
+                                 
+                                 ; a delay routine
+                                 delay:
+00001f efaf                      	ldi r26, 255
+000020 efbf                      t4: ldi r27, 255
+000021 95ba                      t5: dec r27
+000022 0000                      	nop
+000023 f7e9                      	brne t5
+000024 95aa                      	dec r26
+000025 f7d1                      	brne t4
 
 
 RESOURCE USE INFORMATION
@@ -732,36 +811,36 @@ counted separately from r26..r31 here.
 "ATtiny45" register use summary:
 x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:   3 r17:   0 r18:   0 r19:   0 r20:   0 
-r21:   0 r22:   0 r23:   0 r24:   0 r25:   0 r26:   0 r27:   0 r28:   0 
+r13:   0 r14:   0 r15:   2 r16:   6 r17:   4 r18:   0 r19:   0 r20:   0 
+r21:   0 r22:   0 r23:   0 r24:   0 r25:   0 r26:   2 r27:   2 r28:   0 
 r29:   0 r30:   0 r31:   0 
-Registers used: 1 out of 35 (2.9%)
+Registers used: 5 out of 35 (14.3%)
 
 "ATtiny45" instruction use summary:
 .lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
-andi  :   0 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   0 break :   0 breq  :   0 brge  :   0 brhc  :   0 
+andi  :   2 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
+brcc  :   0 brcs  :   0 break :   0 breq  :   4 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
-brne  :   0 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 cbi   :   2 cbr   :   0 clc   :   0 
+brne  :   2 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
+brvs  :   0 bset  :   0 bst   :   0 cbi   :   6 cbr   :   0 clc   :   0 
 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 clt   :   0 
-clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 cpi   :   0 
-cpse  :   0 dec   :   1 eor   :   0 icall :   0 ijmp  :   0 in    :   1 
-inc   :   1 ld    :   0 ldd   :   0 ldi   :   0 lds   :   0 lpm   :   0 
-lsl   :   0 lsr   :   0 mov   :   0 movw  :   0 neg   :   0 nop   :   0 
-or    :   0 ori   :   0 out   :   0 pop   :   0 push  :   0 rcall :   0 
-ret   :   0 reti  :   0 rjmp  :   2 rol   :   0 ror   :   0 sbc   :   0 
-sbci  :   0 sbi   :   2 sbic  :   0 sbis  :   0 sbiw  :   0 sbr   :   0 
+clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 cpi   :   1 
+cpse  :   0 dec   :   5 eor   :   0 icall :   0 ijmp  :   0 in    :   2 
+inc   :   0 ld    :   0 ldd   :   0 ldi   :   2 lds   :   0 lpm   :   0 
+lsl   :   0 lsr   :   0 mov   :   2 movw  :   0 neg   :   0 nop   :   1 
+or    :   0 ori   :   0 out   :   0 pop   :   0 push  :   0 rcall :   2 
+ret   :   2 reti  :   0 rjmp  :   4 rol   :   0 ror   :   0 sbc   :   0 
+sbci  :   0 sbi   :   4 sbic  :   0 sbis  :   0 sbiw  :   0 sbr   :   0 
 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 sei   :   0 sen   :   0 
 ser   :   0 ses   :   0 set   :   0 sev   :   0 sez   :   0 sleep :   0 
 spm   :   0 st    :   0 std   :   0 sts   :   0 sub   :   0 subi  :   0 
 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 6 out of 105 (5.7%)
+Instructions used: 14 out of 105 (13.3%)
 
 "ATtiny45" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000012     18      0     18    4096   0.4%
+[.cseg] 0x000000 0x00004e     78      0     78    4096   1.9%
 [.dseg] 0x000060 0x000060      0      0      0     256   0.0%
 [.eseg] 0x000000 0x000000      0      0      0     256   0.0%
 
