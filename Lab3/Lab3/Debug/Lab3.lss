@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab3\Lab3\main.asm Mon Feb 26 01:17:22 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm Mon Feb 26 11:32:44 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
@@ -741,15 +741,15 @@ AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab3\Lab3\main.asm Mon
 00000a f059                      	breq stationary ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 01
-00000b 951a                      	dec R17 ; sets Z flag if the result of the dec operation is 0
+00000b 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
 00000c f061                      	breq clockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 10
-00000d 951a                      	dec R17 ; sets Z flag if the result of the dec operation is 0
+00000d 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
 00000e f069                      	breq counterclockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 11
-00000f 951a                      	dec R17 ; sets Z flag if the result of the dec operation is 0
+00000f 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
 000010 f029                      	breq stationary ; branch if Z flag set, else continue
                                  
 000011 cff6                      	rjmp loop ; finally, continue the loop
@@ -824,8 +824,8 @@ brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0
 brne  :   2 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 cbi   :   6 cbr   :   0 clc   :   0 
 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 clt   :   0 
-clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 cpi   :   1 
-cpse  :   0 dec   :   5 eor   :   0 icall :   0 ijmp  :   0 in    :   2 
+clv   :   0 clz   :   0 com   :   0 cp    :   0 cpc   :   0 cpi   :   4 
+cpse  :   0 dec   :   2 eor   :   0 icall :   0 ijmp  :   0 in    :   2 
 inc   :   0 ld    :   0 ldd   :   0 ldi   :   2 lds   :   0 lpm   :   0 
 lsl   :   0 lsr   :   0 mov   :   2 movw  :   0 neg   :   0 nop   :   1 
 or    :   0 ori   :   0 out   :   0 pop   :   0 push  :   0 rcall :   2 

@@ -44,20 +44,24 @@ loop:
 	; if (t1, t0) == (1, 0) ==> counter-clockwise rotation
 	; if (t1, t0) == (0, 0) OR (1, 1) ==> stationary
 
+
+
+
+
 	; check if AB == 00
 	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
 	breq stationary ; branch if Z flag set, else continue
 
 	; check if AB == 01
-	dec R17 ; sets Z flag if the result of the dec operation is 0
+	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
 	breq clockwise ; branch if Z flag set, else continue
 
 	; check if AB == 10
-	dec R17 ; sets Z flag if the result of the dec operation is 0
+	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
 	breq counterclockwise ; branch if Z flag set, else continue
 
 	; check if AB == 11
-	dec R17 ; sets Z flag if the result of the dec operation is 0
+	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
 	breq stationary ; branch if Z flag set, else continue
 
 	rjmp loop ; finally, continue the loop
