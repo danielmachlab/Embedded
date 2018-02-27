@@ -20,60 +20,116 @@ rcall delay ; delay a lil bit
 
 
 
-infloop:
+rpg_listener:
+	rcall lightoff
 	in r20, PINB
 	andi r20, 0b00000011
 	rcall delay
 	in r21, PINB
 	andi r21, 0b00000011
-	rcall delay
-
 	cp r20, r21
-	brne lighton
-	rjmp lightoff
-	
-
-rjmp infloop
-
-lighton:
-	sbi PORTB, 5
-	rjmp infloop
-
-lightoff:
-	cbi PORTB,5
-	rjmp infloop
-
-
-
-midlab:
-	rcall delay
-	rcall delay
-
-
-	in curr, PINB
-	andi curr, 0b00000011
-
-	cpi curr, 0b00000000
-	breq lighton
-
-	cpi curr, 0b00000011
-	breq lighton
-
-	cpi curr, 0b00000001
-	breq lightoff
-
-	cpi curr, 0b00000010
-	breq lightoff
-
-
-rjmp midlab
+	brne rpg_handler
+	rjmp rpg_listener
 
 ; This is the infinite loop which reads new inputs
 ; and handles the changes
-loop:
+rpg_handler:
+	rcall lighton
 	; rcall delay
 	rcall read_input
 	rcall delay
+	rcall test_rpg
+		
+	; check if AB == 00
+	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
+	breq stationary ; branch if Z flag set, else continue
+
+	; check if AB == 01
+	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
+	breq clockwise ; branch if Z flag set, else continue
+
+	; check if AB == 10
+	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
+	breq counterclockwise ; branch if Z flag set, else continue
+
+	; check if AB == 11
+	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
+	breq stationary ; branch if Z flag set, else continue
+
+	rjmp rpg_handler ; finally, continue the loop
+
+lighton:
+	sbi PORTB, 2
+	ret
+
+lightoff:
+	cbi PORTB, 2
+	ret
+
+; subroutine which transfers curr into prev
+; and then loads new reading into curr
+read_input:
+	mov prev, curr ; copy current readings into prev
+	in curr, PINB ; load new readings
+	andi curr, 0b00000011 ; mask out only signals A & B
+	ret
+
+test_rpg:
+	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
+	breq exor_prev
+
+	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
+	breq exor_prev
+
+	mov R17, curr 
+	ldi R18, 0b00000011 
+	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
+
+exor_prev: 
+	eor R17, prev
+	ret
+	
+
+; subroutine to handle when the rpg is stationary
+; currently it turns off both LEDs
+stationary:
+	cbi PORTB, 2 ; turn off LED A
+	cbi PORTB, 5 ; turn off LED B
+	rjmp rpg_listener
+
+; subroutine to hande when rpg is turning clockwise
+; currently it runs on the right LED
+clockwise:
+	cbi PORTB, 2 ; turn off LED A
+	sbi PORTB, 5 ; turn on LED B
+	rjmp rpg_listener
+
+; subroutine to hande when rpg is turning counter-clockwise
+; currently it runs on the left LED 
+counterclockwise:
+	sbi PORTB, 2 ; turn on LED A
+	cbi PORTB, 5 ; turn off LED B
+	rjmp rpg_listener
+
+
+
+
+
+; a delay routine
+delay:
+	ldi r26, 2
+t4: ldi r27, 255
+t5:	ldi r28, 255
+t6:	dec r28
+	nop
+	brne t6
+    dec r27
+	nop
+	brne t5
+	dec r26
+	brne t4
+	ret
+
 
 
 	; we need to put a routine here to do that cross xor thing
@@ -95,79 +151,3 @@ loop:
 	; if (t1, t0) == (0, 1) ==> clockwise rotation
 	; if (t1, t0) == (1, 0) ==> counter-clockwise rotation
 	; if (t1, t0) == (0, 0) OR (1, 1) ==> stationary
-
-	cpi curr, 0b00000000
-	breq exor_prev
-
-	cpi curr, 0b00000011
-	breq exor_prev
-
-	mov R17, curr
-	ldi R18, 0b00000011
-	eor R17, R18
-	rjmp exor_prev
-
-exor_prev: 
-	eor R17, prev
-
-	; check if AB == 00
-	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
-	breq stationary ; branch if Z flag set, else continue
-
-	; check if AB == 01
-	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
-	breq clockwise ; branch if Z flag set, else continue
-
-	; check if AB == 10
-	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
-	breq counterclockwise ; branch if Z flag set, else continue
-
-	; check if AB == 11
-	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
-	breq stationary ; branch if Z flag set, else continue
-
-	rjmp loop ; finally, continue the loop
-
-; subroutine which transfers curr into prev
-; and then loads new reading into curr
-read_input:
-	mov prev, curr ; copy current readings into prev
-	in curr, PINB ; load new readings
-	andi curr, 0b00000011 ; mask out only signals A & B
-	ret
-
-; subroutine to handle when the rpg is stationary
-; currently it turns off both LEDs
-stationary:
-	cbi PORTB, 2 ; turn off LED A
-	cbi PORTB, 5 ; turn off LED B
-	rjmp loop
-
-; subroutine to hande when rpg is turning clockwise
-; currently it runs on the right LED
-clockwise:
-	cbi PORTB, 2 ; turn off LED A
-	sbi PORTB, 5 ; turn on LED B
-	rjmp loop
-
-; subroutine to hande when rpg is turning counter-clockwise
-; currently it runs on the left LED 
-counterclockwise:
-	sbi PORTB, 2 ; turn on LED A
-	cbi PORTB, 5 ; turn off LED B
-	rjmp loop
-
-; a delay routine
-delay:
-	ldi r26, 4
-t4: ldi r27, 255
-t5:	ldi r28, 255
-t6:	dec r28
-	nop
-	brne t6
-    dec r27
-	nop
-	brne t5
-	dec r26
-	brne t4
-	ret
