@@ -9,8 +9,8 @@ sbi DDRB, 2 ; output - clockwise (A side) LED
 sbi DDRB, 5 ; output - counterclockwise (B side) LED
 
 ; SETUP WORK 
-.def curr = R16 ; R16 is the current rpg reading
-.def prev = R15 ; R15 is the previous rpg reading 
+.def curr = R20 ; R16 is the current rpg reading
+.def prev = R21 ; R15 is the previous rpg reading 
 
 ; load both prev and curr with same initial readings
 in curr, PINB ; load inputs into prev
@@ -21,22 +21,22 @@ rcall delay ; delay a lil bit
 
 
 rpg_listener:
-	rcall lightoff
-	in r20, PINB
-	andi r20, 0b00000011
+	;rcall lightoff
+	in prev, PINB
+	andi prev, 0b00000011
 	rcall delay
-	in r21, PINB
-	andi r21, 0b00000011
-	cp r20, r21
+	in curr, PINB
+	andi curr, 0b00000011
+	cp prev, curr
 	brne rpg_handler
-	rjmp rpg_listener
+	rjmp rpg_listener 
 
 ; This is the infinite loop which reads new inputs
 ; and handles the changes
 rpg_handler:
-	rcall lighton
-	; rcall delay
-	rcall read_input
+	;rcall lighton
+	
+	;rcall read_input
 	rcall delay
 	rcall test_rpg
 		
@@ -68,11 +68,11 @@ lightoff:
 
 ; subroutine which transfers curr into prev
 ; and then loads new reading into curr
-read_input:
-	mov prev, curr ; copy current readings into prev
-	in curr, PINB ; load new readings
-	andi curr, 0b00000011 ; mask out only signals A & B
-	ret
+;read_input:
+;	mov prev, curr ; copy current readings into prev
+;	in curr, PINB ; load new readings
+;	andi curr, 0b00000011 ; mask out only signals A & B
+;	ret
 
 test_rpg:
 	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
@@ -93,22 +93,19 @@ exor_prev:
 ; subroutine to handle when the rpg is stationary
 ; currently it turns off both LEDs
 stationary:
-	cbi PORTB, 2 ; turn off LED A
-	cbi PORTB, 5 ; turn off LED B
 	rjmp rpg_listener
 
 ; subroutine to hande when rpg is turning clockwise
 ; currently it runs on the right LED
 clockwise:
-	cbi PORTB, 2 ; turn off LED A
-	sbi PORTB, 5 ; turn on LED B
+	rcall lighton
+	rcall delay
 	rjmp rpg_listener
 
 ; subroutine to hande when rpg is turning counter-clockwise
 ; currently it runs on the left LED 
 counterclockwise:
-	sbi PORTB, 2 ; turn on LED A
-	cbi PORTB, 5 ; turn off LED B
+	rcall lightoff
 	rjmp rpg_listener
 
 
@@ -117,9 +114,9 @@ counterclockwise:
 
 ; a delay routine
 delay:
-	ldi r26, 2
-t4: ldi r27, 255
-t5:	ldi r28, 255
+	ldi r26, 1
+t4: ldi r27, 100
+t5:	ldi r28, 100
 t6:	dec r28
 	nop
 	brne t6

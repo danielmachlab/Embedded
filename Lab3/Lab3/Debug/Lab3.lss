@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm Mon Feb 26 20:19:40 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm Mon Feb 26 22:08:27 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
@@ -701,107 +701,104 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.
 000003 9abd                      sbi DDRB, 5 ; output - counterclockwise (B side) LED
                                  
                                  ; SETUP WORK 
-                                 .def curr = R16 ; R16 is the current rpg reading
-                                 .def prev = R15 ; R15 is the previous rpg reading 
+                                 .def curr = R20 ; R16 is the current rpg reading
+                                 .def prev = R21 ; R15 is the previous rpg reading 
                                  
                                  ; load both prev and curr with same initial readings
-000004 b306                      in curr, PINB ; load inputs into prev
-000005 7003                      andi curr, 0b00000011 ; mask out all signals but A & B
-000006 2ef0                      mov prev, curr ; copy contents of curr into prev
-000007 d030                      rcall delay ; delay a lil bit
+000004 b346                      in curr, PINB ; load inputs into prev
+000005 7043                      andi curr, 0b00000011 ; mask out all signals but A & B
+000006 2f54                      mov prev, curr ; copy contents of curr into prev
+000007 d026                      rcall delay ; delay a lil bit
                                  
                                  
                                  
                                  rpg_listener:
-000008 d017                      	rcall lightoff
-000009 b346                      	in r20, PINB
-00000a 7043                      	andi r20, 0b00000011
-00000b d02c                      	rcall delay
-00000c b356                      	in r21, PINB
-00000d 7053                      	andi r21, 0b00000011
-00000e 1745                      	cp r20, r21
-00000f f409                      	brne rpg_handler
-000010 cff7                      	rjmp rpg_listener
+                                 	;rcall lightoff
+000008 b356                      	in prev, PINB
+000009 7053                      	andi prev, 0b00000011
+00000a d023                      	rcall delay
+00000b b346                      	in curr, PINB
+00000c 7043                      	andi curr, 0b00000011
+00000d 1754                      	cp prev, curr
+00000e f409                      	brne rpg_handler
+00000f cff8                      	rjmp rpg_listener 
                                  
                                  ; This is the infinite loop which reads new inputs
                                  ; and handles the changes
                                  rpg_handler:
-000011 d00c                      	rcall lighton
-                                 	; rcall delay
-000012 d00f                      	rcall read_input
-000013 d024                      	rcall delay
-000014 d011                      	rcall test_rpg
+                                 	;rcall lighton
+                                 	
+                                 	;rcall read_input
+000010 d01d                      	rcall delay
+000011 d00d                      	rcall test_rpg
                                  		
                                  	; check if AB == 00
-000015 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
-000016 f0c1                      	breq stationary ; branch if Z flag set, else continue
+000012 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
+000013 f0a1                      	breq stationary ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 01
-000017 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
-000018 f0c9                      	breq clockwise ; branch if Z flag set, else continue
+000014 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
+000015 f099                      	breq clockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 10
-000019 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
-00001a f0d1                      	breq counterclockwise ; branch if Z flag set, else continue
+000016 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
+000017 f0a1                      	breq counterclockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 11
-00001b 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
-00001c f091                      	breq stationary ; branch if Z flag set, else continue
+000018 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
+000019 f071                      	breq stationary ; branch if Z flag set, else continue
                                  
-00001d cff3                      	rjmp rpg_handler ; finally, continue the loop
+00001a cff5                      	rjmp rpg_handler ; finally, continue the loop
                                  
                                  lighton:
-00001e 9ac2                      	sbi PORTB, 2
-00001f 9508                      	ret
+00001b 9ac2                      	sbi PORTB, 2
+00001c 9508                      	ret
                                  
                                  lightoff:
-000020 98c2                      	cbi PORTB, 2
-000021 9508                      	ret
+00001d 98c2                      	cbi PORTB, 2
+00001e 9508                      	ret
                                  
                                  ; subroutine which transfers curr into prev
                                  ; and then loads new reading into curr
-                                 read_input:
-000022 2ef0                      	mov prev, curr ; copy current readings into prev
-000023 b306                      	in curr, PINB ; load new readings
-000024 7003                      	andi curr, 0b00000011 ; mask out only signals A & B
-000025 9508                      	ret
+                                 ;read_input:
+                                 ;	mov prev, curr ; copy current readings into prev
+                                 ;	in curr, PINB ; load new readings
+                                 ;	andi curr, 0b00000011 ; mask out only signals A & B
+                                 ;	ret
                                  
                                  test_rpg:
-000026 3000                      	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
-000027 f029                      	breq exor_prev
+00001f 3040                      	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
+000020 f029                      	breq exor_prev
                                  
-000028 3003                      	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
-000029 f019                      	breq exor_prev
+000021 3043                      	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
+000022 f019                      	breq exor_prev
                                  
-00002a 2f10                      	mov R17, curr 
-00002b e023                      	ldi R18, 0b00000011 
-00002c 2712                      	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
+000023 2f14                      	mov R17, curr 
+000024 e023                      	ldi R18, 0b00000011 
+000025 2712                      	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
                                  
                                  exor_prev: 
-00002d 251f                      	eor R17, prev
-00002e 9508                      	ret
+000026 2715                      	eor R17, prev
+000027 9508                      	ret
                                  	
                                  
                                  ; subroutine to handle when the rpg is stationary
                                  ; currently it turns off both LEDs
                                  stationary:
-00002f 98c2                      	cbi PORTB, 2 ; turn off LED A
-000030 98c5                      	cbi PORTB, 5 ; turn off LED B
-000031 cfd6                      	rjmp rpg_listener
+000028 cfdf                      	rjmp rpg_listener
                                  
                                  ; subroutine to hande when rpg is turning clockwise
                                  ; currently it runs on the right LED
                                  clockwise:
-000032 98c2                      	cbi PORTB, 2 ; turn off LED A
-000033 9ac5                      	sbi PORTB, 5 ; turn on LED B
-000034 cfd3                      	rjmp rpg_listener
+000029 dff1                      	rcall lighton
+00002a d003                      	rcall delay
+00002b cfdc                      	rjmp rpg_listener
                                  
                                  ; subroutine to hande when rpg is turning counter-clockwise
                                  ; currently it runs on the left LED 
                                  counterclockwise:
-000035 9ac2                      	sbi PORTB, 2 ; turn on LED A
-000036 98c5                      	cbi PORTB, 5 ; turn off LED B
-000037 cfd0                      	rjmp rpg_listener
+00002c dff0                      	rcall lightoff
+00002d cfda                      	rjmp rpg_listener
                                  
                                  
                                  
@@ -809,18 +806,18 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.
                                  
                                  ; a delay routine
                                  delay:
-000038 e0a2                      	ldi r26, 2
-000039 efbf                      t4: ldi r27, 255
-00003a efcf                      t5:	ldi r28, 255
-00003b 95ca                      t6:	dec r28
-00003c 0000                      	nop
-00003d f7e9                      	brne t6
-00003e 95ba                          dec r27
-00003f 0000                      	nop
-000040 f7c9                      	brne t5
-000041 95aa                      	dec r26
-000042 f7b1                      	brne t4
-000043 9508                      	ret
+00002e e0a1                      	ldi r26, 1
+00002f e6b4                      t4: ldi r27, 100
+000030 e6c4                      t5:	ldi r28, 100
+000031 95ca                      t6:	dec r28
+000032 0000                      	nop
+000033 f7e9                      	brne t6
+000034 95ba                          dec r27
+000035 0000                      	nop
+000036 f7c9                      	brne t5
+000037 95aa                      	dec r26
+000038 f7b1                      	brne t4
+000039 9508                      	ret
                                  
                                  
                                  
@@ -861,26 +858,26 @@ counted separately from r26..r31 here.
 "ATtiny45" register use summary:
 x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   3 r16:   9 r17:   7 r18:   2 r19:   0 r20:   3 
-r21:   3 r22:   0 r23:   0 r24:   0 r25:   0 r26:   2 r27:   2 r28:   2 
+r13:   0 r14:   0 r15:   0 r16:   0 r17:   7 r18:   2 r19:   0 r20:   9 
+r21:   5 r22:   0 r23:   0 r24:   0 r25:   0 r26:   2 r27:   2 r28:   2 
 r29:   0 r30:   0 r31:   0 
-Registers used: 9 out of 35 (25.7%)
+Registers used: 7 out of 35 (20.0%)
 
 "ATtiny45" instruction use summary:
 .lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
-andi  :   4 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
+andi  :   3 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
 brcc  :   0 brcs  :   0 break :   0 breq  :   6 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
 brne  :   4 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 cbi   :   7 cbr   :   0 clc   :   0 
+brvs  :   0 bset  :   0 bst   :   0 cbi   :   3 cbr   :   0 clc   :   0 
 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 clt   :   0 
 clv   :   0 clz   :   0 com   :   0 cp    :   1 cpc   :   0 cpi   :   6 
-cpse  :   0 dec   :   3 eor   :   2 icall :   0 ijmp  :   0 in    :   4 
+cpse  :   0 dec   :   3 eor   :   2 icall :   0 ijmp  :   0 in    :   3 
 inc   :   0 ld    :   0 ldd   :   0 ldi   :   4 lds   :   0 lpm   :   0 
-lsl   :   0 lsr   :   0 mov   :   3 movw  :   0 neg   :   0 nop   :   2 
+lsl   :   0 lsr   :   0 mov   :   2 movw  :   0 neg   :   0 nop   :   2 
 or    :   0 ori   :   0 out   :   0 pop   :   0 push  :   0 rcall :   7 
-ret   :   5 reti  :   0 rjmp  :   5 rol   :   0 ror   :   0 sbc   :   0 
-sbci  :   0 sbi   :   5 sbic  :   0 sbis  :   0 sbiw  :   0 sbr   :   0 
+ret   :   4 reti  :   0 rjmp  :   5 rol   :   0 ror   :   0 sbc   :   0 
+sbci  :   0 sbi   :   3 sbic  :   0 sbis  :   0 sbiw  :   0 sbr   :   0 
 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 sei   :   0 sen   :   0 
 ser   :   0 ses   :   0 set   :   0 sev   :   0 sez   :   0 sleep :   0 
 spm   :   0 st    :   0 std   :   0 sts   :   0 sub   :   0 subi  :   0 
@@ -890,7 +887,7 @@ Instructions used: 16 out of 105 (15.2%)
 "ATtiny45" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000088    136      0    136    4096   3.3%
+[.cseg] 0x000000 0x000074    116      0    116    4096   2.8%
 [.dseg] 0x000060 0x000060      0      0      0     256   0.0%
 [.eseg] 0x000000 0x000000      0      0      0     256   0.0%
 
