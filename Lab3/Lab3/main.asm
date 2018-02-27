@@ -37,7 +37,7 @@ rpg_handler:
 	;rcall lighton
 	
 	;rcall read_input
-	rcall delay
+	;rcall delay
 	rcall test_rpg
 		
 	; check if AB == 00
@@ -46,11 +46,11 @@ rpg_handler:
 
 	; check if AB == 01
 	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
-	breq clockwise ; branch if Z flag set, else continue
+	breq counterclockwise; originally clockwise ; branch if Z flag set, else continue
 
 	; check if AB == 10
 	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
-	breq counterclockwise ; branch if Z flag set, else continue
+	breq clockwise; originally counterclockwise ; branch if Z flag set, else continue
 
 	; check if AB == 11
 	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
@@ -58,7 +58,7 @@ rpg_handler:
 
 	rjmp rpg_handler ; finally, continue the loop
 
-lighton:
+lighton:4
 	sbi PORTB, 2
 	ret
 
@@ -99,7 +99,7 @@ stationary:
 ; currently it runs on the right LED
 clockwise:
 	rcall lighton
-	rcall delay
+	;rcall delay
 	rjmp rpg_listener
 
 ; subroutine to hande when rpg is turning counter-clockwise
@@ -114,9 +114,9 @@ counterclockwise:
 
 ; a delay routine
 delay:
-	ldi r26, 1
-t4: ldi r27, 100
-t5:	ldi r28, 100
+	ldi r26, 2
+t4: ldi r27, 25
+t5:	ldi r28, 50
 t6:	dec r28
 	nop
 	brne t6

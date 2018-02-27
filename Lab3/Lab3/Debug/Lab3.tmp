@@ -27,8 +27,8 @@
   <rpg_handler><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>36</LINE></rpg_handler>
   <test_rpg><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>77</LINE></test_rpg>
   <stationary><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>95</LINE></stationary>
-  <clockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>100</LINE></clockwise>
   <counterclockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>107</LINE></counterclockwise>
+  <clockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>100</LINE></clockwise>
   <lighton><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>61</LINE></lighton>
   <lightoff><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>65</LINE></lightoff>
   <exor_prev><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>88</LINE></exor_prev>
