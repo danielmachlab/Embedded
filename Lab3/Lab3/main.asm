@@ -9,16 +9,32 @@ sbi DDRB, 2 ; output - clockwise (A side) LED
 sbi DDRB, 5 ; output - counterclockwise (B side) LED
 
 ; SETUP WORK 
-.def curr = R20 ; R16 is the current rpg reading
-.def prev = R21 ; R15 is the previous rpg reading 
+.def curr = R20 ; R20 is the current rpg reading
+.def prev = R21 ; R21 is the previous rpg reading
+
+.def tmp1 = R23
+.def tmp2 = R24
+.def count_30 = R25
+.def count_40 = R22
+
+ldi count_30, 0xA5	; preload count_30 to 160
+ldi count_40, 0x67	; preload count_40 to 103
+
+rcall timer_config
+
+test:
+	rcall lighton
+	rcall delay_30_percent		; delay for 77 us
+	rcall delay_40_percent		; delay for 103 us
+	rcall lightoff
+	rcall delay_30_percent
+	rjmp test
 
 ; load both prev and curr with same initial readings
 in curr, PINB ; load inputs into prev
 andi curr, 0b00000011 ; mask out all signals but A & B
 mov prev, curr ; copy contents of curr into prev
 rcall delay ; delay a lil bit
-
-
 
 rpg_listener:
 	;rcall lightoff
@@ -58,7 +74,7 @@ rpg_handler:
 
 	rjmp rpg_handler ; finally, continue the loop
 
-lighton:4
+lighton:
 	sbi PORTB, 2
 	ret
 
@@ -123,28 +139,73 @@ t6:	dec r28
     dec r27
 	nop
 	brne t5
-	dec r26
+	dec R26
 	brne t4
 	ret
 
+timer_config:
+	ldi R30, 0x02
+	out 0x33, R30
+	ret
 
+delay_30_percent:
+	; Stop timer
+	in tmp1, TCCR0B		; Save configuration
+	ldi tmp2, 0x00		; Stop timer 0
+	out TCCR0B, tmp2	;
 
-	; we need to put a routine here to do that cross xor thing
-	; that he talked about in class. it vaguely talks about it in 
-	; the slides where it mentions the gray code for turning.
-	; basically we need to do this:
-	;    p1  p0
-	;      \/
-	;      /\
-	;     /  \
-	;    c1  c0   (XOR)
-	;   ---------------
-	;    t1  t0
-	;
-	; where p0, p1 represent the 0 and 1 bit of prev and 
-	; c0, c1 represent the 0 and 1 bit of curr and
-	; t0, t1 are the 0 and 1 bit of the destination register (R17)
-	;
-	; if (t1, t0) == (0, 1) ==> clockwise rotation
-	; if (t1, t0) == (1, 0) ==> counter-clockwise rotation
-	; if (t1, t0) == (0, 0) OR (1, 1) ==> stationary
+	; Clear timer overflow flag
+	in tmp2, TIFR		; tmp <-- TIFR 
+	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
+	out TIFR, tmp2		; write config back to TIFR
+
+	; Set initial counter offset and start
+	out TCNT0, count_30    ; load counter
+	out TCCR0B, tmp1    ; restart timer
+
+wait_30:
+	in tmp2, TIFR		; tmp <-- TIFR 
+	sbrs tmp2, TOV0		; check overflow flag
+	rjmp wait_30
+	ret
+
+delay_40_percent:
+	; Stop timer
+	in tmp1, TCCR0B		; Save configuration
+	ldi tmp2, 0x00		; Stop timer 0
+	out TCCR0B, tmp2	;
+
+	; Clear timer overflow flag
+	in tmp2, TIFR		; tmp <-- TIFR 
+	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
+	out TIFR, tmp2		; write config back to TIFR
+
+	; Set initial counter offset and start
+	out TCNT0, count_30    ; load counter
+	out TCCR0B, tmp1    ; restart timer
+
+wait_40:
+	in tmp2, TIFR		; tmp <-- TIFR 
+	sbrs tmp2, TOV0		; check overflow flag
+	rjmp wait_40
+	ret
+
+; we need to put a routine here to do that cross xor thing
+; that he talked about in class. it vaguely talks about it in 
+; the slides where it mentions the gray code for turning.
+; basically we need to do this:
+;    p1  p0
+;      \/
+;      /\
+;     /  \
+;    c1  c0   (XOR)
+;   ---------------
+;    t1  t0
+;
+; where p0, p1 represent the 0 and 1 bit of prev and 
+; c0, c1 represent the 0 and 1 bit of curr and
+; t0, t1 are the 0 and 1 bit of the destination register (R17)
+;
+; if (t1, t0) == (0, 1) ==> clockwise rotation
+; if (t1, t0) == (1, 0) ==> counter-clockwise rotation
+; if (t1, t0) == (0, 0) OR (1, 1) ==> stationary
