@@ -181,7 +181,7 @@ delay_40_percent:
 	out TIFR, tmp2		; write config back to TIFR
 
 	; Set initial counter offset and start
-	out TCNT0, count_30    ; load counter
+	out TCNT0, count_40    ; load counter
 	out TCCR0B, tmp1    ; restart timer
 
 wait_40:
