@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab3\Lab3\main.asm Wed Feb 28 15:56:14 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm Thu Mar 01 17:53:07 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
@@ -698,46 +698,50 @@ AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab3\Lab3\main.asm Wed
 000000 98b8                      cbi DDRB, 0 ; input - from A
 000001 98b9                      cbi DDRB, 1 ; input - from B
 000002 9aba                      sbi DDRB, 2 ; output - clockwise (A side) LED
-000003 9abd                      sbi DDRB, 5 ; output - counterclockwise (B side) LED
                                  
                                  ; SETUP WORK 
                                  .def curr = R20 ; R20 is the current rpg reading
                                  .def prev = R21 ; R21 is the previous rpg reading
+                                 .def count_temp = R19
                                  
                                  .def tmp1 = R23
                                  .def tmp2 = R24
                                  .def count_30 = R25
-                                 .def count_40 = R22
+                                 .def count_rpg = R22
                                  
-000004 ea95                      ldi count_30, 0xA5	; preload count_30 to 160
-000005 e667                      ldi count_40, 0x67	; preload count_40 to 103
                                  
-000006 d03a                      rcall timer_config
+000003 ea93                      ldi count_30, 0xA3	; preload count_30 to 160
+000004 e86c                      ldi count_rpg, 140	; preload count_rpg to 140
+000005 e03a                      ldi count_temp, 10
                                  
-                                 test:
-000007 d01b                      	rcall lighton
-000008 d03b                      	rcall delay_30_percent		; delay for 77 us
-000009 d046                      	rcall delay_40_percent		; delay for 103 us
-00000a d01a                      	rcall lightoff
-00000b d038                      	rcall delay_30_percent
-00000c cffa                      	rjmp test
+000006 d03c                      rcall timer_config
+                                 
                                  
                                  ; load both prev and curr with same initial readings
-00000d b346                      in curr, PINB ; load inputs into prev
-00000e 7043                      andi curr, 0b00000011 ; mask out all signals but A & B
-00000f 2f54                      mov prev, curr ; copy contents of curr into prev
-000010 d024                      rcall delay ; delay a lil bit
+000007 b346                      in curr, PINB ; load inputs into prev
+000008 7043                      andi curr, 0b00000011 ; mask out all signals but A & B
+000009 2f54                      mov prev, curr ; copy contents of curr into prev
+00000a d02c                      rcall delay ; delay a lil bit
                                  
                                  rpg_listener:
+                                 
+                                 
                                  	;rcall lightoff
-000011 b356                      	in prev, PINB
-000012 7053                      	andi prev, 0b00000011
-000013 d021                      	rcall delay
-000014 b346                      	in curr, PINB
-000015 7043                      	andi curr, 0b00000011
-000016 1754                      	cp prev, curr
-000017 f409                      	brne rpg_handler
-000018 cff8                      	rjmp rpg_listener 
+00000b b356                      	in prev, PINB
+00000c 7053                      	andi prev, 0b00000011
+                                 
+00000d d013                      	rcall lighton
+00000e d037                      	rcall delay_30_percent	; delay for 77 us
+00000f d042                      	rcall delay_rpg_percent		; delay for 103 us
+000010 d012                      	rcall lightoff
+000011 d034                      	rcall delay_30_percent
+                                 
+                                 	;rcall delay
+000012 b346                      	in curr, PINB
+000013 7043                      	andi curr, 0b00000011
+000014 1754                      	cp prev, curr
+000015 f409                      	brne rpg_handler
+000016 cff4                      	rjmp rpg_listener 
                                  
                                  ; This is the infinite loop which reads new inputs
                                  ; and handles the changes
@@ -746,33 +750,33 @@ AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab3\Lab3\main.asm Wed
                                  	
                                  	;rcall read_input
                                  	;rcall delay
-000019 d00d                      	rcall test_rpg
+000017 d00d                      	rcall test_rpg
                                  		
                                  	; check if AB == 00
-00001a 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
-00001b f0a1                      	breq stationary ; branch if Z flag set, else continue
+000018 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
+000019 f0a1                      	breq stationary ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 01
-00001c 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
-00001d f0a9                      	breq counterclockwise; originally clockwise ; branch if Z flag set, else continue
+00001a 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
+00001b f0b9                      	breq counterclockwise; originally clockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 10
-00001e 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
-00001f f089                      	breq clockwise; originally counterclockwise ; branch if Z flag set, else continue
+00001c 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
+00001d f089                      	breq clockwise; originally counterclockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 11
-000020 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
-000021 f071                      	breq stationary ; branch if Z flag set, else continue
+00001e 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
+00001f f071                      	breq stationary ; branch if Z flag set, else continue
                                  
-000022 cff6                      	rjmp rpg_handler ; finally, continue the loop
+000020 cff6                      	rjmp rpg_handler ; finally, continue the loop
                                  
                                  lighton:
-000023 9ac2                      	sbi PORTB, 2
-000024 9508                      	ret
+000021 9ac2                      	sbi PORTB, 2
+000022 9508                      	ret
                                  
                                  lightoff:
-000025 98c2                      	cbi PORTB, 2
-000026 9508                      	ret
+000023 98c2                      	cbi PORTB, 2
+000024 9508                      	ret
                                  
                                  ; subroutine which transfers curr into prev
                                  ; and then loads new reading into curr
@@ -783,38 +787,46 @@ AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab3\Lab3\main.asm Wed
                                  ;	ret
                                  
                                  test_rpg:
-000027 3040                      	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
-000028 f029                      	breq exor_prev
+000025 3040                      	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
+000026 f029                      	breq exor_prev
                                  
-000029 3043                      	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
-00002a f019                      	breq exor_prev
+000027 3043                      	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
+000028 f019                      	breq exor_prev
                                  
-00002b 2f14                      	mov R17, curr 
-00002c e023                      	ldi R18, 0b00000011 
-00002d 2712                      	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
+000029 2f14                      	mov R17, curr 
+00002a e023                      	ldi R18, 0b00000011 
+00002b 2712                      	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
                                  
                                  exor_prev: 
-00002e 2715                      	eor R17, prev
-00002f 9508                      	ret
+00002c 2715                      	eor R17, prev
+00002d 9508                      	ret
                                  	
                                  
                                  ; subroutine to handle when the rpg is stationary
                                  ; currently it turns off both LEDs
                                  stationary:
-000030 cfe0                      	rjmp rpg_listener
+00002e cfdc                      	rjmp rpg_listener
                                  
                                  ; subroutine to hande when rpg is turning clockwise
                                  ; currently it runs on the right LED
                                  clockwise:
-000031 dff1                      	rcall lighton
+                                 	//if(count_rpg > (130(count_rpg)), decrease it
+00002f 3862                      	cpi count_rpg, 130
+000030 f2d1                      	breq rpg_listener
+000031 506a                      	subi count_rpg, 10
+                                 	;rcall lighton
                                  	;rcall delay
-000032 cfde                      	rjmp rpg_listener
+000032 cfd8                      	rjmp rpg_listener
                                  
                                  ; subroutine to hande when rpg is turning counter-clockwise
                                  ; currently it runs on the left LED 
                                  counterclockwise:
-000033 dff1                      	rcall lightoff
-000034 cfdc                      	rjmp rpg_listener
+                                 	//if(count_rpg < 250(twofifty)), increase it
+000033 3f6a                      	cpi count_rpg, 250
+000034 f2b1                      	breq rpg_listener
+000035 0f63                      	add count_rpg, count_temp
+                                 	;rcall lightoff
+000036 cfd4                      	rjmp rpg_listener
                                  
                                  
                                  
@@ -822,65 +834,65 @@ AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab3\Lab3\main.asm Wed
                                  
                                  ; a delay routine
                                  delay:
-000035 e0a2                      	ldi r26, 2
-000036 e1b9                      t4: ldi r27, 25
-000037 e3c2                      t5:	ldi r28, 50
-000038 95ca                      t6:	dec r28
-000039 0000                      	nop
-00003a f7e9                      	brne t6
-00003b 95ba                          dec r27
-00003c 0000                      	nop
-00003d f7c9                      	brne t5
-00003e 95aa                      	dec R26
-00003f f7b1                      	brne t4
-000040 9508                      	ret
+000037 e0a2                      	ldi r26, 2
+000038 e1b9                      t4: ldi r27, 25
+000039 e3c2                      t5:	ldi r28, 50
+00003a 95ca                      t6:	dec r28
+00003b 0000                      	nop
+00003c f7e9                      	brne t6
+00003d 95ba                          dec r27
+00003e 0000                      	nop
+00003f f7c9                      	brne t5
+000040 95aa                      	dec R26
+000041 f7b1                      	brne t4
+000042 9508                      	ret
                                  
                                  timer_config:
-000041 e0e2                      	ldi R30, 0x02
-000042 bfe3                      	out 0x33, R30
-000043 9508                      	ret
+000043 e0e2                      	ldi R30, 0x02
+000044 bfe3                      	out 0x33, R30
+000045 9508                      	ret
                                  
                                  delay_30_percent:
                                  	; Stop timer
-000044 b773                      	in tmp1, TCCR0B		; Save configuration
-000045 e080                      	ldi tmp2, 0x00		; Stop timer 0
-000046 bf83                      	out TCCR0B, tmp2	;
+000046 b773                      	in tmp1, TCCR0B		; Save configuration
+000047 e080                      	ldi tmp2, 0x00		; Stop timer 0
+000048 bf83                      	out TCCR0B, tmp2	;
                                  
                                  	; Clear timer overflow flag
-000047 b788                      	in tmp2, TIFR		; tmp <-- TIFR 
-000048 6082                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-000049 bf88                      	out TIFR, tmp2		; write config back to TIFR
+000049 b788                      	in tmp2, TIFR		; tmp <-- TIFR 
+00004a 6082                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
+00004b bf88                      	out TIFR, tmp2		; write config back to TIFR
                                  
                                  	; Set initial counter offset and start
-00004a bf92                      	out TCNT0, count_30    ; load counter
-00004b bf73                      	out TCCR0B, tmp1    ; restart timer
+00004c bf92                      	out TCNT0, count_30    ; load counter
+00004d bf73                      	out TCCR0B, tmp1    ; restart timer
                                  
                                  wait_30:
-00004c b788                      	in tmp2, TIFR		; tmp <-- TIFR 
-00004d ff81                      	sbrs tmp2, TOV0		; check overflow flag
-00004e cffd                      	rjmp wait_30
-00004f 9508                      	ret
+00004e b788                      	in tmp2, TIFR		; tmp <-- TIFR 
+00004f ff81                      	sbrs tmp2, TOV0		; check overflow flag
+000050 cffd                      	rjmp wait_30
+000051 9508                      	ret
                                  
-                                 delay_40_percent:
+                                 delay_rpg_percent:
                                  	; Stop timer
-000050 b773                      	in tmp1, TCCR0B		; Save configuration
-000051 e080                      	ldi tmp2, 0x00		; Stop timer 0
-000052 bf83                      	out TCCR0B, tmp2	;
+000052 b773                      	in tmp1, TCCR0B		; Save configuration
+000053 e080                      	ldi tmp2, 0x00		; Stop timer 0
+000054 bf83                      	out TCCR0B, tmp2	;
                                  
                                  	; Clear timer overflow flag
-000053 b788                      	in tmp2, TIFR		; tmp <-- TIFR 
-000054 6082                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-000055 bf88                      	out TIFR, tmp2		; write config back to TIFR
+000055 b788                      	in tmp2, TIFR		; tmp <-- TIFR 
+000056 6082                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
+000057 bf88                      	out TIFR, tmp2		; write config back to TIFR
                                  
                                  	; Set initial counter offset and start
-000056 bf92                      	out TCNT0, count_30    ; load counter
-000057 bf73                      	out TCCR0B, tmp1    ; restart timer
+000058 bf62                      	out TCNT0, count_rpg    ; load counter
+000059 bf73                      	out TCCR0B, tmp1    ; restart timer
                                  
                                  wait_40:
-000058 b788                      	in tmp2, TIFR		; tmp <-- TIFR 
-000059 ff81                      	sbrs tmp2, TOV0		; check overflow flag
-00005a cffd                      	rjmp wait_40
-00005b 9508                      	ret
+00005a b788                      	in tmp2, TIFR		; tmp <-- TIFR 
+00005b ff81                      	sbrs tmp2, TOV0		; check overflow flag
+00005c cffd                      	rjmp wait_40
+00005d 9508                      	ret
                                  
                                  ; we need to put a routine here to do that cross xor thing
                                  ; that he talked about in class. it vaguely talks about it in 
@@ -919,36 +931,36 @@ counted separately from r26..r31 here.
 "ATtiny45" register use summary:
 x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:   0 r17:   7 r18:   2 r19:   0 r20:   9 
-r21:   5 r22:   1 r23:   4 r24:  14 r25:   3 r26:   2 r27:   2 r28:   2 
+r13:   0 r14:   0 r15:   0 r16:   0 r17:   7 r18:   2 r19:   2 r20:   9 
+r21:   5 r22:   6 r23:   4 r24:  14 r25:   2 r26:   2 r27:   2 r28:   2 
 r29:   0 r30:   2 r31:   0 
-Registers used: 12 out of 35 (34.3%)
+Registers used: 13 out of 35 (37.1%)
 
 "ATtiny45" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
+.lds  :   0 .sts  :   0 adc   :   0 add   :   1 adiw  :   0 and   :   0 
 andi  :   3 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   0 break :   0 breq  :   6 brge  :   0 brhc  :   0 
+brcc  :   0 brcs  :   0 break :   0 breq  :   8 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
 brne  :   4 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 cbi   :   3 cbr   :   0 clc   :   0 
 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 clt   :   0 
-clv   :   0 clz   :   0 com   :   0 cp    :   1 cpc   :   0 cpi   :   6 
+clv   :   0 clz   :   0 com   :   0 cp    :   1 cpc   :   0 cpi   :   8 
 cpse  :   0 dec   :   3 eor   :   2 icall :   0 ijmp  :   0 in    :   9 
-inc   :   0 ld    :   0 ldd   :   0 ldi   :   9 lds   :   0 lpm   :   0 
+inc   :   0 ld    :   0 ldd   :   0 ldi   :  10 lds   :   0 lpm   :   0 
 lsl   :   0 lsr   :   0 mov   :   2 movw  :   0 neg   :   0 nop   :   2 
-or    :   0 ori   :   0 out   :   9 pop   :   0 push  :   0 rcall :  11 
-ret   :   7 reti  :   0 rjmp  :   8 rol   :   0 ror   :   0 sbc   :   0 
-sbci  :   0 sbi   :   3 sbic  :   0 sbis  :   0 sbiw  :   0 sbr   :   2 
+or    :   0 ori   :   0 out   :   9 pop   :   0 push  :   0 rcall :   8 
+ret   :   7 reti  :   0 rjmp  :   7 rol   :   0 ror   :   0 sbc   :   0 
+sbci  :   0 sbi   :   2 sbic  :   0 sbis  :   0 sbiw  :   0 sbr   :   2 
 sbrc  :   0 sbrs  :   2 sec   :   0 seh   :   0 sei   :   0 sen   :   0 
 ser   :   0 ses   :   0 set   :   0 sev   :   0 sez   :   0 sleep :   0 
-spm   :   0 st    :   0 std   :   0 sts   :   0 sub   :   0 subi  :   0 
+spm   :   0 st    :   0 std   :   0 sts   :   0 sub   :   0 subi  :   1 
 swap  :   0 tst   :   0 wdr   :   0 
-Instructions used: 19 out of 105 (18.1%)
+Instructions used: 21 out of 105 (20.0%)
 
 "ATtiny45" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0000b8    184      0    184    4096   4.5%
+[.cseg] 0x000000 0x0000bc    188      0    188    4096   4.6%
 [.dseg] 0x000060 0x000060      0      0      0     256   0.0%
 [.eseg] 0x000000 0x000000      0      0      0     256   0.0%
 

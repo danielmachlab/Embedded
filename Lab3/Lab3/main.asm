@@ -6,29 +6,24 @@
 cbi DDRB, 0 ; input - from A
 cbi DDRB, 1 ; input - from B
 sbi DDRB, 2 ; output - clockwise (A side) LED
-sbi DDRB, 5 ; output - counterclockwise (B side) LED
 
 ; SETUP WORK 
 .def curr = R20 ; R20 is the current rpg reading
 .def prev = R21 ; R21 is the previous rpg reading
+.def count_temp = R19
 
 .def tmp1 = R23
 .def tmp2 = R24
 .def count_30 = R25
-.def count_40 = R22
+.def count_rpg = R22
 
-ldi count_30, 0xA5	; preload count_30 to 160
-ldi count_40, 0x67	; preload count_40 to 103
+
+ldi count_30, 0xA3	; preload count_30 to 160
+ldi count_rpg, 140	; preload count_rpg to 140
+ldi count_temp, 10
 
 rcall timer_config
 
-test:
-	rcall lighton
-	rcall delay_30_percent		; delay for 77 us
-	rcall delay_40_percent		; delay for 103 us
-	rcall lightoff
-	rcall delay_30_percent
-	rjmp test
 
 ; load both prev and curr with same initial readings
 in curr, PINB ; load inputs into prev
@@ -37,10 +32,19 @@ mov prev, curr ; copy contents of curr into prev
 rcall delay ; delay a lil bit
 
 rpg_listener:
+
+
 	;rcall lightoff
 	in prev, PINB
 	andi prev, 0b00000011
-	rcall delay
+
+	rcall lighton
+	rcall delay_30_percent	; delay for 77 us
+	rcall delay_rpg_percent		; delay for 103 us
+	rcall lightoff
+	rcall delay_30_percent
+
+	;rcall delay
 	in curr, PINB
 	andi curr, 0b00000011
 	cp prev, curr
@@ -114,14 +118,22 @@ stationary:
 ; subroutine to hande when rpg is turning clockwise
 ; currently it runs on the right LED
 clockwise:
-	rcall lighton
+	//if(count_rpg > (130(count_rpg)), decrease it
+	cpi count_rpg, 130
+	breq rpg_listener
+	subi count_rpg, 10
+	;rcall lighton
 	;rcall delay
 	rjmp rpg_listener
 
 ; subroutine to hande when rpg is turning counter-clockwise
 ; currently it runs on the left LED 
 counterclockwise:
-	rcall lightoff
+	//if(count_rpg < 250(twofifty)), increase it
+	cpi count_rpg, 250
+	breq rpg_listener
+	add count_rpg, count_temp
+	;rcall lightoff
 	rjmp rpg_listener
 
 
@@ -169,7 +181,7 @@ wait_30:
 	rjmp wait_30
 	ret
 
-delay_40_percent:
+delay_rpg_percent:
 	; Stop timer
 	in tmp1, TCCR0B		; Save configuration
 	ldi tmp2, 0x00		; Stop timer 0
@@ -181,7 +193,7 @@ delay_40_percent:
 	out TIFR, tmp2		; write config back to TIFR
 
 	; Set initial counter offset and start
-	out TCNT0, count_40    ; load counter
+	out TCNT0, count_rpg    ; load counter
 	out TCCR0B, tmp1    ; restart timer
 
 wait_40:
