@@ -20,7 +20,7 @@ sbi DDRB, 2 ; output - clockwise (A side) LED
 //.def temp_var = R29
 
 
-;ldi count_30, 0xA3	; preload count_30 to 160
+ldi count_30, 0xA3	; preload count_30 to 160
 ldi count_rpg, 140	; preload count_rpg to 140
 ldi count_temp, 5
 ldi count_rpg, 240
@@ -43,9 +43,9 @@ rpg_listener:
 
 	rcall lighton
 	rcall delay_30_percent	; delay for 77 us
-	rcall delay_rpg_p1		; delay for 103 us
+	rcall delay_rpg_p1 //108us		; delay for 103 us
 	rcall lightoff
-	rcall delay_rpg_p2
+	rcall delay_rpg_p2 //3 us
 	rcall delay_30_percent
 
 	;rcall delay
@@ -129,7 +129,7 @@ clockwise:
 ; subroutine to hande when rpg is turning counter-clockwise 
 counterclockwise:
 	ldi count_temp, 5
-	cpi count_rpg, 250
+	cpi count_rpg, 255
 	breq rpg_listener
 	add count_rpg, count_temp
 	rjmp rpg_listener
@@ -214,7 +214,7 @@ delay_rpg_p2:
 
 	; Set initial counter offset and start 
 	mov count_temp, count_rpg
-	ldi count_rpg_2, 250
+	ldi count_rpg_2, 255
 	subi count_temp, 130
 	sub count_rpg_2, count_temp
 	out TCNT0, count_rpg_2    ; load counter

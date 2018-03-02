@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm Thu Mar 01 18:45:50 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm Fri Mar 02 12:37:17 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
@@ -712,40 +712,40 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.
                                  //.def temp_var = R29
                                  
                                  
-                                 ;ldi count_30, 0xA3	; preload count_30 to 160
-000003 e86c                      ldi count_rpg, 140	; preload count_rpg to 140
-000004 e035                      ldi count_temp, 5
-000005 ef60                      ldi count_rpg, 240
+000003 ea93                      ldi count_30, 0xA3	; preload count_30 to 160
+000004 e86c                      ldi count_rpg, 140	; preload count_rpg to 140
+000005 e035                      ldi count_temp, 5
+000006 ef60                      ldi count_rpg, 240
                                  
-000006 d03e                      rcall timer_config
+000007 d03e                      rcall timer_config
                                  
                                  
                                  ; load both prev and curr with same initial readings
-000007 b346                      in curr, PINB ; load inputs into prev
-000008 7043                      andi curr, 0b00000011 ; mask out all signals but A & B
-000009 2f54                      mov prev, curr ; copy contents of curr into prev
-00000a d02e                      rcall delay ; delay a lil bit
+000008 b346                      in curr, PINB ; load inputs into prev
+000009 7043                      andi curr, 0b00000011 ; mask out all signals but A & B
+00000a 2f54                      mov prev, curr ; copy contents of curr into prev
+00000b d02e                      rcall delay ; delay a lil bit
                                  
                                  rpg_listener:
                                  
                                  
                                  	;rcall lightoff
-00000b b356                      	in prev, PINB
-00000c 7053                      	andi prev, 0b00000011
+00000c b356                      	in prev, PINB
+00000d 7053                      	andi prev, 0b00000011
                                  
-00000d d014                      	rcall lighton
-00000e d039                      	rcall delay_30_percent	; delay for 77 us
-00000f d044                      	rcall delay_rpg_p1		; delay for 103 us
-000010 d013                      	rcall lightoff
-000011 d04e                      	rcall delay_rpg_p2
-000012 d035                      	rcall delay_30_percent
+00000e d014                      	rcall lighton
+00000f d039                      	rcall delay_30_percent	; delay for 77 us
+000010 d044                      	rcall delay_rpg_p1 //108us		; delay for 103 us
+000011 d013                      	rcall lightoff
+000012 d04e                      	rcall delay_rpg_p2 //3 us
+000013 d035                      	rcall delay_30_percent
                                  
                                  	;rcall delay
-000013 b346                      	in curr, PINB
-000014 7043                      	andi curr, 0b00000011
-000015 1754                      	cp prev, curr
-000016 f409                      	brne rpg_handler
-000017 cff3                      	rjmp rpg_listener 
+000014 b346                      	in curr, PINB
+000015 7043                      	andi curr, 0b00000011
+000016 1754                      	cp prev, curr
+000017 f409                      	brne rpg_handler
+000018 cff3                      	rjmp rpg_listener 
                                  
                                  ; This is the infinite loop which reads new inputs
                                  ; and handles the changes
@@ -754,33 +754,33 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.
                                  	
                                  	;rcall read_input
                                  	;rcall delay
-000018 d00d                      	rcall test_rpg
+000019 d00d                      	rcall test_rpg
                                  		
                                  	; check if AB == 00
-000019 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
-00001a f0a1                      	breq stationary ; branch if Z flag set, else continue
+00001a 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
+00001b f0a1                      	breq stationary ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 01
-00001b 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
-00001c f0b9                      	breq counterclockwise; originally clockwise ; branch if Z flag set, else continue
+00001c 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
+00001d f0b9                      	breq counterclockwise; originally clockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 10
-00001d 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
-00001e f089                      	breq clockwise; originally counterclockwise ; branch if Z flag set, else continue
+00001e 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
+00001f f089                      	breq clockwise; originally counterclockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 11
-00001f 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
-000020 f071                      	breq stationary ; branch if Z flag set, else continue
+000020 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
+000021 f071                      	breq stationary ; branch if Z flag set, else continue
                                  
-000021 cff6                      	rjmp rpg_handler ; finally, continue the loop
+000022 cff6                      	rjmp rpg_handler ; finally, continue the loop
                                  
                                  lighton:
-000022 9ac2                      	sbi PORTB, 2
-000023 9508                      	ret
+000023 9ac2                      	sbi PORTB, 2
+000024 9508                      	ret
                                  
                                  lightoff:
-000024 98c2                      	cbi PORTB, 2
-000025 9508                      	ret
+000025 98c2                      	cbi PORTB, 2
+000026 9508                      	ret
                                  
                                  ; subroutine which transfers curr into prev
                                  ; and then loads new reading into curr
@@ -791,40 +791,40 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.
                                  ;	ret
                                  
                                  test_rpg:
-000026 3040                      	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
-000027 f029                      	breq exor_prev
+000027 3040                      	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
+000028 f029                      	breq exor_prev
                                  
-000028 3043                      	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
-000029 f019                      	breq exor_prev
+000029 3043                      	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
+00002a f019                      	breq exor_prev
                                  
-00002a 2f14                      	mov R17, curr 
-00002b e023                      	ldi R18, 0b00000011 
-00002c 2712                      	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
+00002b 2f14                      	mov R17, curr 
+00002c e023                      	ldi R18, 0b00000011 
+00002d 2712                      	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
                                  
                                  exor_prev: 
-00002d 2715                      	eor R17, prev
-00002e 9508                      	ret
+00002e 2715                      	eor R17, prev
+00002f 9508                      	ret
                                  	
                                  
                                  ; subroutine to handle when the rpg is stationary
                                  ; currently it turns off both LEDs
                                  stationary:
-00002f cfdb                      	rjmp rpg_listener
+000030 cfdb                      	rjmp rpg_listener
                                  
                                  ; subroutine to hande when rpg is turning clockwise
                                  clockwise:
-000030 3862                      	cpi count_rpg, 130
-000031 f2c9                      	breq rpg_listener
-000032 5065                      	subi count_rpg, 5
-000033 cfd7                      	rjmp rpg_listener
+000031 3862                      	cpi count_rpg, 130
+000032 f2c9                      	breq rpg_listener
+000033 5065                      	subi count_rpg, 5
+000034 cfd7                      	rjmp rpg_listener
                                  
                                  ; subroutine to hande when rpg is turning counter-clockwise 
                                  counterclockwise:
-000034 e035                      	ldi count_temp, 5
-000035 3f6a                      	cpi count_rpg, 250
-000036 f2a1                      	breq rpg_listener
-000037 0f63                      	add count_rpg, count_temp
-000038 cfd2                      	rjmp rpg_listener
+000035 e035                      	ldi count_temp, 5
+000036 3f6f                      	cpi count_rpg, 255
+000037 f2a1                      	breq rpg_listener
+000038 0f63                      	add count_rpg, count_temp
+000039 cfd2                      	rjmp rpg_listener
                                  
                                  
                                  
@@ -832,91 +832,91 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.
                                  
                                  ; a delay routine
                                  delay:
-000039 e0a2                      	ldi r26, 2
-00003a e1b9                      t4: ldi r27, 25
-00003b e3c2                      t5:	ldi r28, 50
-00003c 95ca                      t6:	dec r28
-00003d 0000                      	nop
-00003e f7e9                      	brne t6
-00003f 95ba                          dec r27
-000040 0000                      	nop
-000041 f7c9                      	brne t5
-000042 95aa                      	dec R26
-000043 f7b1                      	brne t4
-000044 9508                      	ret
+00003a e0a2                      	ldi r26, 2
+00003b e1b9                      t4: ldi r27, 25
+00003c e3c2                      t5:	ldi r28, 50
+00003d 95ca                      t6:	dec r28
+00003e 0000                      	nop
+00003f f7e9                      	brne t6
+000040 95ba                          dec r27
+000041 0000                      	nop
+000042 f7c9                      	brne t5
+000043 95aa                      	dec R26
+000044 f7b1                      	brne t4
+000045 9508                      	ret
                                  
                                  timer_config:
-000045 e0e2                      	ldi R30, 0x02
-000046 bfe3                      	out 0x33, R30
-000047 9508                      	ret
+000046 e0e2                      	ldi R30, 0x02
+000047 bfe3                      	out 0x33, R30
+000048 9508                      	ret
                                  
                                  delay_30_percent:
                                  	; Stop timer
-000048 b773                      	in tmp1, TCCR0B		; Save configuration
-000049 e080                      	ldi tmp2, 0x00		; Stop timer 0
-00004a bf83                      	out TCCR0B, tmp2	;
+000049 b773                      	in tmp1, TCCR0B		; Save configuration
+00004a e080                      	ldi tmp2, 0x00		; Stop timer 0
+00004b bf83                      	out TCCR0B, tmp2	;
                                  
                                  	; Clear timer overflow flag
-00004b b788                      	in tmp2, TIFR		; tmp <-- TIFR 
-00004c 6082                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-00004d bf88                      	out TIFR, tmp2		; write config back to TIFR
+00004c b788                      	in tmp2, TIFR		; tmp <-- TIFR 
+00004d 6082                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
+00004e bf88                      	out TIFR, tmp2		; write config back to TIFR
                                  
                                  	; Set initial counter offset and start
-00004e bf92                      	out TCNT0, count_30    ; load counter
-00004f bf73                      	out TCCR0B, tmp1    ; restart timer
+00004f bf92                      	out TCNT0, count_30    ; load counter
+000050 bf73                      	out TCCR0B, tmp1    ; restart timer
                                  
                                  wait_30:
-000050 b788                      	in tmp2, TIFR		; tmp <-- TIFR 
-000051 ff81                      	sbrs tmp2, TOV0		; check overflow flag
-000052 cffd                      	rjmp wait_30
-000053 9508                      	ret
+000051 b788                      	in tmp2, TIFR		; tmp <-- TIFR 
+000052 ff81                      	sbrs tmp2, TOV0		; check overflow flag
+000053 cffd                      	rjmp wait_30
+000054 9508                      	ret
                                  
                                  delay_rpg_p1:
                                  	; Stop timer
-000054 b773                      	in tmp1, TCCR0B		; Save configuration
-000055 e080                      	ldi tmp2, 0x00		; Stop timer 0
-000056 bf83                      	out TCCR0B, tmp2	;
+000055 b773                      	in tmp1, TCCR0B		; Save configuration
+000056 e080                      	ldi tmp2, 0x00		; Stop timer 0
+000057 bf83                      	out TCCR0B, tmp2	;
                                  
                                  	; Clear timer overflow flag
-000057 b788                      	in tmp2, TIFR		; tmp <-- TIFR 
-000058 6082                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-000059 bf88                      	out TIFR, tmp2		; write config back to TIFR
+000058 b788                      	in tmp2, TIFR		; tmp <-- TIFR 
+000059 6082                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
+00005a bf88                      	out TIFR, tmp2		; write config back to TIFR
                                  
                                  	; Set initial counter offset and start
-00005a bf62                      	out TCNT0, count_rpg    ; load counter
-00005b bf73                      	out TCCR0B, tmp1    ; restart timer
+00005b bf62                      	out TCNT0, count_rpg    ; load counter
+00005c bf73                      	out TCCR0B, tmp1    ; restart timer
                                  
                                  wait_p1:
-00005c b788                      	in tmp2, TIFR		; tmp <-- TIFR 
-00005d ff81                      	sbrs tmp2, TOV0		; check overflow flag
-00005e cffd                      	rjmp wait_p1
-00005f 9508                      	ret
+00005d b788                      	in tmp2, TIFR		; tmp <-- TIFR 
+00005e ff81                      	sbrs tmp2, TOV0		; check overflow flag
+00005f cffd                      	rjmp wait_p1
+000060 9508                      	ret
                                  
                                  
                                  delay_rpg_p2:
                                  	; Stop timer
-000060 b773                      	in tmp1, TCCR0B		; Save configuration
-000061 e080                      	ldi tmp2, 0x00		; Stop timer 0
-000062 bf83                      	out TCCR0B, tmp2	;
+000061 b773                      	in tmp1, TCCR0B		; Save configuration
+000062 e080                      	ldi tmp2, 0x00		; Stop timer 0
+000063 bf83                      	out TCCR0B, tmp2	;
                                  
                                  	; Clear timer overflow flag
-000063 b788                      	in tmp2, TIFR		; tmp <-- TIFR 
-000064 6082                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-000065 bf88                      	out TIFR, tmp2		; write config back to TIFR
+000064 b788                      	in tmp2, TIFR		; tmp <-- TIFR 
+000065 6082                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
+000066 bf88                      	out TIFR, tmp2		; write config back to TIFR
                                  
                                  	; Set initial counter offset and start 
-000066 2f36                      	mov count_temp, count_rpg
-000067 ef0a                      	ldi count_rpg_2, 250
-000068 5832                      	subi count_temp, 130
-000069 1b03                      	sub count_rpg_2, count_temp
-00006a bf02                      	out TCNT0, count_rpg_2    ; load counter
-00006b bf73                      	out TCCR0B, tmp1    ; restart timer
+000067 2f36                      	mov count_temp, count_rpg
+000068 ef0f                      	ldi count_rpg_2, 255
+000069 5832                      	subi count_temp, 130
+00006a 1b03                      	sub count_rpg_2, count_temp
+00006b bf02                      	out TCNT0, count_rpg_2    ; load counter
+00006c bf73                      	out TCCR0B, tmp1    ; restart timer
                                  
                                  wait_p2:
-00006c b788                      	in tmp2, TIFR		; tmp <-- TIFR 
-00006d ff81                      	sbrs tmp2, TOV0		; check overflow flag
-00006e cffd                      	rjmp wait_p2
-00006f 9508                      	ret
+00006d b788                      	in tmp2, TIFR		; tmp <-- TIFR 
+00006e ff81                      	sbrs tmp2, TOV0		; check overflow flag
+00006f cffd                      	rjmp wait_p2
+000070 9508                      	ret
                                  ; we need to put a routine here to do that cross xor thing
                                  ; that he talked about in class. it vaguely talks about it in 
                                  ; the slides where it mentions the gray code for turning.
@@ -955,7 +955,7 @@ counted separately from r26..r31 here.
 x  :   0 y  :   0 z  :   0 r0 :   0 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
 r13:   0 r14:   0 r15:   0 r16:   3 r17:   7 r18:   2 r19:   6 r20:   9 
-r21:   5 r22:   8 r23:   6 r24:  21 r25:   1 r26:   2 r27:   2 r28:   2 
+r21:   5 r22:   8 r23:   6 r24:  21 r25:   2 r26:   2 r27:   2 r28:   2 
 r29:   0 r30:   2 r31:   0 
 Registers used: 14 out of 35 (40.0%)
 
@@ -969,7 +969,7 @@ brvs  :   0 bset  :   0 bst   :   0 cbi   :   3 cbr   :   0 clc   :   0
 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 clt   :   0 
 clv   :   0 clz   :   0 com   :   0 cp    :   1 cpc   :   0 cpi   :   8 
 cpse  :   0 dec   :   3 eor   :   2 icall :   0 ijmp  :   0 in    :  12 
-inc   :   0 ld    :   0 ldd   :   0 ldi   :  13 lds   :   0 lpm   :   0 
+inc   :   0 ld    :   0 ldd   :   0 ldi   :  14 lds   :   0 lpm   :   0 
 lsl   :   0 lsr   :   0 mov   :   3 movw  :   0 neg   :   0 nop   :   2 
 or    :   0 ori   :   0 out   :  13 pop   :   0 push  :   0 rcall :   9 
 ret   :   8 reti  :   0 rjmp  :   8 rol   :   0 ror   :   0 sbc   :   0 
@@ -983,7 +983,7 @@ Instructions used: 22 out of 105 (21.0%)
 "ATtiny45" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0000e0    224      0    224    4096   5.5%
+[.cseg] 0x000000 0x0000e2    226      0    226    4096   5.5%
 [.dseg] 0x000060 0x000060      0      0      0     256   0.0%
 [.eseg] 0x000000 0x000000      0      0      0     256   0.0%
 
