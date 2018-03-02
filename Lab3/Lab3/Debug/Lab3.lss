@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm Fri Mar 02 12:37:17 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm Fri Mar 02 13:37:36 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATtiny_DFP\1.3.147\avrasm\inc\tn45def.inc'
@@ -714,7 +714,7 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.
                                  
 000003 ea93                      ldi count_30, 0xA3	; preload count_30 to 160
 000004 e86c                      ldi count_rpg, 140	; preload count_rpg to 140
-000005 e035                      ldi count_temp, 5
+000005 e031                      ldi count_temp, 1
 000006 ef60                      ldi count_rpg, 240
                                  
 000007 d03e                      rcall timer_config
@@ -815,12 +815,12 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.
                                  clockwise:
 000031 3862                      	cpi count_rpg, 130
 000032 f2c9                      	breq rpg_listener
-000033 5065                      	subi count_rpg, 5
+000033 5061                      	subi count_rpg, 1
 000034 cfd7                      	rjmp rpg_listener
                                  
                                  ; subroutine to hande when rpg is turning counter-clockwise 
                                  counterclockwise:
-000035 e035                      	ldi count_temp, 5
+000035 e031                      	ldi count_temp, 1
 000036 3f6f                      	cpi count_rpg, 255
 000037 f2a1                      	breq rpg_listener
 000038 0f63                      	add count_rpg, count_temp

@@ -22,7 +22,7 @@ sbi DDRB, 2 ; output - clockwise (A side) LED
 
 ldi count_30, 0xA3	; preload count_30 to 160
 ldi count_rpg, 140	; preload count_rpg to 140
-ldi count_temp, 5
+ldi count_temp, 1
 ldi count_rpg, 240
 
 rcall timer_config
@@ -123,12 +123,12 @@ stationary:
 clockwise:
 	cpi count_rpg, 130
 	breq rpg_listener
-	subi count_rpg, 5
+	subi count_rpg, 1
 	rjmp rpg_listener
 
 ; subroutine to hande when rpg is turning counter-clockwise 
 counterclockwise:
-	ldi count_temp, 5
+	ldi count_temp, 1
 	cpi count_rpg, 255
 	breq rpg_listener
 	add count_rpg, count_temp
