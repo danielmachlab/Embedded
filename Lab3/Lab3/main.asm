@@ -16,11 +16,14 @@ sbi DDRB, 2 ; output - clockwise (A side) LED
 .def tmp2 = R24
 .def count_30 = R25
 .def count_rpg = R22
+.def count_rpg_2 = R16
+//.def temp_var = R29
 
 
-ldi count_30, 0xA3	; preload count_30 to 160
+;ldi count_30, 0xA3	; preload count_30 to 160
 ldi count_rpg, 140	; preload count_rpg to 140
-ldi count_temp, 10
+ldi count_temp, 5
+ldi count_rpg, 240
 
 rcall timer_config
 
@@ -40,8 +43,9 @@ rpg_listener:
 
 	rcall lighton
 	rcall delay_30_percent	; delay for 77 us
-	rcall delay_rpg_percent		; delay for 103 us
+	rcall delay_rpg_p1		; delay for 103 us
 	rcall lightoff
+	rcall delay_rpg_p2
 	rcall delay_30_percent
 
 	;rcall delay
@@ -116,24 +120,18 @@ stationary:
 	rjmp rpg_listener
 
 ; subroutine to hande when rpg is turning clockwise
-; currently it runs on the right LED
 clockwise:
-	//if(count_rpg > (130(count_rpg)), decrease it
 	cpi count_rpg, 130
 	breq rpg_listener
-	subi count_rpg, 10
-	;rcall lighton
-	;rcall delay
+	subi count_rpg, 5
 	rjmp rpg_listener
 
-; subroutine to hande when rpg is turning counter-clockwise
-; currently it runs on the left LED 
+; subroutine to hande when rpg is turning counter-clockwise 
 counterclockwise:
-	//if(count_rpg < 250(twofifty)), increase it
+	ldi count_temp, 5
 	cpi count_rpg, 250
 	breq rpg_listener
 	add count_rpg, count_temp
-	;rcall lightoff
 	rjmp rpg_listener
 
 
@@ -181,7 +179,7 @@ wait_30:
 	rjmp wait_30
 	ret
 
-delay_rpg_percent:
+delay_rpg_p1:
 	; Stop timer
 	in tmp1, TCCR0B		; Save configuration
 	ldi tmp2, 0x00		; Stop timer 0
@@ -196,12 +194,37 @@ delay_rpg_percent:
 	out TCNT0, count_rpg    ; load counter
 	out TCCR0B, tmp1    ; restart timer
 
-wait_40:
+wait_p1:
 	in tmp2, TIFR		; tmp <-- TIFR 
 	sbrs tmp2, TOV0		; check overflow flag
-	rjmp wait_40
+	rjmp wait_p1
 	ret
 
+
+delay_rpg_p2:
+	; Stop timer
+	in tmp1, TCCR0B		; Save configuration
+	ldi tmp2, 0x00		; Stop timer 0
+	out TCCR0B, tmp2	;
+
+	; Clear timer overflow flag
+	in tmp2, TIFR		; tmp <-- TIFR 
+	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
+	out TIFR, tmp2		; write config back to TIFR
+
+	; Set initial counter offset and start 
+	mov count_temp, count_rpg
+	ldi count_rpg_2, 250
+	subi count_temp, 130
+	sub count_rpg_2, count_temp
+	out TCNT0, count_rpg_2    ; load counter
+	out TCCR0B, tmp1    ; restart timer
+
+wait_p2:
+	in tmp2, TIFR		; tmp <-- TIFR 
+	sbrs tmp2, TOV0		; check overflow flag
+	rjmp wait_p2
+	ret
 ; we need to put a routine here to do that cross xor thing
 ; that he talked about in class. it vaguely talks about it in 
 ; the slides where it mentions the gray code for turning.

@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm Thu Mar 01 17:53:07 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm Thu Mar 01 18:45:50 2018
 
 
 EQU  SIGNATURE_000 0000001e
@@ -446,21 +446,24 @@ DEF  tmp1         r23
 DEF  tmp2         r24
 DEF  count_30     r25
 DEF  count_rpg    r22
-CSEG timer_config 00000043
-CSEG delay        00000037
+DEF  count_rpg_2  r16
+CSEG timer_config 00000045
+CSEG delay        00000039
 CSEG rpg_listener 0000000b
-CSEG lighton      00000021
-CSEG delay_30_percent 00000046
-CSEG delay_rpg_percent 00000052
-CSEG lightoff     00000023
-CSEG rpg_handler  00000017
-CSEG test_rpg     00000025
-CSEG stationary   0000002e
-CSEG counterclockwise 00000033
-CSEG clockwise    0000002f
-CSEG exor_prev    0000002c
-CSEG t4           00000038
-CSEG t5           00000039
-CSEG t6           0000003a
-CSEG wait_30      0000004e
-CSEG wait_40      0000005a
+CSEG lighton      00000022
+CSEG delay_30_percent 00000048
+CSEG delay_rpg_p1 00000054
+CSEG lightoff     00000024
+CSEG delay_rpg_p2 00000060
+CSEG rpg_handler  00000018
+CSEG test_rpg     00000026
+CSEG stationary   0000002f
+CSEG counterclockwise 00000034
+CSEG clockwise    00000030
+CSEG exor_prev    0000002d
+CSEG t4           0000003a
+CSEG t5           0000003b
+CSEG t6           0000003c
+CSEG wait_30      00000050
+CSEG wait_p1      0000005c
+CSEG wait_p2      0000006c

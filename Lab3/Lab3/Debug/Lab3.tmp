@@ -22,23 +22,25 @@
   <FILE>Lab3.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <timer_config><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>158</LINE></timer_config>
-  <delay><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>144</LINE></delay>
-  <rpg_listener><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>34</LINE></rpg_listener>
-  <lighton><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>81</LINE></lighton>
-  <delay_30_percent><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>163</LINE></delay_30_percent>
-  <delay_rpg_percent><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>184</LINE></delay_rpg_percent>
-  <lightoff><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>85</LINE></lightoff>
-  <rpg_handler><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>56</LINE></rpg_handler>
-  <test_rpg><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>97</LINE></test_rpg>
-  <stationary><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>115</LINE></stationary>
-  <counterclockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>131</LINE></counterclockwise>
-  <clockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>120</LINE></clockwise>
-  <exor_prev><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>108</LINE></exor_prev>
-  <t4><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>146</LINE></t4>
-  <t5><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>147</LINE></t5>
-  <t6><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>148</LINE></t6>
-  <wait_30><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>178</LINE></wait_30>
-  <wait_40><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>199</LINE></wait_40>
+  <timer_config><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>156</LINE></timer_config>
+  <delay><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>142</LINE></delay>
+  <rpg_listener><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>37</LINE></rpg_listener>
+  <lighton><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>85</LINE></lighton>
+  <delay_30_percent><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>161</LINE></delay_30_percent>
+  <delay_rpg_p1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>182</LINE></delay_rpg_p1>
+  <lightoff><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>89</LINE></lightoff>
+  <delay_rpg_p2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>204</LINE></delay_rpg_p2>
+  <rpg_handler><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>60</LINE></rpg_handler>
+  <test_rpg><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>101</LINE></test_rpg>
+  <stationary><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>119</LINE></stationary>
+  <counterclockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>130</LINE></counterclockwise>
+  <clockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>123</LINE></clockwise>
+  <exor_prev><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>112</LINE></exor_prev>
+  <t4><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>144</LINE></t4>
+  <t5><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>145</LINE></t5>
+  <t6><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>146</LINE></t6>
+  <wait_30><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>176</LINE></wait_30>
+  <wait_p1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>197</LINE></wait_p1>
+  <wait_p2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab3\Lab3\main.asm</FILE><LINE>223</LINE></wait_p2>
  </LABELS>
 </ASSEMBLER_INFO>
