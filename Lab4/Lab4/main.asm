@@ -33,6 +33,34 @@ andi curr, 0b00000011 ; mask out all signals but A & B
 mov prev, curr ; copy contents of curr into prev
 rcall delay ; delay a lil bit
 
+; create static strings in memory
+msg1: .db "DC = ", 0x00
+msg2: .db "% ", 0x00
+
+rcall lcdinit
+
+lcdinit:
+	rcall lcd_delay_1
+	
+	; set to 8-bit mode
+
+	;rcall lcd_delay_2
+
+	; set to 8-bit mode
+
+	;rcall lcd_delay_3
+
+	; set to 8-bit mode
+
+	;rcall lcd_delay_3
+
+	; set to 4-bit mode
+
+	;rcall lcd_delay_4
+
+	; clear screen, etc.
+	
+
 rpg_listener:
 	;rcall lightoff
 	in prev, PINB
@@ -148,8 +176,21 @@ t6:	dec r28
 
 timer_config:
 	ldi R30, 0x02
-	out 0x33, R30
+	out TCCR0B, R30
 	ret
+
+lcd_delay_1:
+      ldi   r23, 4		;10     ; r23 <-- Counter for outer loop
+  d1: ldi   r24, 203	;255    ; r24 <-- Counter for level 2 loop 
+  d2: ldi   r25, 246    ; r25 <-- Counter for inner loop
+  d3: dec   r25
+      nop               ; no operation 
+      brne  d3 
+      dec   r24
+      brne  d2
+      dec   r23
+      brne  d1
+	  ret
 
 delay_30_percent:
 	; Stop timer
@@ -158,15 +199,15 @@ delay_30_percent:
 	out TCCR0B, tmp2	;
 
 	; Clear timer overflow flag
-	in tmp2, TIFR		; tmp <-- TIFR 
+	in tmp2, TIFR0		; tmp <-- TIFR0 
 	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-	out TIFR, tmp2		; write config back to TIFR
+	out TIFR0, tmp2		; write config back to TIFR0
 
 	; Set initial counter offset and start
 	out TCNT0, count_30    ; load counter
 	out TCCR0B, tmp1    ; restart timer
 wait_30:
-	in tmp2, TIFR		; tmp <-- TIFR 
+	in tmp2, TIFR0		; tmp <-- TIFR0 
 	sbrs tmp2, TOV0		; check overflow flag
 	rjmp wait_30
 	ret
@@ -178,15 +219,15 @@ delay_rpg_p1:
 	out TCCR0B, tmp2	;
 
 	; Clear timer overflow flag
-	in tmp2, TIFR		; tmp <-- TIFR 
+	in tmp2, TIFR0		; tmp <-- TIFR0 
 	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-	out TIFR, tmp2		; write config back to TIFR
+	out TIFR0, tmp2		; write config back to TIFR0
 
 	; Set initial counter offset and start
 	out TCNT0, count_rpg    ; load counter
 	out TCCR0B, tmp1    ; restart timer
 wait_p1:
-	in tmp2, TIFR		; tmp <-- TIFR 
+	in tmp2, TIFR0		; tmp <-- TIFR0 
 	sbrs tmp2, TOV0		; check overflow flag
 	rjmp wait_p1
 	ret
@@ -198,9 +239,9 @@ delay_rpg_p2:
 	out TCCR0B, tmp2	;
 
 	; Clear timer overflow flag
-	in tmp2, TIFR		; tmp <-- TIFR 
+	in tmp2, TIFR0		; tmp <-- TIFR0 
 	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-	out TIFR, tmp2		; write config back to TIFR
+	out TIFR0, tmp2		; write config back to TIFR0
 
 	; Set initial counter offset and start 
 	mov count_temp, count_rpg
@@ -210,7 +251,7 @@ delay_rpg_p2:
 	out TCNT0, count_rpg_2    ; load counter
 	out TCCR0B, tmp1    ; restart timer
 wait_p2:
-	in tmp2, TIFR		; tmp <-- TIFR 
+	in tmp2, TIFR0		; tmp <-- TIFR0 
 	sbrs tmp2, TOV0		; check overflow flag
 	rjmp wait_p2
 	ret

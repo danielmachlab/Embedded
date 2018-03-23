@@ -1,0 +1,53 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.2.7</VERSION>
+ <DEVICE>"ATmega88PA"</DEVICE>
+ <WORKING_DIR>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\Debug</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc</DIR>
+  <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
+  <DIR></DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc\m88padef.inc</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\Debug\Lab4.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>Lab4.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>Lab4.map</FILE>
+  <FILE>Lab4.lss</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <timer_config><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>177</LINE></timer_config>
+  <delay><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>163</LINE></delay>
+  <msg1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>37</LINE></msg1>
+  <msg2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>38</LINE></msg2>
+  <lcdinit><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>42</LINE></lcdinit>
+  <lcd_delay_1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>182</LINE></lcd_delay_1>
+  <rpg_listener><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>64</LINE></rpg_listener>
+  <lighton><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>110</LINE></lighton>
+  <delay_30_percent><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>195</LINE></delay_30_percent>
+  <delay_rpg_p1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>215</LINE></delay_rpg_p1>
+  <lightoff><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>114</LINE></lightoff>
+  <delay_rpg_p2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>235</LINE></delay_rpg_p2>
+  <rpg_handler><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>85</LINE></rpg_handler>
+  <test_rpg><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>126</LINE></test_rpg>
+  <stationary><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>144</LINE></stationary>
+  <counterclockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>155</LINE></counterclockwise>
+  <clockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>148</LINE></clockwise>
+  <exor_prev><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>137</LINE></exor_prev>
+  <t4><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>165</LINE></t4>
+  <t5><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>166</LINE></t5>
+  <t6><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>167</LINE></t6>
+  <d1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>184</LINE></d1>
+  <d2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>185</LINE></d2>
+  <d3><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>186</LINE></d3>
+  <wait_30><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>209</LINE></wait_30>
+  <wait_p1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>229</LINE></wait_p1>
+  <wait_p2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>253</LINE></wait_p2>
+ </LABELS>
+</ASSEMBLER_INFO>
