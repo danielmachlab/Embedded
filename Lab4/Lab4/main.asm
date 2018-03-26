@@ -44,21 +44,26 @@ msg2: .db "% =", 0x00
 rcall lcd_init
 
 lcd_init:
-	LCDstr:.db 0x33,0x32,0x28,0x01,0x0c,0x06
+	//LCDstr:.db 0x33,0x32,0x28,0x01,0x0c,0x06
 
 	rcall lcd_delay_1 ; 100 ms
 	rcall lcd_init_3; set to 8-bit mode
+	rcall lcd_strobe
 	
 	rcall lcd_delay_2 ; 5 ms
 	rcall lcd_init_3; set to 8-bit mode
+	rcall lcd_strobe
 
 	rcall lcd_delay_3 ; 200 us
 	rcall lcd_init_3; set to 8-bit mode
+	rcall lcd_strobe
 
 	rcall lcd_delay_3 ; 200 us
 	rcall lcd_init_2; set to 4-bit mode
+	rcall lcd_strobe
 
 	rcall lcd_delay_2 ; 5 ms
+	sbi PORTB, 5
 	; clear screen, etc.
 	
 	
@@ -74,11 +79,11 @@ L20:
 	lpm
 	swap r0
 	out PORTC, r0
-	rcall LCDStrobe
+	rcall lcd_strobe
 	rcall delay
 	swap r0
 	out PORTC, r0
-	rcall LCDStrobe
+	rcall lcd_strobe
 	rcall delay
 	adiw zh:zl,1
 	dec r24
@@ -204,6 +209,13 @@ timer_config:
 	ldi R30, 0x02
 	out TCCR0B, R30
 	ret
+
+lcd_strobe:
+	cbi PORTB, 3
+	rcall lcd_delay_2
+	sbi PORTB, 3
+	ret
+
 
 lcd_init_3:
 	cbi PORTC, 3
