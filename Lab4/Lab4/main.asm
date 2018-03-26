@@ -7,6 +7,10 @@
 cbi DDRB, 0 ; input - from A
 cbi DDRB, 1 ; input - from B
 sbi DDRB, 2 ; output - clockwise (A side) LED
+sbi DDRC, 3 ; output PC3 - D7
+sbi DDRC, 2 ; output PC2 - D6
+sbi DDRC, 1 ; output PC1 - D5
+sbi DDRC, 0 ; output PC0 - D4
 
 ; SETUP WORK 
 .def curr = R20 ; R20 is the current rpg reading
@@ -34,31 +38,53 @@ mov prev, curr ; copy contents of curr into prev
 rcall delay ; delay a lil bit
 
 ; create static strings in memory
-msg1: .db "DC = ", 0x00
-msg2: .db "% ", 0x00
+msg1: .db "DC = ", 0x00 ;;mem reserved with .db must be an even number of bytes. If odd, padded with extra byte by assembler. 
+msg2: .db "% =", 0x00
 
-rcall lcdinit
+rcall lcd_init
 
-lcdinit:
-	rcall lcd_delay_1
+lcd_init:
+	LCDstr:.db 0x33,0x32,0x28,0x01,0x0c,0x06
+
+	rcall lcd_delay_1 ; 100 ms
+	rcall lcd_init_3; set to 8-bit mode
 	
-	; set to 8-bit mode
+	rcall lcd_delay_2 ; 5 ms
+	rcall lcd_init_3; set to 8-bit mode
 
-	;rcall lcd_delay_2
+	rcall lcd_delay_3 ; 200 us
+	rcall lcd_init_3; set to 8-bit mode
 
-	; set to 8-bit mode
+	rcall lcd_delay_3 ; 200 us
+	rcall lcd_init_2; set to 4-bit mode
 
-	;rcall lcd_delay_3
-
-	; set to 8-bit mode
-
-	;rcall lcd_delay_3
-
-	; set to 4-bit mode
-
-	;rcall lcd_delay_4
-
+	rcall lcd_delay_2 ; 5 ms
 	; clear screen, etc.
+	
+	
+
+sf25: .DB "Hello "
+ldi r24, 8
+ldi r30, LOW(2*sf25)
+ldi r31, HIGH(2*sf25)
+rcall displayCString
+
+displayCString:
+L20:
+	lpm
+	swap r0
+	out PORTC, r0
+	rcall LCDStrobe
+	rcall delay
+	swap r0
+	out PORTC, r0
+	rcall LCDStrobe
+	rcall delay
+	adiw zh:zl,1
+	dec r24
+	brne L20
+	ret
+
 	
 
 rpg_listener:
@@ -179,17 +205,49 @@ timer_config:
 	out TCCR0B, R30
 	ret
 
+lcd_init_3:
+	cbi PORTC, 3
+	cbi PORTC, 2
+	sbi PORTC, 1
+	sbi PORTC, 0
+	ret
+
+lcd_init_2:
+	cbi PORTC, 3
+	cbi PORTC, 2
+	sbi PORTC, 1
+	cbi PORTC, 0
+	ret
+
+
 lcd_delay_1:
-      ldi   r23, 4		;10     ; r23 <-- Counter for outer loop
-  d1: ldi   r24, 203	;255    ; r24 <-- Counter for level 2 loop 
-  d2: ldi   r25, 246    ; r25 <-- Counter for inner loop
-  d3: dec   r25
+      ldi   r24, 102	;255    ; r24 <-- Counter for level 2 loop 
+  d1: ldi   r25, 246    ; r25 <-- Counter for inner loop
+  d2: dec   r25
       nop               ; no operation 
-      brne  d3 
+      brne  d2 
       dec   r24
-      brne  d2
-      dec   r23
       brne  d1
+	  ret
+
+lcd_delay_2:
+      ldi   r24, 5		;255    ; r24 <-- Counter for level 2 loop 
+  d3: ldi   r25, 250    ; r25 <-- Counter for inner loop
+  d4: dec   r25
+      nop               ; no operation 
+      brne  d4 
+      dec   r24
+      brne  d3
+	  ret
+
+lcd_delay_3:
+      ldi   r24, 9		;255    ; r24 <-- Counter for level 2 loop 
+  d5: ldi   r25, 5    ; r25 <-- Counter for inner loop
+  d6: dec   r25
+      nop               ; no operation 
+      brne  d6 
+      dec   r24
+      brne  d5
 	  ret
 
 delay_30_percent:
