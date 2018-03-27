@@ -7,6 +7,7 @@
 cbi DDRB, 0 ; input - from A
 cbi DDRB, 1 ; input - from B
 sbi DDRB, 2 ; output - clockwise (A side) LED
+sbi DDRB, 5 ; output to RS line of lcd
 sbi DDRC, 3 ; output PC3 - D7
 sbi DDRC, 2 ; output PC2 - D6
 sbi DDRC, 1 ; output PC1 - D5
@@ -38,57 +39,84 @@ mov prev, curr ; copy contents of curr into prev
 rcall delay ; delay a lil bit
 
 ; create static strings in memory
-msg1: .db "DC = ", 0x00 ;;mem reserved with .db must be an even number of bytes. If odd, padded with extra byte by assembler. 
-msg2: .db "% =", 0x00
+;msg1: .db "DC = ", 0x00 ;;mem reserved with .db must be an even number of bytes. If odd, padded with extra byte by assembler. 
+;msg2: .db "% =", 0x00
 
-rcall lcd_init
+rcall lcd_init ; initialize lcd
+rcall write_letter_A_to_lcd ; write letter A
+rjmp rpg_listener ; listen for rpg changes infinitely
 
+; this is my most recent attempt at initializing the lcd
+; it follows LINE FOR LINE from slide number 44 (not page number) of the LCD lecture slides
 lcd_init:
 	//LCDstr:.db 0x33,0x32,0x28,0x01,0x0c,0x06
 
-	rcall lcd_delay_1 ; 100 ms
-	rcall lcd_init_3; set to 8-bit mode
-	rcall lcd_strobe
+	rcall lcd_delay_1 ; line 1 -- 100 ms
+	rcall lcd_init_3; line 2 -- write 0x03 with RS=0 (set to 8-bit mode)
+	;rcall lcd_strobe
 	
-	rcall lcd_delay_2 ; 5 ms
-	rcall lcd_init_3; set to 8-bit mode
-	rcall lcd_strobe
-
-	rcall lcd_delay_3 ; 200 us
-	rcall lcd_init_3; set to 8-bit mode
-	rcall lcd_strobe
-
-	rcall lcd_delay_3 ; 200 us
-	rcall lcd_init_2; set to 4-bit mode
-	rcall lcd_strobe
-
-	rcall lcd_delay_2 ; 5 ms
-	sbi PORTB, 5
-	; clear screen, etc.
+	rcall lcd_delay_2 ; line 3 -- 5 ms
+	rcall lcd_init_3; line 4 -- write 0x03 with RS=0 (set to 8-bit mode)
+	;rcall lcd_strobe
 	
+	rcall lcd_delay_3 ; line 5 -- 200 us
+	rcall lcd_init_3; line 6 -- write 0x03 with RS=0 (set to 8-bit mode)
+	;rcall lcd_strobe
+
+	rcall lcd_delay_3 ; line 7 -- 200 us
+	rcall lcd_init_2; line 8 -- write 0x02 with RS=0 (set to 4-bit mode)
+	;rcall lcd_strobe
+
+	rcall lcd_delay_2 ; line 9 -- 5 ms
 	
+	rcall lcd_init_28 ; line 10 -- write 28 hex (upper nibble then lower nibble)
+	rcall lcd_init_08 ; line 11 -- write 08 hex (upper nibble then lower nibble)
+	rcall lcd_init_01 ; line 12 -- write 01 hex (upper nibble then lower nibble)
+	rcall lcd_init_06 ; line 13 -- write 06 hex (upper nibble then lower nibble)
+	rcall lcd_init_0C ; line 14 -- write 0C hex (upper nibble then lower nibble)
 
-sf25: .DB "Hello "
-ldi r24, 8
-ldi r30, LOW(2*sf25)
-ldi r31, HIGH(2*sf25)
-rcall displayCString
-
-displayCString:
-L20:
-	lpm
-	swap r0
-	out PORTC, r0
-	rcall lcd_strobe
-	rcall delay
-	swap r0
-	out PORTC, r0
-	rcall lcd_strobe
-	rcall delay
-	adiw zh:zl,1
-	dec r24
-	brne L20
+	; done -- display is now ready to accept data
 	ret
+	
+
+;sf25: .DB "Hello "
+;ldi r24, 8
+;ldi r30, LOW(2*sf25)
+;ldi r31, HIGH(2*sf25)
+;rcall displayCString
+
+
+; ASCII code for 'A' is 41 hex
+; upper nibble is 0x04, lower nibble is 0x01
+write_letter_A_to_lcd:
+	; write upper nibble
+	ldi R26, 0x04 
+	out PORTC, R26
+	rcall lcd_strobe
+
+	; write lower nibble
+	ldi R26, 0x01
+	out PORTC, R26
+	rcall lcd_strobe
+
+	rcall lcd_delay_1
+	ret
+
+;displayCString:
+;L20:
+;	lpm
+;	swap r0
+;	out PORTC, r0
+;	rcall lcd_strobe
+;	rcall delay
+;	swap r0
+;	out PORTC, r0
+;	rcall lcd_strobe
+;	rcall delay
+;	adiw zh:zl,1
+;	dec r24
+;	brne L20
+;	ret
 
 	
 
@@ -211,13 +239,16 @@ timer_config:
 	ret
 
 lcd_strobe:
-	cbi PORTB, 3
+	cbi PORTB, 3 ; drive E low
+	rcall lcd_delay_2 ; delay
+	sbi PORTB, 3 ; drive E hight 
 	rcall lcd_delay_2
-	sbi PORTB, 3
+	cbi PORTB, 3 ; drive E low
 	ret
 
 
 lcd_init_3:
+	cbi PORTB, 5 ; set RS low
 	cbi PORTC, 3
 	cbi PORTC, 2
 	sbi PORTC, 1
@@ -225,11 +256,67 @@ lcd_init_3:
 	ret
 
 lcd_init_2:
+	cbi PORTB, 5 ; set RS = 0
 	cbi PORTC, 3
 	cbi PORTC, 2
 	sbi PORTC, 1
 	cbi PORTC, 0
 	ret
+
+;; writes 0x28 upper nibble then lower nibble
+lcd_init_28:
+	; write upper nibble
+	ldi R26, 0x02
+	out PORTC, R26 ; write 
+	rcall lcd_strobe
+
+	; write lower nibble
+	ldi R26, 0x08
+	out PORTC, R26
+	rcall lcd_strobe
+	ret
+
+; writes 0x08 upper nibble then lower nibble
+lcd_init_08:
+	ldi R26, 0x00
+	out PORTC, R26
+	rcall lcd_strobe
+	
+	ldi R26, 0x08
+	out PORTC, R26
+	rcall lcd_strobe
+	ret	
+
+lcd_init_01:
+	ldi R26, 0x00
+	out PORTC, R26
+	rcall lcd_strobe
+
+	ldi R26, 0x01
+	out PORTC, R26
+	rcall lcd_strobe
+	ret
+
+lcd_init_06:
+	ldi R26, 0x00
+	out PORTC, R26
+	rcall lcd_strobe
+
+	ldi R26, 0x06
+	out PORTC, R26
+	rcall lcd_strobe
+	ret
+
+lcd_init_0C:
+	ldi R26, 0x00
+	out PORTC, R26
+	rcall lcd_strobe
+
+	ldi R26, 0x0C
+	out PORTC, R26
+	rcall lcd_strobe
+	ret
+
 
 
 lcd_delay_1:
