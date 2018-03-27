@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm Tue Mar 27 16:32:23 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm Tue Mar 27 18:03:39 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc\m88padef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc\m88padef.inc'
@@ -1016,93 +1016,91 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.
 00000b e031                      ldi count_temp, 1
 00000c ef60                      ldi count_rpg, 240
                                  
-00000d d0a3                      rcall lcd_init
+00000d d089                      rcall lcd_init
                                  
                                  ;rcall write_letter_A_to_lcd
+00000e d00e                      rcall pt
                                  
-00000e cfff                      il: rjmp il
+                                 ;il: rjmp il
                                  
-00000f d05d                      rcall timer_config
+00000f d05a                      rcall timer_config
                                  
                                  ; load both prev and curr with same initial readings
 000010 b143                      in curr, PINB ; load inputs into prev
 000011 7043                      andi curr, 0b00000011 ; mask out all signals but A & B
 000012 2f54                      mov prev, curr ; copy contents of curr into prev
-000013 d04d                      rcall delay ; delay a lil bit
+000013 d04a                      rcall delay ; delay a lil bit
                                  
                                  ; create static strings in memory
                                  ;msg1: .db "DC = ", 0x00 ;;mem reserved with .db must be an even number of bytes. If odd, padded with extra byte by assembler. 
                                  ;msg2: .db "% =", 0x00
                                  
-000014 d09c                      rcall lcd_init ; initialize lcd
-000015 d008                      rcall write_letter_A_to_lcd ; write letter A
-000016 c01c                      rjmp rpg_listener ; listen for rpg changes infinitely
+000014 c01b                      rjmp rpg_listener ; listen for rpg changes infinitely
                                  
                                  ; this is my most recent attempt at initializing the lcd
                                  ; it follows LINE FOR LINE from slide number 44 (not page number) of the LCD lecture slides
-                                 
-                                 
-000017 6548
-000018 6c6c
-000019 206f                      sf25: .DB "Hello "
-00001a e088                      ldi r24, 8
-00001b e2ee                      ldi r30, LOW(2*sf25)
-00001c e0f0                      ldi r31, HIGH(2*sf25)
-00001d c008                      rjmp displayCString
-                                 
-                                 
                                  ; ASCII code for 'A' is 41 hex
                                  ; upper nibble is 0x04, lower nibble is 0x01
+                                 
                                  write_letter_A_to_lcd:
                                  	; write upper nibble
-00001e e0a4                      	ldi R26, 0x04 
-00001f b9a8                      	out PORTC, R26
-000020 d10e                      	rcall lcd_strobe
+000015 e0a4                      	ldi R26, 0x04 
+000016 b9a8                      	out PORTC, R26
+000017 d0d4                      	rcall lcd_strobe
                                  
                                  	; write lower nibble
-000021 e0a1                      	ldi R26, 0x01
-000022 b9a8                      	out PORTC, R26
-000023 d10b                      	rcall lcd_strobe
+000018 e0a1                      	ldi R26, 0x01
+000019 b9a8                      	out PORTC, R26
+00001a d0d1                      	rcall lcd_strobe
                                  
-000024 d04b                      	rcall delay_100ms
-000025 9508                      	ret
+00001b d0b7                      	rcall delay_100ms
+00001c 9508                      	ret
+                                 
+                                 
+                                 pt:
+00001d 6548
+00001e 6c6c
+00001f 206f                      sf25: .DB "Hello "
+000020 e088                      ldi r24, 8
+000021 e3ea                      ldi r30, LOW(2*sf25)
+000022 e0f0                      ldi r31, HIGH(2*sf25)
                                  
                                  displayCString:
                                  L20:
-000026 95c8                      	lpm
-000027 9402                      	swap r0
-000028 b808                      	out PORTC, r0
-000029 d105                      	rcall lcd_strobe
-00002a d036                      	rcall delay
-00002b 9402                      	swap r0
-00002c b808                      	out PORTC, r0
-00002d d101                      	rcall lcd_strobe
-00002e d032                      	rcall delay
-00002f 9631                      	adiw zh:zl,1
-000030 958a                      	dec r24
-000031 f7a1                      	brne L20
-000032 9508                      	ret
+000023 95c8                      	lpm
+000024 9402                      	swap r0
+000025 b808                      	out PORTC, r0
+000026 d0c5                      	rcall lcd_strobe
+000027 d036                      	rcall delay
+000028 9402                      	swap r0
+000029 b808                      	out PORTC, r0
+00002a d0c1                      	rcall lcd_strobe
+00002b d032                      	rcall delay
+00002c 9631                      	adiw zh:zl,1
+00002d 958a                      	dec r24
+00002e f7a1                      	brne L20
+00002f 9508                      	ret
                                  
                                  	
                                  
                                  rpg_listener:
                                  	;rcall lightoff
-000033 b153                      	in prev, PINB
-000034 7053                      	andi prev, 0b00000011
+000030 b153                      	in prev, PINB
+000031 7053                      	andi prev, 0b00000011
                                  
-000035 d014                      	rcall lighton
-000036 d052                      	rcall delay_30_percent	; delay for 77 us
-000037 d05d                      	rcall delay_rpg_p1 //108us		; delay for 103 us
-000038 d013                      	rcall lightoff
-000039 d067                      	rcall delay_rpg_p2 //3 us
-00003a d04e                      	rcall delay_30_percent
+000032 d014                      	rcall lighton
+000033 d03b                      	rcall delay_30_percent	; delay for 77 us
+000034 d046                      	rcall delay_rpg_p1 //108us		; delay for 103 us
+000035 d013                      	rcall lightoff
+000036 d050                      	rcall delay_rpg_p2 //3 us
+000037 d037                      	rcall delay_30_percent
                                  
                                  	;rcall delay
-00003b b143                      	in curr, PINB
-00003c 7043                      	andi curr, 0b00000011
-00003d 1754                      	cp prev, curr
-00003e f409                      	brne rpg_handler
-00003f cff3                      	rjmp rpg_listener 
+000038 b143                      	in curr, PINB
+000039 7043                      	andi curr, 0b00000011
+00003a 1754                      	cp prev, curr
+00003b f409                      	brne rpg_handler
+00003c cff3                      	rjmp rpg_listener 
                                  
                                  ; This is the infinite loop which reads new inputs
                                  ; and handles the changes
@@ -1111,33 +1109,33 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.
                                  	
                                  	;rcall read_input
                                  	;rcall delay
-000040 d00d                      	rcall test_rpg
+00003d d00d                      	rcall test_rpg
                                  		
                                  	; check if AB == 00
-000041 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
-000042 f0a1                      	breq stationary ; branch if Z flag set, else continue
+00003e 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
+00003f f0a1                      	breq stationary ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 01
-000043 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
-000044 f0b9                      	breq counterclockwise; originally clockwise ; branch if Z flag set, else continue
+000040 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
+000041 f0b9                      	breq counterclockwise; originally clockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 10
-000045 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
-000046 f089                      	breq clockwise; originally counterclockwise ; branch if Z flag set, else continue
+000042 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
+000043 f089                      	breq clockwise; originally counterclockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 11
-000047 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
-000048 f071                      	breq stationary ; branch if Z flag set, else continue
+000044 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
+000045 f071                      	breq stationary ; branch if Z flag set, else continue
                                  
-000049 cff6                      	rjmp rpg_handler ; finally, continue the loop
+000046 cff6                      	rjmp rpg_handler ; finally, continue the loop
                                  
                                  lighton:
-00004a 9a2a                      	sbi PORTB, 2
-00004b 9508                      	ret
+000047 9a2a                      	sbi PORTB, 2
+000048 9508                      	ret
                                  
                                  lightoff:
-00004c 982a                      	cbi PORTB, 2
-00004d 9508                      	ret
+000049 982a                      	cbi PORTB, 2
+00004a 9508                      	ret
                                  
                                  ; subroutine which transfers curr into prev
                                  ; and then loads new reading into curr
@@ -1148,347 +1146,259 @@ AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.
                                  ;	ret
                                  
                                  test_rpg:
-00004e 3040                      	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
-00004f f029                      	breq exor_prev
+00004b 3040                      	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
+00004c f029                      	breq exor_prev
                                  
-000050 3043                      	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
-000051 f019                      	breq exor_prev
+00004d 3043                      	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
+00004e f019                      	breq exor_prev
                                  
-000052 2f14                      	mov R17, curr 
-000053 e023                      	ldi R18, 0b00000011 
-000054 2712                      	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
+00004f 2f14                      	mov R17, curr 
+000050 e023                      	ldi R18, 0b00000011 
+000051 2712                      	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
                                  
                                  exor_prev: 
-000055 2715                      	eor R17, prev
-000056 9508                      	ret
+000052 2715                      	eor R17, prev
+000053 9508                      	ret
                                  	
                                  
                                  ; subroutine to handle when the rpg is stationary
                                  ; currently it turns off both LEDs
                                  stationary:
-000057 cfdb                      	rjmp rpg_listener
+000054 cfdb                      	rjmp rpg_listener
                                  
                                  ; subroutine to hande when rpg is turning clockwise
                                  clockwise:
-000058 3862                      	cpi count_rpg, 130
-000059 f2c9                      	breq rpg_listener
-00005a 5061                      	subi count_rpg, 1
-00005b cfd7                      	rjmp rpg_listener
+000055 3862                      	cpi count_rpg, 130
+000056 f2c9                      	breq rpg_listener
+000057 5061                      	subi count_rpg, 1
+000058 cfd7                      	rjmp rpg_listener
                                  
                                  ; subroutine to hande when rpg is turning counter-clockwise 
                                  counterclockwise:
-00005c e031                      	ldi count_temp, 1
-00005d 3f6f                      	cpi count_rpg, 255
-00005e f2a1                      	breq rpg_listener
-00005f 0f63                      	add count_rpg, count_temp
-000060 cfd2                      	rjmp rpg_listener
+000059 e031                      	ldi count_temp, 1
+00005a 3f6f                      	cpi count_rpg, 255
+00005b f2a1                      	breq rpg_listener
+00005c 0f63                      	add count_rpg, count_temp
+00005d cfd2                      	rjmp rpg_listener
                                  
                                  ; a delay routine
                                  delay:
-000061 e0a2                      	ldi r26, 2
-000062 e1b9                      t4: ldi r27, 25
-000063 e3c2                      t5:	ldi r28, 50
-000064 95ca                      t6:	dec r28
+00005e e0a2                      	ldi r26, 2
+00005f e1b9                      t4: ldi r27, 25
+000060 e3c2                      t5:	ldi r28, 50
+000061 95ca                      t6:	dec r28
+000062 0000                      	nop
+000063 f7e9                      	brne t6
+000064 95ba                          dec r27
 000065 0000                      	nop
-000066 f7e9                      	brne t6
-000067 95ba                          dec r27
-000068 0000                      	nop
-000069 f7c9                      	brne t5
-00006a 95aa                      	dec R26
-00006b f7b1                      	brne t4
-00006c 9508                      	ret
+000066 f7c9                      	brne t5
+000067 95aa                      	dec R26
+000068 f7b1                      	brne t4
+000069 9508                      	ret
                                  
                                  timer_config:
-00006d e0e2                      	ldi R30, 0x02
-00006e bde5                      	out TCCR0B, R30
-00006f 9508                      	ret
-                                 
-                                 
-                                 
-                                 
-                                 delay_100ms:
-                                     ; 100ms at 8 MHz
-000070 e026                      		ldi  r18, 6
-000071 e03f                      		ldi  r19, 15
-000072 ef42                      		ldi  r20, 242
-000073 954a                      	L1: dec  r20
-000074 f7f1                      		brne L1
-000075 953a                      		dec  r19
-000076 f7e1                      		brne L1
-000077 952a                      		dec  r18
-000078 f7d1                      		brne L1
-000079 9508                      		ret
-                                 
-                                 delay_5ms:
-00007a e325                      		ldi  r18, 53
-00007b ef32                      		ldi  r19, 242
-00007c 953a                      	L2: dec  r19
-00007d f7f1                      		brne L2
-00007e 952a                      		dec  r18
-00007f f7e1                      		brne L2
-000080 0000                      		nop
-000081 9508                      		ret
-                                 
-                                 delay_200us:
-000082 e024                      		ldi  r18, 4
-000083 e133                      		ldi  r19, 19
-000084 953a                      	L3: dec  r19
-000085 f7f1                      		brne L3
-000086 952a                      		dec  r18
-000087 f7e1                      		brne L3
-000088 9508                      		ret
+00006a e0e3                      	ldi R30, 0x03
+00006b bde4                      	out TCCR0A, R30
+00006c e0e9                      	ldi R30, 0x09
+00006d bde5                      	out TCCR0B, R30
+00006e 9508                      	ret
                                  
                                  delay_30_percent:
                                  	; Stop timer
-000089 b575                      	in tmp1, TCCR0B		; Save configuration
-00008a e080                      	ldi tmp2, 0x00		; Stop timer 0
-00008b bd85                      	out TCCR0B, tmp2	;
+00006f b575                      	in tmp1, TCCR0B		; Save configuration
+000070 e080                      	ldi tmp2, 0x00		; Stop timer 0
+000071 bd85                      	out TCCR0B, tmp2	;
                                  
                                  	; Clear timer overflow flag
-00008c b385                      	in tmp2, TIFR0		; tmp <-- TIFR0 
-00008d 6081                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-00008e bb85                      	out TIFR0, tmp2		; write config back to TIFR0
+000072 b385                      	in tmp2, TIFR0		; tmp <-- TIFR0 
+000073 6081                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
+000074 bb85                      	out TIFR0, tmp2		; write config back to TIFR0
                                  
                                  	; Set initial counter offset and start
-00008f bd96                      	out TCNT0, count_30    ; load counter
-000090 bd75                      	out TCCR0B, tmp1    ; restart timer
+000075 bd96                      	out TCNT0, count_30    ; load counter
+000076 bd75                      	out TCCR0B, tmp1    ; restart timer
                                  wait_30:
-000091 b385                      	in tmp2, TIFR0		; tmp <-- TIFR0 
-000092 ff80                      	sbrs tmp2, TOV0		; check overflow flag
-000093 cffd                      	rjmp wait_30
-000094 9508                      	ret
+000077 b385                      	in tmp2, TIFR0		; tmp <-- TIFR0 
+000078 ff80                      	sbrs tmp2, TOV0		; check overflow flag
+000079 cffd                      	rjmp wait_30
+00007a 9508                      	ret
                                  
                                  delay_rpg_p1:
                                  	; Stop timer
-000095 b575                      	in tmp1, TCCR0B		; Save configuration
-000096 e080                      	ldi tmp2, 0x00		; Stop timer 0
-000097 bd85                      	out TCCR0B, tmp2	;
+00007b b575                      	in tmp1, TCCR0B		; Save configuration
+00007c e080                      	ldi tmp2, 0x00		; Stop timer 0
+00007d bd85                      	out TCCR0B, tmp2	;
                                  
                                  	; Clear timer overflow flag
-000098 b385                      	in tmp2, TIFR0		; tmp <-- TIFR0 
-000099 6081                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-00009a bb85                      	out TIFR0, tmp2		; write config back to TIFR0
+00007e b385                      	in tmp2, TIFR0		; tmp <-- TIFR0 
+00007f 6081                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
+000080 bb85                      	out TIFR0, tmp2		; write config back to TIFR0
                                  
                                  	; Set initial counter offset and start
-00009b bd66                      	out TCNT0, count_rpg    ; load counter
-00009c bd75                      	out TCCR0B, tmp1    ; restart timer
+000081 bd66                      	out TCNT0, count_rpg    ; load counter
+000082 bd75                      	out TCCR0B, tmp1    ; restart timer
                                  wait_p1:
-00009d b385                      	in tmp2, TIFR0		; tmp <-- TIFR0 
-00009e ff80                      	sbrs tmp2, TOV0		; check overflow flag
-00009f cffd                      	rjmp wait_p1
-0000a0 9508                      	ret
+000083 b385                      	in tmp2, TIFR0		; tmp <-- TIFR0 
+000084 ff80                      	sbrs tmp2, TOV0		; check overflow flag
+000085 cffd                      	rjmp wait_p1
+000086 9508                      	ret
                                  
                                  delay_rpg_p2:
                                  	; Stop timer
-0000a1 b575                      	in tmp1, TCCR0B		; Save configuration
-0000a2 e080                      	ldi tmp2, 0x00		; Stop timer 0
-0000a3 bd85                      	out TCCR0B, tmp2	;
+000087 b575                      	in tmp1, TCCR0B		; Save configuration
+000088 e080                      	ldi tmp2, 0x00		; Stop timer 0
+000089 bd85                      	out TCCR0B, tmp2	;
                                  
                                  	; Clear timer overflow flag
-0000a4 b385                      	in tmp2, TIFR0		; tmp <-- TIFR0 
-0000a5 6081                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-0000a6 bb85                      	out TIFR0, tmp2		; write config back to TIFR0
+00008a b385                      	in tmp2, TIFR0		; tmp <-- TIFR0 
+00008b 6081                      	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
+00008c bb85                      	out TIFR0, tmp2		; write config back to TIFR0
                                  
                                  	; Set initial counter offset and start 
-0000a7 2f36                      	mov count_temp, count_rpg
-0000a8 ef0f                      	ldi count_rpg_2, 255
-0000a9 5832                      	subi count_temp, 130
-0000aa 1b03                      	sub count_rpg_2, count_temp
-0000ab bd06                      	out TCNT0, count_rpg_2    ; load counter
-0000ac bd75                      	out TCCR0B, tmp1    ; restart timer
+00008d 2f36                      	mov count_temp, count_rpg
+00008e ef0f                      	ldi count_rpg_2, 255
+00008f 5832                      	subi count_temp, 130
+000090 1b03                      	sub count_rpg_2, count_temp
+000091 bd06                      	out TCNT0, count_rpg_2    ; load counter
+000092 bd75                      	out TCCR0B, tmp1    ; restart timer
                                  wait_p2:
-0000ad b385                      	in tmp2, TIFR0		; tmp <-- TIFR0 
-0000ae ff80                      	sbrs tmp2, TOV0		; check overflow flag
-0000af cffd                      	rjmp wait_p2
-0000b0 9508                      	ret
+000093 b385                      	in tmp2, TIFR0		; tmp <-- TIFR0 
+000094 ff80                      	sbrs tmp2, TOV0		; check overflow flag
+000095 cffd                      	rjmp wait_p2
+000096 9508                      	ret
                                  
+                                 
+                                 
+                                 
+                                 
+                                 //LCD INITILZSLD
                                  lcd_init:
-0000b1 dfbe                      	rcall delay_100ms ; line 1 -- 100 ms
-                                 	
-0000b2 e0a3                      	ldi R26, 0x03
-0000b3 982d                      	cbi PORTB, 5 
-0000b4 b9a8                      	out PORTC, R26 ; line 2 -- write 0x03 with RS=0 (set to 8-bit mode)
-0000b5 d079                      	rcall lcd_strobe
+000097 d03b                      	rcall delay_100ms ; line 1 -- 100 ms
+000098 d028                      	rcall lcd_init_3 ; line 2 -- (0x03)
                                  
-0000b6 dfc3                      	rcall delay_5ms ; line 3 -- 5 ms
-                                 	
-0000b7 e0a3                      	ldi R26, 0x03
-0000b8 982d                      	cbi PORTB, 5 ; set RS low
-0000b9 b9a8                      	out PORTC, R26 ; line 4 -- write 0x03 with RS=0 (set to 8-bit mode)
-0000ba d074                      	rcall lcd_strobe
+000099 d043                      	rcall delay_5ms ; line 3 -- 5 ms
+00009a d026                      	rcall lcd_init_3 ; line 4 -- (0x03)
                                  
-0000bb dfc6                      	rcall delay_200us ; line 5	
-                                 	 
-0000bc e0a3                      	ldi R26, 0x03
-0000bd 982d                      	cbi PORTB, 5 ; set RS low
-0000be b9a8                      	out PORTC, R26 ;line 6 -- write 0x03 with RS=0 (set to 8-bit mode)
-0000bf d06f                      	rcall lcd_strobe
+00009b d049                      	rcall delay_200us ; line 5	
+00009c d024                      	rcall lcd_init_3 ; line 6 -- (0x03)
                                  
-0000c0 dfc1                      	rcall delay_200us ; line 7 	 
+00009d d047                      	rcall delay_200us ; line 7 	 
+00009e d01d                      	rcall lcd_init_2 ; line 8 -- (0x02)
                                  
-0000c1 e0a2                      	ldi R26, 0x02
-0000c2 982d                      	cbi PORTB, 5 ; set RS low
-0000c3 b9a8                      	out PORTC, R26 ;line 8 -- write 0x02 with RS=0 (set to 4-bit mode)
-0000c4 d06a                      	rcall lcd_strobe
+00009f d03d                      	rcall delay_5ms ; line 9
+0000a0 d01b                      	rcall lcd_init_2 ; line 10a -- upper nibble (0x28)
                                  
-0000c5 dfb4                      	rcall delay_5ms ; line 9
-                                 		
-0000c6 e0a2                      	ldi R26, 0x02
-0000c7 982d                      	cbi PORTB, 5
-0000c8 b9a8                      	out PORTC, R26 ; line 10a -- write 28 hex (upper nibble then lower nibble) 
-0000c9 d065                      	rcall lcd_strobe
+0000a1 d043                      	rcall delay_200us
+0000a2 d027                      	rcall lcd_init_8; line 10 b -- lower nibble (0x28)
                                  
-0000ca dfb7                      	rcall delay_200us
+0000a3 d041                      	rcall delay_200us
+0000a4 d00f                      	rcall lcd_init_0 ; line 11 a -- upper nibble (0x08)
                                  
-0000cb e0a8                      	ldi R26, 0x08
-0000cc b9a8                      	out PORTC, R26; line 10b -- lower nibble
-0000cd d061                      	rcall lcd_strobe
+0000a5 d03f                      	rcall delay_200us
+0000a6 d023                      	rcall lcd_init_8 ; line 11b -- lower nibble (0x08)
                                  
-0000ce dfb3                      	rcall delay_200us
+0000a7 d03d                      	rcall delay_200us
+0000a8 d00b                      	rcall lcd_init_0 ; line 12a -- upper nibble (0x01)
                                  
-0000cf e0a0                      	ldi R26, 0x00
-0000d0 982d                      	cbi PORTB, 5
-0000d1 b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
-0000d2 d05c                      	rcall lcd_strobe
+0000a9 d03b                      	rcall delay_200us
+0000aa d00d                      	rcall lcd_init_1 ; line 12b -- lower nibble (0x01)
                                  
-0000d3 dfae                      	rcall delay_200us
-                                 	
-0000d4 e0a8                      	ldi R26, 0x08
-0000d5 b9a8                      	out PORTC, R26 ; line 11b -- lower nibble
-0000d6 d058                      	rcall lcd_strobe
+0000ab d031                      	rcall delay_5ms 
+0000ac d007                      	rcall lcd_init_0 ; line 13a -- upper nibble (0x06)
                                  
-0000d7 dfaa                      	rcall delay_200us
+0000ad d037                      	rcall delay_200us
+0000ae d017                      	rcall lcd_init_6 ; line 13b -- upper nibble (0x06)
                                  
-0000d8 e0a0                      	ldi R26, 0x00
-0000d9 982d                      	cbi PORTB, 5
-0000da b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
-0000db d053                      	rcall lcd_strobe
+0000af d02d                      	rcall delay_5ms
+0000b0 d003                      	rcall lcd_init_0 ; line 14a -- upper nibble (0x0C)
                                  
-0000dc dfa5                      	rcall delay_200us
-                                 	
-0000dd e0a1                      	ldi R26, 0x01
-0000de b9a8                      	out PORTC, R26 ; line 11b -- lower nibble
-0000df d04f                      	rcall lcd_strobe
+0000b1 d033                      	rcall delay_200us
+0000b2 d01c                      	rcall lcd_init_C ; line 14b -- upper nibble (0x0C)
                                  
-0000e0 df99                      	rcall delay_5ms 
+0000b3 9508                      	ret
                                  
-0000e1 e0a0                      	ldi R26, 0x00
-0000e2 982d                      	cbi PORTB, 5
-0000e3 b9a8                      	out PORTC, R26 ; line 12a -- write 01 hex (upper nibble then lower nibble)
-0000e4 d04a                      	rcall lcd_strobe
+                                 lcd_init_0:
+0000b4 e0a0                      	ldi R26, 0x00
+0000b5 982d                      	cbi PORTB, 5
+0000b6 b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
+0000b7 d034                      	rcall lcd_strobe
                                  
-0000e5 df9c                      	rcall delay_200us
-                                 
-0000e6 e0a6                      	ldi R26, 0x06
-0000e7 b9a8                      	out PORTC, R26 ; line 12b -- lower nibble
-0000e8 d046                      	rcall lcd_strobe
-                                 
-0000e9 df90                      	rcall delay_5ms
-                                 
-0000ea e0a0                      	ldi R26, 0x00
-0000eb 982d                      	cbi PORTB, 5
-0000ec b9a8                      	out PORTC, R26; line 13a -- write 06 hex (upper nibble then lower nibble)
-0000ed d041                      	rcall lcd_strobe
-                                 
-0000ee df93                      	rcall delay_200us
-                                 
-0000ef e0ac                      	ldi R26, 0x0C
-0000f0 b9a8                      	out PORTC, R26 ; line 13b -- lower nibble
-0000f1 d03d                      	rcall lcd_strobe
-                                 
-0000f2 df87                      	rcall delay_5ms
-                                 
-0000f3 9508                      	ret
-                                 
-                                 lcd_init_3:
-0000f4 982d                      	cbi PORTB, 5 ; set RS low
-0000f5 e0a3                      	ldi R26, 0x03
-0000f6 b9a8                      	out PORTC, R26
-0000f7 d037                      	rcall lcd_strobe
-0000f8 9508                      	ret
+                                 lcd_init_1:
+0000b8 e0a1                      	ldi R26, 0x01
+0000b9 982d                      	cbi PORTB, 5
+0000ba b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
+0000bb d030                      	rcall lcd_strobe
                                  
                                  lcd_init_2:
-0000f9 982d                      	cbi PORTB, 5 ; set RS low
-0000fa e0a2                      	ldi R26, 0x02
-0000fb b9a8                      	out PORTC, R26
-0000fc d032                      	rcall lcd_strobe
-0000fd 9508                      	ret
+0000bc e0a2                      	ldi R26, 0x02
+0000bd 982d                      	cbi PORTB, 5 ; set RS low
+0000be b9a8                      	out PORTC, R26 ;line 8 -- write 0x02 with RS=0 (set to 4-bit mode)
+0000bf d02c                      	rcall lcd_strobe
+0000c0 9508                      	ret
                                  
-                                 ;; writes 0x28 upper nibble then lower nibble
-                                 lcd_init_28:
-0000fe 982d                      	cbi PORTB, 5
-                                 	; write upper nibble
-0000ff e0a2                      	ldi R26, 0x02
-000100 b9a8                      	out PORTC, R26 ; write 
-000101 d02d                      	rcall lcd_strobe
-000102 df7f                      	rcall delay_200us ;200u
+                                 lcd_init_3:
+0000c1 e0a3                      	ldi R26, 0x03
+0000c2 982d                      	cbi PORTB, 5 
+0000c3 b9a8                      	out PORTC, R26 ; line 2 -- write 0x03 with RS=0 (set to 8-bit mode)
+0000c4 d027                      	rcall lcd_strobe
+0000c5 9508                      	ret
                                  
-                                 	; write lower nibble
-000103 e0a8                      	ldi R26, 0x08
-000104 b9a8                      	out PORTC, R26
-000105 d029                      	rcall lcd_strobe
-000106 9508                      	ret
-                                 
-                                 ; writes 0x08 upper nibble then lower nibble
-                                 lcd_init_08:
-000107 982d                      	cbi PORTB, 5
-000108 e0a0                      	ldi R26, 0x00
-000109 b9a8                      	out PORTC, R26
-00010a d024                      	rcall lcd_strobe
-00010b df76                      	rcall delay_200us;200u
+                                 lcd_init_6:
+0000c6 e0a6                      	ldi R26, 0x06
+0000c7 982d                      	cbi PORTB, 5
+0000c8 b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
+0000c9 d022                      	rcall lcd_strobe
                                  	
-00010c e0a8                      	ldi R26, 0x08
-00010d b9a8                      	out PORTC, R26
-00010e d020                      	rcall lcd_strobe
-00010f df6a                      	rcall delay_5ms ;5ms
-000110 9508                      	ret	
+                                 lcd_init_8:
+0000ca e0a8                      	ldi R26, 0x08
+0000cb 982d                      	cbi PORTB, 5
+0000cc b9a8                      	out PORTC, R26; line 10b -- lower nibble
+0000cd d01e                      	rcall lcd_strobe
+0000ce 9508                      	ret
                                  
-                                 lcd_init_01:
-000111 982d                      	cbi PORTB, 5
-000112 e0a0                      	ldi R26, 0x00
-000113 b9a8                      	out PORTC, R26
-000114 d01a                      	rcall lcd_strobe
-000115 df6c                      	rcall delay_200us ; 200u
+                                 lcd_init_C:
+0000cf e0ac                      	ldi R26, 0x0C
+0000d0 982d                      	cbi PORTB, 5
+0000d1 b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
+0000d2 d019                      	rcall lcd_strobe
                                  
-000116 e0a1                      	ldi R26, 0x01
-000117 b9a8                      	out PORTC, R26
-000118 d016                      	rcall lcd_strobe
-000119 df60                      	rcall delay_5ms; 5ms
-00011a 9508                      	ret
+                                 delay_100ms:
+0000d3 e026                      		ldi  r18, 6
+0000d4 e03f                      		ldi  r19, 15
+0000d5 ef42                      		ldi  r20, 242
+0000d6 954a                      	L1: dec  r20
+0000d7 f7f1                      		brne L1
+0000d8 953a                      		dec  r19
+0000d9 f7e1                      		brne L1
+0000da 952a                      		dec  r18
+0000db f7d1                      		brne L1
+0000dc 9508                      		ret
                                  
-                                 lcd_init_06:
-00011b 982d                      	cbi PORTB, 5
-00011c e0a0                      	ldi R26, 0x00
-00011d b9a8                      	out PORTC, R26
-00011e d010                      	rcall lcd_strobe
-00011f df62                      	rcall delay_200us ; 200u
+                                 delay_5ms:
+0000dd e325                      		ldi  r18, 53
+0000de ef32                      		ldi  r19, 242
+0000df 953a                      	L2: dec  r19
+0000e0 f7f1                      		brne L2
+0000e1 952a                      		dec  r18
+0000e2 f7e1                      		brne L2
+0000e3 0000                      		nop
+0000e4 9508                      		ret
                                  
-000120 e0a6                      	ldi R26, 0x06
-000121 b9a8                      	out PORTC, R26
-000122 d00c                      	rcall lcd_strobe
-000123 df56                      	rcall delay_5ms; 5ms
-000124 9508                      	ret
-                                 
-                                 lcd_init_0C:
-000125 982d                      	cbi PORTB, 5
-000126 e0a0                      	ldi R26, 0x00
-000127 b9a8                      	out PORTC, R26
-000128 d006                      	rcall lcd_strobe
-000129 df58                      	rcall delay_200us ; 200u
-                                 
-00012a e0ac                      	ldi R26, 0x0C
-00012b b9a8                      	out PORTC, R26
-00012c d002                      	rcall lcd_strobe
-00012d df4c                      	rcall delay_5ms; 5ms
-00012e 9508                      	ret
-                                 
+                                 delay_200us:
+0000e5 e024                      		ldi  r18, 4
+0000e6 e133                      		ldi  r19, 19
+0000e7 953a                      	L3: dec  r19
+0000e8 f7f1                      		brne L3
+0000e9 952a                      		dec  r18
+0000ea f7e1                      		brne L3
+0000eb 9508                      		ret
                                  
                                  lcd_strobe:
-00012f 982b                      	cbi PORTB, 3 ; drive E low
-000130 df51                      	rcall delay_200us ; delay
-000131 9a2b                      	sbi PORTB, 3 ; drive E hight 
-000132 df4f                      	rcall delay_200us
-000133 982b                      	cbi PORTB, 3 ; drive E low
+0000ec 982b                      	cbi PORTB, 3 ; drive E low
+0000ed dff7                      	rcall delay_200us ; delay
+0000ee 9a2b                      	sbi PORTB, 3 ; drive E hight 
+0000ef dff5                      	rcall delay_200us
+0000f0 982b                      	cbi PORTB, 3 ; drive E low
 
 
 RESOURCE USE INFORMATION
@@ -1509,8 +1419,8 @@ counted separately from r26..r31 here.
 x  :   0 y  :   0 z  :   0 r0 :   4 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
 r13:   0 r14:   0 r15:   0 r16:   3 r17:   7 r18:   8 r19:  12 r20:  11 
-r21:   5 r22:   8 r23:   6 r24:  23 r25:   2 r26:  58 r27:   2 r28:   2 
-r29:   0 r30:   4 r31:   2 
+r21:   5 r22:   8 r23:   6 r24:  23 r25:   2 r26:  20 r27:   2 r28:   2 
+r29:   0 r30:   6 r31:   2 
 Registers used: 16 out of 35 (45.7%)
 
 "ATmega88PA" instruction use summary:
@@ -1519,15 +1429,15 @@ andi  :   3 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0
 brcc  :   0 brcs  :   0 break :   0 breq  :   8 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
 brne  :  12 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 cbi   :  21 cbr   :   0 clc   :   0 
+brvs  :   0 bset  :   0 bst   :   0 cbi   :  12 cbr   :   0 clc   :   0 
 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 clt   :   0 
 clv   :   0 clz   :   0 com   :   0 cp    :   1 cpc   :   0 cpi   :   8 
 cpse  :   0 dec   :  11 eor   :   2 fmul  :   0 fmuls :   0 fmulsu:   0 
 icall :   0 ijmp  :   0 in    :  12 inc   :   0 ld    :   0 ldd   :   0 
-ldi   :  52 lds   :   0 lpm   :   3 lsl   :   0 lsr   :   0 mov   :   3 
+ldi   :  34 lds   :   0 lpm   :   3 lsl   :   0 lsr   :   0 mov   :   3 
 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 neg   :   0 nop   :   3 
-or    :   0 ori   :   0 out   :  43 pop   :   0 push  :   0 rcall :  71 
-ret   :  22 reti  :   0 rjmp  :  11 rol   :   0 ror   :   0 sbc   :   0 
+or    :   0 ori   :   0 out   :  25 pop   :   0 push  :   0 rcall :  55 
+ret   :  18 reti  :   0 rjmp  :   9 rol   :   0 ror   :   0 sbc   :   0 
 sbci  :   0 sbi   :   9 sbic  :   0 sbis  :   0 sbiw  :   0 sbr   :   3 
 sbrc  :   0 sbrs  :   3 sec   :   0 seh   :   0 sei   :   0 sen   :   0 
 ser   :   0 ses   :   0 set   :   0 sev   :   0 sez   :   0 sleep :   0 
@@ -1538,7 +1448,7 @@ Instructions used: 25 out of 111 (22.5%)
 "ATmega88PA" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x00026a    612      6    618    8192   7.5%
+[.cseg] 0x000000 0x0001e4    478      6    484    8192   5.9%
 [.dseg] 0x000100 0x000100      0      0      0    1024   0.0%
 [.eseg] 0x000000 0x000000      0      0      0     512   0.0%
 
