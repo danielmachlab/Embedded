@@ -6,8 +6,13 @@
 cbi DDRB, 0 ; input - from A
 cbi DDRB, 1 ; input - from B
 sbi DDRB, 2 ; output - clockwise (A side) LED
-sbi DDRB, 3
+sbi DDRD, 5 ; set pwm pin as output
+
+;; E & RS LINES TO LCD
+sbi DDRB, 3 ; output to E
 sbi DDRB, 5 ; output to RS line of lcd
+
+;; DATA LINES TO LCD
 sbi DDRC, 3 ; output PC3 - D7
 sbi DDRC, 2 ; output PC2 - D6
 sbi DDRC, 1 ; output PC1 - D5
@@ -25,80 +30,88 @@ sbi DDRC, 0 ; output PC0 - D4
 .def count_rpg_2 = R16
 //.def temp_var = R29
 
-ldi count_30, 0xA3	; preload count_30 to 160
-ldi count_rpg, 140	; preload count_rpg to 140
-ldi count_temp, 1
-ldi count_rpg, 180
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; PUBLIC STATIC VOID MAIN 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+cbi PORTB, 5 ; set to command mode
 rcall lcd_init
+sbi PORTB, 5 ; set to data mode
 
-rcall write_letter_A_to_lcd
-;rcall pt
+msg1: .DB "DC = ", 0x00
+ldi r30, LOW(2*msg1)
+ldi r31, HIGH(2*msg1)
 
-il: rjmp il
+rcall displayCString
 
 rcall timer_config
+
+rjmp rpg_listener
+
+endloop: rjmp endloop
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; END MAIN
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ; load both prev and curr with same initial readings
 in curr, PINB ; load inputs into prev
 andi curr, 0b00000011 ; mask out all signals but A & B
 mov prev, curr ; copy contents of curr into prev
-rcall delay ; delay a lil bit
+rcall delay_100ms ; delay a lil bit
 
 ; create static strings in memory
 ;msg1: .db "DC = ", 0x00 ;;mem reserved with .db must be an even number of bytes. If odd, padded with extra byte by assembler. 
 ;msg2: .db "% =", 0x00
 
-rjmp rpg_listener ; listen for rpg changes infinitely
-
-; this is my most recent attempt at initializing the lcd
-; it follows LINE FOR LINE from slide number 44 (not page number) of the LCD lecture slides
-; ASCII code for 'A' is 41 hex
-; upper nibble is 0x04, lower nibble is 0x01
-
 write_letter_A_to_lcd:
+	rcall delay_100ms
 	; set to data mode
 	sbi PORTB, 5
 	; write upper nibble
-	ldi R26, 0101
+	ldi R26, 0b00000100
 	out PORTC, R26
 	rcall lcd_strobe
-
-	rcall delay_100us
-
+	rcall delay_100ms
 	; write lower nibble
-	ldi R26, 0011
+	ldi R26, 0b00000001
 	out PORTC, R26
 	rcall lcd_strobe
-
 	rcall delay_100ms
 	ret
 
-
-pt:
-	sf25: .DB "R "
-	ldi r24, 2
-	ldi r30, LOW(2*sf25)
-	ldi r31, HIGH(2*sf25)
-
-displayCString:
+write_letter_E_to_lcd:
+	rcall delay_100ms
+	; set to data mode
 	sbi PORTB, 5
-L20:
-	lpm
-	swap r0
-	out PORTC, r0
+	; write upper nibble
+	ldi R26, 0b00000100
+	out PORTC, R26
 	rcall lcd_strobe
-	rcall delay_100us
-	swap r0
-	out PORTC, r0
+	rcall delay_100ms
+	; write lower nibble
+	ldi R26, 0b00000101
+	out PORTC, R26
 	rcall lcd_strobe
-	rcall delay_100us
-	adiw zh:zl,1
-	dec r24
-	brne L20
+	rcall delay_100ms
 	ret
-
 	
+displayCString:
+	lpm r0,Z+ ; r0 <-- first byte
+	tst r0 ; Reached end of message ?
+	breq done ; Yes => quit
+	swap r0 ; Upper nibble in place
+	out PORTC,r0 ; Send upper nibble out
+	rcall lcd_strobe ; Latch nibble
+	//rcall delay_200us
+	swap r0 ; Lower nibble in place
+	out PORTC,r0 ; Send lower nibble out
+	rcall lcd_strobe ; Latch nibble
+	//rcall delay_200us
+	rjmp displayCstring
+done:
+	ret
 
 rpg_listener:
 	;rcall lightoff
@@ -106,11 +119,10 @@ rpg_listener:
 	andi prev, 0b00000011
 
 	rcall lighton
-	rcall delay_30_percent	; delay for 77 us
-	rcall delay_rpg_p1 //108us		; delay for 103 us
+
+	;; delay
+
 	rcall lightoff
-	rcall delay_rpg_p2 //3 us
-	rcall delay_30_percent
 
 	;rcall delay
 	in curr, PINB
@@ -197,8 +209,6 @@ clockwise:
 	out OCR0B, R26
 	rjmp rpg_listener
 
-
-
 ;; subroutine to hande when rpg is turning counter-clockwise
 ;; if [OCR0B] == 0 -> decrement
 ;; else keep at zero
@@ -212,224 +222,114 @@ counterclockwise:
 	out OCR0B, R26
 	rjmp rpg_listener
 
-; a delay routine
-delay:
-	ldi r26, 2
-t4: ldi r27, 25
-t5:	ldi r28, 50
-t6:	dec r28
-	nop
-	brne t6
-    dec r27
-	nop
-	brne t5
-	dec R26
-	brne t4
-	ret
-
 timer_config:
-	ldi R30, 0x23 ; WGM01, WGM00 <= 1, 1
+	ldi R30, 0b00100011 ; WGM01, WGM00 <= 1, 1
 	out TCCR0A, R30
-	ldi R30, 0b00001001 ; WGM02 <= 1
+	ldi R30, 0b00001001 ; No prescale
 	out TCCR0B, R30
-	ldi R30, 0xC8 ; OCR0A <= 200 (set TOP to 200)
+	ldi R30, 0xC8 ; OCRA <= 200 (set TOP to 200)
 	out OCR0A, R30
 	ret
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-delay_30_percent:
-	; Stop timer
-	in tmp1, TCCR0B		; Save configuration
-	ldi tmp2, 0x00		; Stop timer 0
-	out TCCR0B, tmp2	;
-
-	; Clear timer overflow flag
-	in tmp2, TIFR0		; tmp <-- TIFR0 
-	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-	out TIFR0, tmp2		; write config back to TIFR0
-
-	; Set initial counter offset and start
-	out TCNT0, count_30    ; load counter
-	out TCCR0B, tmp1    ; restart timer
-wait_30:
-	in tmp2, TIFR0		; tmp <-- TIFR0 
-	sbrs tmp2, TOV0		; check overflow flag
-	rjmp wait_30
-	ret
-
-delay_rpg_p1:
-	; Stop timer
-	in tmp1, TCCR0B		; Save configuration
-	ldi tmp2, 0x00		; Stop timer 0
-	out TCCR0B, tmp2	;
-
-	; Clear timer overflow flag
-	in tmp2, TIFR0		; tmp <-- TIFR0 
-	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-	out TIFR0, tmp2		; write config back to TIFR0
-
-	; Set initial counter offset and start
-	out TCNT0, count_rpg    ; load counter
-	out TCCR0B, tmp1    ; restart timer
-wait_p1:
-	in tmp2, TIFR0		; tmp <-- TIFR0 
-	sbrs tmp2, TOV0		; check overflow flag
-	rjmp wait_p1
-	ret
-
-delay_rpg_p2:
-	; Stop timer
-	in tmp1, TCCR0B		; Save configuration
-	ldi tmp2, 0x00		; Stop timer 0
-	out TCCR0B, tmp2	;
-
-	; Clear timer overflow flag
-	in tmp2, TIFR0		; tmp <-- TIFR0 
-	sbr tmp2, 1<<TOV0	; clear TOV0, write logic 1
-	out TIFR0, tmp2		; write config back to TIFR0
-
-	; Set initial counter offset and start 
-	mov count_temp, count_rpg
-	ldi count_rpg_2, 255
-	subi count_temp, 130
-	sub count_rpg_2, count_temp
-	out TCNT0, count_rpg_2    ; load counter
-	out TCCR0B, tmp1    ; restart timer
-wait_p2:
-	in tmp2, TIFR0		; tmp <-- TIFR0 
-	sbrs tmp2, TOV0		; check overflow flag
-	rjmp wait_p2
-	ret
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//LCD INITILZSLD
 lcd_init:
 	rcall delay_100ms ; line 1 -- 100 ms
-	rcall lcd_init_3 ; line 2 -- (0x03)
-
-	rcall delay_5ms ; line 3 -- 5 ms
-	rcall lcd_init_3 ; line 4 -- (0x03)
-
-	rcall delay_200us ; line 5	
-	rcall lcd_init_3 ; line 6 -- (0x03)
-
-	rcall delay_200us ; line 7 	 
-	rcall lcd_init_2 ; line 8 -- (0x02)
-
-	rcall delay_5ms ; line 9
-	rcall lcd_init_2 ; line 10a -- upper nibble (0x28)
-
-	rcall delay_200us
-	rcall lcd_init_8; line 10 b -- lower nibble (0x28)
-
-	rcall delay_200us
-	rcall lcd_init_0 ; line 11 a -- upper nibble (0x08)
-
-	rcall delay_200us
-	rcall lcd_init_8 ; line 11b -- lower nibble (0x08)
-
-	rcall delay_200us
-	rcall lcd_init_0 ; line 12a -- upper nibble (0x01)
-
-	rcall delay_200us
-	rcall lcd_init_1 ; line 12b -- lower nibble (0x01)
-
-	rcall delay_5ms 
-	rcall lcd_init_0 ; line 13a -- upper nibble (0x06)
-
-	rcall delay_200us
-	rcall lcd_init_6 ; line 13b -- upper nibble (0x06)
-
-	rcall delay_5ms
-	rcall lcd_init_0 ; line 14a -- upper nibble (0x0C)
-
-	rcall delay_200us
-	rcall lcd_init_C ; line 14b -- upper nibble (0x0C)
-
-	ret
-
-lcd_init_0:
-	ldi R26, 0x00
-	cbi PORTB, 5
-	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
-	rcall lcd_strobe
-
-lcd_init_1:
-	ldi R26, 0x01
-	cbi PORTB, 5
-	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
-	rcall lcd_strobe
-
-lcd_init_2:
-	ldi R26, 0x02
-	cbi PORTB, 5 ; set RS low
-	out PORTC, R26 ;line 8 -- write 0x02 with RS=0 (set to 4-bit mode)
-	rcall lcd_strobe
-	ret
-
-lcd_init_3:
+	
 	ldi R26, 0x03
-	cbi PORTB, 5 
 	out PORTC, R26 ; line 2 -- write 0x03 with RS=0 (set to 8-bit mode)
 	rcall lcd_strobe
-	ret
 
-lcd_init_6:
-	ldi R26, 0x06
-	cbi PORTB, 5
-	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
-	rcall lcd_strobe
+	rcall delay_5ms ; line 3 -- 5 ms
 	
-lcd_init_8:
+	ldi R26, 0x03
+	out PORTC, R26 ; line 4 -- write 0x03 with RS=0 (set to 8-bit mode)
+	rcall lcd_strobe
+
+	rcall delay_200us ; line 5	
+	 
+	ldi R26, 0x03
+	out PORTC, R26 ;line 6 -- write 0x03 with RS=0 (set to 8-bit mode)
+	rcall lcd_strobe
+
+	rcall delay_200us ; line 7 	 
+
+	ldi R26, 0x02
+	out PORTC, R26 ;line 8 -- write 0x02 with RS=0 (set to 4-bit mode)
+	rcall lcd_strobe
+
+	rcall delay_5ms ; line 9
+		
+	ldi R26, 0x02
+	out PORTC, R26 ; line 10a -- write 28 hex (upper nibble then lower nibble) 
+	rcall lcd_strobe
+
+	rcall delay_200us
+
 	ldi R26, 0x08
-	cbi PORTB, 5
 	out PORTC, R26; line 10b -- lower nibble
 	rcall lcd_strobe
-	ret
 
-lcd_init_C:
-	ldi R26, 0x0C
-	cbi PORTB, 5
+	rcall delay_200us
+
+	ldi R26, 0x00
 	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
 	rcall lcd_strobe
 
+	rcall delay_200us
+	
+	ldi R26, 0x08
+	out PORTC, R26 ; line 11b -- lower nibble
+	rcall lcd_strobe
+
+	rcall delay_200us
+
+	ldi R26, 0x00
+	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
+	rcall lcd_strobe
+
+	rcall delay_200us
+	
+	ldi R26, 0x01
+	out PORTC, R26 ; line 11b -- lower nibble
+	rcall lcd_strobe
+
+	rcall delay_5ms 
+
+	ldi R26, 0x00
+	out PORTC, R26 ; line 12a -- write 01 hex (upper nibble then lower nibble)
+	rcall lcd_strobe
+
+	rcall delay_200us
+
+	ldi R26, 0x06
+	out PORTC, R26 ; line 12b -- lower nibble
+	rcall lcd_strobe
+
+	rcall delay_5ms
+
+	ldi R26, 0x00
+	out PORTC, R26; line 13a -- write 06 hex (upper nibble then lower nibble)
+	rcall lcd_strobe
+
+	rcall delay_200us
+
+	ldi R26, 0x0C
+	out PORTC, R26 ; line 13b -- lower nibble
+	rcall lcd_strobe
+
+	rcall delay_5ms
+	ret
+
+lcd_strobe:
+	cbi PORTB, 3 ; drive E low
+	rcall delay_200us ; delay
+	sbi PORTB, 3 ; drive E hight 
+	rcall delay_200us
+	cbi PORTB, 3 ; drive E low
+	ret
+
+
 delay_100ms:
+    ; 100ms at 8 MHz
 		ldi  r18, 6
 		ldi  r19, 15
 		ldi  r20, 242
@@ -459,20 +359,3 @@ delay_200us:
 		dec  r18
 		brne L3
 		ret
-
-delay_100us:
-		ldi  r18, 3
-		ldi  r19, 9
-	L4: dec  r19
-		brne L4
-		dec  r18
-		brne L4
-		ret
-
-lcd_strobe:
-	cbi PORTB, 3 ; drive E low
-	rcall delay_200us ; delay
-	sbi PORTB, 3 ; drive E hight 
-	rcall delay_200us
-	;cbi PORTB, 3 ; drive E low
-	ret
