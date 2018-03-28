@@ -2,8 +2,7 @@
 ;; Lab 4
 ;; Ted Paulsen, Daniel Machlab
 ;;
-
-; cbi is input sbi is output
+;; cbi is input sbi is output
 cbi DDRB, 0 ; input - from A
 cbi DDRB, 1 ; input - from B
 sbi DDRB, 2 ; output - clockwise (A side) LED
@@ -36,7 +35,7 @@ rcall lcd_init
 rcall write_letter_A_to_lcd
 ;rcall pt
 
-;il: rjmp il
+il: rjmp il
 
 rcall timer_config
 
@@ -184,19 +183,33 @@ exor_prev:
 stationary:
 	rjmp rpg_listener
 
-; subroutine to hande when rpg is turning clockwise
+;; subroutine to hande when rpg is turning clockwise
+;; if [OCR0B] == TOP -> do nothing
+;; else increment
 clockwise:
-	cpi count_rpg, 130
-	breq rpg_listener
-	subi count_rpg, 1
+	in R26, OCR0B ; current duty cycle
+	in R27, OCR0A ; 200
+	cp R26, R27
+	brne incr
+	rjmp rpg_listener
+  incr:
+	inc R26
+	out OCR0B, R26
 	rjmp rpg_listener
 
-; subroutine to hande when rpg is turning counter-clockwise 
+
+
+;; subroutine to hande when rpg is turning counter-clockwise
+;; if [OCR0B] == 0 -> decrement
+;; else keep at zero
 counterclockwise:
-	ldi count_temp, 1
-	cpi count_rpg, 200
-	breq rpg_listener
-	add count_rpg, count_temp
+	in R26, OCR0B ; load value from OCROA
+	tst R26
+	brne decr
+	rjmp rpg_listener
+  decr:
+	dec R26
+	out OCR0B, R26
 	rjmp rpg_listener
 
 ; a delay routine
@@ -217,11 +230,30 @@ t6:	dec r28
 timer_config:
 	ldi R30, 0x23 ; WGM01, WGM00 <= 1, 1
 	out TCCR0A, R30
-	ldi R30, 0b00001010 ; WGM02 <= 1
+	ldi R30, 0b00001001 ; WGM02 <= 1
 	out TCCR0B, R30
-	ldi R30, 0xC8 ; OCR0A <= 200
+	ldi R30, 0xC8 ; OCR0A <= 200 (set TOP to 200)
 	out OCR0A, R30
 	ret
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 delay_30_percent:
 	; Stop timer
@@ -286,6 +318,21 @@ wait_p2:
 	sbrs tmp2, TOV0		; check overflow flag
 	rjmp wait_p2
 	ret
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
