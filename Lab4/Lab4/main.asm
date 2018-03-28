@@ -32,11 +32,15 @@ ldi count_temp, 1
 ldi count_rpg, 180
 
 rcall lcd_init
+msg1: .DB "DC = ", 0x00
+ldi r30, LOW(2*msg1)
+ldi r31, HIGH(2*msg1)
+
+;rcall displayCString
 
 rcall write_letter_A_to_lcd
-;rcall pt
 
-;il: rjmp il
+endloop: rjmp endloop
 
 rcall timer_config
 
@@ -58,17 +62,18 @@ rjmp rpg_listener ; listen for rpg changes infinitely
 ; upper nibble is 0x04, lower nibble is 0x01
 
 write_letter_A_to_lcd:
+	rcall delay_100ms
 	; set to data mode
 	sbi PORTB, 5
 	; write upper nibble
-	ldi R26, 0101
+	ldi R26, 0x03
 	out PORTC, R26
 	rcall lcd_strobe
 
-	rcall delay_100us
+	rcall delay_100ms
 
 	; write lower nibble
-	ldi R26, 0011
+	ldi R26, 0x03
 	out PORTC, R26
 	rcall lcd_strobe
 
@@ -76,27 +81,27 @@ write_letter_A_to_lcd:
 	ret
 
 
-pt:
-	sf25: .DB "R "
-	ldi r24, 2
-	ldi r30, LOW(2*sf25)
-	ldi r31, HIGH(2*sf25)
-
-displayCString:
 	sbi PORTB, 5
-L20:
-	lpm
-	swap r0
-	out PORTC, r0
-	rcall lcd_strobe
-	rcall delay_100us
-	swap r0
-	out PORTC, r0
-	rcall lcd_strobe
-	rcall delay_100us
-	adiw zh:zl,1
-	dec r24
-	brne L20
+	
+
+print: 
+	
+
+	
+displayCString:
+	lpm r0,Z+ ; r0 <-- first byte
+	tst r0 ; Reached end of message ?
+	breq done ; Yes => quit
+	swap r0 ; Upper nibble in place
+	out PORTC,r0 ; Send upper nibble out
+	rcall lcd_strobe ; Latch nibble
+	//rcall delay_200us
+	swap r0 ; Lower nibble in place
+	out PORTC,r0 ; Send lower nibble out
+	rcall lcd_strobe ; Latch nibble
+	//rcall delay_200us
+	rjmp displayCstring
+done:
 	ret
 
 	
@@ -311,11 +316,11 @@ lcd_init:
 	rcall delay_200us
 	rcall lcd_init_8; line 10 b -- lower nibble (0x28)
 
-	rcall delay_200us
-	rcall lcd_init_0 ; line 11 a -- upper nibble (0x08)
+	;rcall delay_200us
+	;rcall lcd_init_0 ; line 11 a -- upper nibble (0x08)
 
-	rcall delay_200us
-	rcall lcd_init_8 ; line 11b -- lower nibble (0x08)
+	;rcall delay_200us
+	;rcall lcd_init_8 ; line 11b -- lower nibble (0x08)
 
 	rcall delay_200us
 	rcall lcd_init_0 ; line 12a -- upper nibble (0x01)
@@ -334,6 +339,10 @@ lcd_init:
 
 	rcall delay_200us
 	rcall lcd_init_C ; line 14b -- upper nibble (0x0C)
+
+
+
+	
 
 	ret
 
@@ -427,5 +436,5 @@ lcd_strobe:
 	rcall delay_200us ; delay
 	sbi PORTB, 3 ; drive E hight 
 	rcall delay_200us
-	;cbi PORTB, 3 ; drive E low
+	cbi PORTB, 3 ; drive E low
 	ret
