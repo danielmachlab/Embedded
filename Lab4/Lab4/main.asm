@@ -29,12 +29,12 @@ sbi DDRC, 0 ; output PC0 - D4
 ldi count_30, 0xA3	; preload count_30 to 160
 ldi count_rpg, 140	; preload count_rpg to 140
 ldi count_temp, 1
-ldi count_rpg, 240
+ldi count_rpg, 180
 
 rcall lcd_init
 
-;rcall write_letter_A_to_lcd
-rcall pt
+rcall write_letter_A_to_lcd
+;rcall pt
 
 ;il: rjmp il
 
@@ -58,13 +58,17 @@ rjmp rpg_listener ; listen for rpg changes infinitely
 ; upper nibble is 0x04, lower nibble is 0x01
 
 write_letter_A_to_lcd:
+	; set to data mode
+	sbi PORTB, 5
 	; write upper nibble
-	ldi R26, 0x04 
+	ldi R26, 0101
 	out PORTC, R26
 	rcall lcd_strobe
 
+	rcall delay_100us
+
 	; write lower nibble
-	ldi R26, 0x01
+	ldi R26, 0011
 	out PORTC, R26
 	rcall lcd_strobe
 
@@ -73,22 +77,23 @@ write_letter_A_to_lcd:
 
 
 pt:
-sf25: .DB "Hello "
-ldi r24, 8
-ldi r30, LOW(2*sf25)
-ldi r31, HIGH(2*sf25)
+	sf25: .DB "R "
+	ldi r24, 2
+	ldi r30, LOW(2*sf25)
+	ldi r31, HIGH(2*sf25)
 
 displayCString:
+	sbi PORTB, 5
 L20:
 	lpm
 	swap r0
 	out PORTC, r0
 	rcall lcd_strobe
-	rcall delay
+	rcall delay_100us
 	swap r0
 	out PORTC, r0
 	rcall lcd_strobe
-	rcall delay
+	rcall delay_100us
 	adiw zh:zl,1
 	dec r24
 	brne L20
@@ -189,7 +194,7 @@ clockwise:
 ; subroutine to hande when rpg is turning counter-clockwise 
 counterclockwise:
 	ldi count_temp, 1
-	cpi count_rpg, 255
+	cpi count_rpg, 200
 	breq rpg_listener
 	add count_rpg, count_temp
 	rjmp rpg_listener
@@ -210,10 +215,12 @@ t6:	dec r28
 	ret
 
 timer_config:
-	ldi R30, 0x03
+	ldi R30, 0x23 ; WGM01, WGM00 <= 1, 1
 	out TCCR0A, R30
-	ldi R30, 0x09
+	ldi R30, 0b00001010 ; WGM02 <= 1
 	out TCCR0B, R30
+	ldi R30, 0xC8 ; OCR0A <= 200
+	out OCR0A, R30
 	ret
 
 delay_30_percent:
@@ -406,10 +413,19 @@ delay_200us:
 		brne L3
 		ret
 
+delay_100us:
+		ldi  r18, 3
+		ldi  r19, 9
+	L4: dec  r19
+		brne L4
+		dec  r18
+		brne L4
+		ret
+
 lcd_strobe:
 	cbi PORTB, 3 ; drive E low
 	rcall delay_200us ; delay
 	sbi PORTB, 3 ; drive E hight 
 	rcall delay_200us
-	cbi PORTB, 3 ; drive E low
+	;cbi PORTB, 3 ; drive E low
 	ret
