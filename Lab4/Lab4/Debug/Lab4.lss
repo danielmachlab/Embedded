@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Wed Mar 28 17:31:07 2018
+AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Thu Mar 29 11:34:30 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc\m88padef.inc'
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc\m88padef.inc'
@@ -1003,24 +1003,22 @@ AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Wed
 000008 9a39                      sbi DDRC, 1 ; output PC1 - D5
 000009 9a38                      sbi DDRC, 0 ; output PC0 - D4
                                  
-                                 ; SETUP WORK 
+                                 ;; RPG readings
                                  .def curr = R20 ; R20 is the current rpg reading
                                  .def prev = R21 ; R21 is the previous rpg reading
-                                 .def count_temp = R19
                                  
-                                 .def tmp1 = R23
-                                 .def tmp2 = R24
-                                 .def count_30 = R25
-                                 .def count_rpg = R22
-                                 .def count_rpg_2 = R16
-                                 //.def temp_var = R29
+                                 ;; LCD data
+                                 .def write = R16
+                                 .def duty_cycle = R23
+                                 
+                                 ;; free registers: R24, R25, R22, R16, R29
                                  
                                  
                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                  ;; PUBLIC STATIC VOID MAIN 
-                                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                                 
 00000a 982d                      cbi PORTB, 5 ; set to command mode
-00000b d066                      rcall lcd_init
+00000b d067                      rcall lcd_init
 00000c 9a2d                      sbi PORTB, 5 ; set to data mode
                                  
 00000d 4344
@@ -1029,94 +1027,99 @@ AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Wed
 000010 e1ea                      ldi r30, LOW(2*msg1)
 000011 e0f0                      ldi r31, HIGH(2*msg1)
                                  
-000012 d01d                      rcall displayCString
+000012 d013                      rcall display_static
                                  
-000013 d057                      rcall timer_config
+000013 d058                      rcall timer_config
                                  
-000014 c026                      rjmp rpg_listener
+000014 e674                      ldi duty_cycle, 100
+000015 bd78                      out OCR0B, duty_cycle
+000016 c025                      rjmp rpg_listener
                                  
-000015 cfff                      endloop: rjmp endloop
-                                 
-                                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                  ;; END MAIN
                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                  
                                  
                                  ; load both prev and curr with same initial readings
-000016 b143                      in curr, PINB ; load inputs into prev
-000017 7043                      andi curr, 0b00000011 ; mask out all signals but A & B
-000018 2f54                      mov prev, curr ; copy contents of curr into prev
-000019 d098                      rcall delay_100ms ; delay a lil bit
+000017 b143                      in curr, PINB ; load inputs into prev
+000018 7043                      andi curr, 0b00000011 ; mask out all signals but A & B
+000019 2f54                      mov prev, curr ; copy contents of curr into prev
+00001a d098                      rcall delay_100ms ; delay a lil bit
                                  
                                  ; create static strings in memory
                                  ;msg1: .db "DC = ", 0x00 ;;mem reserved with .db must be an even number of bytes. If odd, padded with extra byte by assembler. 
                                  ;msg2: .db "% =", 0x00
                                  
                                  write_letter_A_to_lcd:
-00001a d097                      	rcall delay_100ms
+00001b d097                      	rcall delay_100ms
                                  	; set to data mode
-00001b 9a2d                      	sbi PORTB, 5
+00001c 9a2d                      	sbi PORTB, 5
                                  	; write upper nibble
-00001c e0a4                      	ldi R26, 0b00000100
-00001d b9a8                      	out PORTC, R26
-00001e d08d                      	rcall lcd_strobe
-00001f d092                      	rcall delay_100ms
-                                 	; write lower nibble
-000020 e0a1                      	ldi R26, 0b00000001
-000021 b9a8                      	out PORTC, R26
-000022 d089                      	rcall lcd_strobe
-000023 d08e                      	rcall delay_100ms
-000024 9508                      	ret
+00001d e004                      	ldi write, 0b00000100
+00001e b908                      	out PORTC, write
                                  
-                                 write_letter_E_to_lcd:
-000025 d08c                      	rcall delay_100ms
-                                 	; set to data mode
-000026 9a2d                      	sbi PORTB, 5
-                                 	; write upper nibble
-000027 e0a4                      	ldi R26, 0b00000100
-000028 b9a8                      	out PORTC, R26
-000029 d082                      	rcall lcd_strobe
-00002a d087                      	rcall delay_100ms
+00001f d08d                      	rcall lcd_strobe
+000020 d092                      	rcall delay_100ms
+                                 
                                  	; write lower nibble
-00002b e0a5                      	ldi R26, 0b00000101
-00002c b9a8                      	out PORTC, R26
-00002d d07e                      	rcall lcd_strobe
-00002e d083                      	rcall delay_100ms
-00002f 9508                      	ret
+000021 e001                      	ldi write, 0b00000001
+000022 b908                      	out PORTC, write
+000023 d089                      	rcall lcd_strobe
+000024 d08e                      	rcall delay_100ms
+000025 9508                      	ret
                                  	
-                                 displayCString:
-000030 9005                      	lpm r0,Z+ ; r0 <-- first byte
-000031 2000                      	tst r0 ; Reached end of message ?
-000032 f039                      	breq done ; Yes => quit
-000033 9402                      	swap r0 ; Upper nibble in place
-000034 b808                      	out PORTC,r0 ; Send upper nibble out
-000035 d076                      	rcall lcd_strobe ; Latch nibble
+                                 display_static:
+000026 9005                      	lpm r0,Z+ ; r0 <-- first byte
+000027 2000                      	tst r0 ; Reached end of message ?
+000028 f039                      	breq done_static ; Yes => quit
+000029 9402                      	swap r0 ; Upper nibble in place
+00002a b808                      	out PORTC,r0 ; Send upper nibble out
+00002b d081                      	rcall lcd_strobe ; Latch nibble
                                  	//rcall delay_200us
-000036 9402                      	swap r0 ; Lower nibble in place
-000037 b808                      	out PORTC,r0 ; Send lower nibble out
-000038 d073                      	rcall lcd_strobe ; Latch nibble
+00002c 9402                      	swap r0 ; Lower nibble in place
+00002d b808                      	out PORTC,r0 ; Send lower nibble out
+00002e d07e                      	rcall lcd_strobe ; Latch nibble
                                  	//rcall delay_200us
-000039 cff6                      	rjmp displayCstring
-                                 done:
-00003a 9508                      	ret
+00002f cff6                      	rjmp display_static
+                                   done_static:
+000030 9508                      	ret
+                                 
+                                 display_dynamic:
+000031 9001                      	ld R0, Z+
+000032 2000                      	tst R0
+000033 f039                      	breq done_dynamic
+                                 
+                                 	;; write upper nibble
+000034 9402                      	swap R0
+000035 b808                      	out PORTC, R0
+000036 d076                      	rcall lcd_strobe
+                                 
+                                 	;; write lower nibble
+000037 9402                      	swap R0
+000038 b808                      	out PORTC, R0
+000039 d073                      	rcall lcd_strobe
+                                 
+00003a cff6                      	rjmp display_dynamic
+                                   done_dynamic:
+00003b 9508                      	ret
+                                 
                                  
                                  rpg_listener:
                                  	;rcall lightoff
-00003b b153                      	in prev, PINB
-00003c 7053                      	andi prev, 0b00000011
+00003c b153                      	in prev, PINB
+00003d 7053                      	andi prev, 0b00000011
                                  
-00003d d010                      	rcall lighton
+00003e d010                      	rcall lighton
                                  
                                  	;; delay
                                  
-00003e d011                      	rcall lightoff
+00003f d011                      	rcall lightoff
                                  
                                  	;rcall delay
-00003f b143                      	in curr, PINB
-000040 7043                      	andi curr, 0b00000011
-000041 1754                      	cp prev, curr
-000042 f409                      	brne rpg_handler
-000043 cff7                      	rjmp rpg_listener 
+000040 b143                      	in curr, PINB
+000041 7043                      	andi curr, 0b00000011
+000042 1754                      	cp prev, curr
+000043 f409                      	brne rpg_handler
+000044 cff7                      	rjmp rpg_listener 
                                  
                                  ; This is the infinite loop which reads new inputs
                                  ; and handles the changes
@@ -1125,33 +1128,33 @@ AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Wed
                                  	
                                  	;rcall read_input
                                  	;rcall delay
-000044 d00d                      	rcall test_rpg
+000045 d00d                      	rcall test_rpg
                                  		
                                  	; check if AB == 00
-000045 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
-000046 f0a1                      	breq stationary ; branch if Z flag set, else continue
+000046 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
+000047 f0a1                      	breq stationary ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 01
-000047 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
-000048 f0d9                      	breq counterclockwise; originally clockwise ; branch if Z flag set, else continue
+000048 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
+000049 f0d9                      	breq counterclockwise; originally clockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 10
-000049 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
-00004a f089                      	breq clockwise; originally counterclockwise ; branch if Z flag set, else continue
+00004a 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
+00004b f089                      	breq clockwise; originally counterclockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 11
-00004b 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
-00004c f071                      	breq stationary ; branch if Z flag set, else continue
+00004c 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
+00004d f071                      	breq stationary ; branch if Z flag set, else continue
                                  
-00004d cff6                      	rjmp rpg_handler ; finally, continue the loop
+00004e cff6                      	rjmp rpg_handler ; finally, continue the loop
                                  
                                  lighton:
-00004e 9a2a                      	sbi PORTB, 2
-00004f 9508                      	ret
+00004f 9a2a                      	sbi PORTB, 2
+000050 9508                      	ret
                                  
                                  lightoff:
-000050 982a                      	cbi PORTB, 2
-000051 9508                      	ret
+000051 982a                      	cbi PORTB, 2
+000052 9508                      	ret
                                  
                                  ; subroutine which transfers curr into prev
                                  ; and then loads new reading into curr
@@ -1162,189 +1165,189 @@ AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Wed
                                  ;	ret
                                  
                                  test_rpg:
-000052 3040                      	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
-000053 f029                      	breq exor_prev
+000053 3040                      	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
+000054 f029                      	breq exor_prev
                                  
-000054 3043                      	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
-000055 f019                      	breq exor_prev
+000055 3043                      	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
+000056 f019                      	breq exor_prev
                                  
-000056 2f14                      	mov R17, curr 
-000057 e023                      	ldi R18, 0b00000011 
-000058 2712                      	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
+000057 2f14                      	mov R17, curr 
+000058 e023                      	ldi R18, 0b00000011 
+000059 2712                      	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
                                  
                                  exor_prev: 
-000059 2715                      	eor R17, prev
-00005a 9508                      	ret
+00005a 2715                      	eor R17, prev
+00005b 9508                      	ret
                                  	
                                  
                                  ; subroutine to handle when the rpg is stationary
                                  ; currently it turns off both LEDs
                                  stationary:
-00005b cfdf                      	rjmp rpg_listener
+00005c cfdf                      	rjmp rpg_listener
                                  
                                  ;; subroutine to hande when rpg is turning clockwise
                                  ;; if [OCR0B] == TOP -> do nothing
                                  ;; else increment
                                  clockwise:
-00005c b5a8                      	in R26, OCR0B ; current duty cycle
-00005d b5b7                      	in R27, OCR0A ; 200
-00005e 17ab                      	cp R26, R27
-00005f f409                      	brne incr
-000060 cfda                      	rjmp rpg_listener
+00005d b5a8                      	in R26, OCR0B ; current duty cycle
+00005e b5b7                      	in R27, OCR0A ; 200
+00005f 17ab                      	cp R26, R27
+000060 f409                      	brne incr
+000061 cfda                      	rjmp rpg_listener
                                    incr:
-000061 95a3                      	inc R26
-000062 bda8                      	out OCR0B, R26
-000063 cfd7                      	rjmp rpg_listener
+000062 95a3                      	inc R26
+000063 bda8                      	out OCR0B, R26
+000064 cfd7                      	rjmp rpg_listener
                                  
                                  ;; subroutine to hande when rpg is turning counter-clockwise
                                  ;; if [OCR0B] == 0 -> decrement
                                  ;; else keep at zero
                                  counterclockwise:
-000064 b5a8                      	in R26, OCR0B ; load value from OCROA
-000065 23aa                      	tst R26
-000066 f409                      	brne decr
-000067 cfd3                      	rjmp rpg_listener
+000065 b5a8                      	in R26, OCR0B ; load value from OCROA
+000066 23aa                      	tst R26
+000067 f409                      	brne decr
+000068 cfd3                      	rjmp rpg_listener
                                    decr:
-000068 95aa                      	dec R26
-000069 bda8                      	out OCR0B, R26
-00006a cfd0                      	rjmp rpg_listener
+000069 95aa                      	dec R26
+00006a bda8                      	out OCR0B, R26
+00006b cfd0                      	rjmp rpg_listener
                                  
                                  timer_config:
-00006b e2e3                      	ldi R30, 0b00100011 ; WGM01, WGM00 <= 1, 1
-00006c bde4                      	out TCCR0A, R30
-00006d e0e9                      	ldi R30, 0b00001001 ; No prescale
-00006e bde5                      	out TCCR0B, R30
-00006f ece8                      	ldi R30, 0xC8 ; OCRA <= 200 (set TOP to 200)
-000070 bde7                      	out OCR0A, R30
-000071 9508                      	ret
+00006c e2e3                      	ldi R30, 0b00100011 ; WGM01, WGM00 <= 1, 1
+00006d bde4                      	out TCCR0A, R30
+00006e e0e9                      	ldi R30, 0b00001001 ; No prescale
+00006f bde5                      	out TCCR0B, R30
+000070 ece8                      	ldi R30, 0xC8 ; OCRA <= 200 (set TOP to 200)
+000071 bde7                      	out OCR0A, R30
+000072 9508                      	ret
                                  
                                  lcd_init:
-000072 d03f                      	rcall delay_100ms ; line 1 -- 100 ms
+000073 d03f                      	rcall delay_100ms ; line 1 -- 100 ms
                                  	
-000073 e0a3                      	ldi R26, 0x03
-000074 b9a8                      	out PORTC, R26 ; line 2 -- write 0x03 with RS=0 (set to 8-bit mode)
-000075 d036                      	rcall lcd_strobe
+000074 e0a3                      	ldi R26, 0x03
+000075 b9a8                      	out PORTC, R26 ; line 2 -- write 0x03 with RS=0 (set to 8-bit mode)
+000076 d036                      	rcall lcd_strobe
                                  
-000076 d045                      	rcall delay_5ms ; line 3 -- 5 ms
+000077 d045                      	rcall delay_5ms ; line 3 -- 5 ms
                                  	
-000077 e0a3                      	ldi R26, 0x03
-000078 b9a8                      	out PORTC, R26 ; line 4 -- write 0x03 with RS=0 (set to 8-bit mode)
-000079 d032                      	rcall lcd_strobe
+000078 e0a3                      	ldi R26, 0x03
+000079 b9a8                      	out PORTC, R26 ; line 4 -- write 0x03 with RS=0 (set to 8-bit mode)
+00007a d032                      	rcall lcd_strobe
                                  
-00007a d049                      	rcall delay_200us ; line 5	
+00007b d049                      	rcall delay_200us ; line 5	
                                  	 
-00007b e0a3                      	ldi R26, 0x03
-00007c b9a8                      	out PORTC, R26 ;line 6 -- write 0x03 with RS=0 (set to 8-bit mode)
-00007d d02e                      	rcall lcd_strobe
+00007c e0a3                      	ldi R26, 0x03
+00007d b9a8                      	out PORTC, R26 ;line 6 -- write 0x03 with RS=0 (set to 8-bit mode)
+00007e d02e                      	rcall lcd_strobe
                                  
-00007e d045                      	rcall delay_200us ; line 7 	 
+00007f d045                      	rcall delay_200us ; line 7 	 
                                  
-00007f e0a2                      	ldi R26, 0x02
-000080 b9a8                      	out PORTC, R26 ;line 8 -- write 0x02 with RS=0 (set to 4-bit mode)
-000081 d02a                      	rcall lcd_strobe
+000080 e0a2                      	ldi R26, 0x02
+000081 b9a8                      	out PORTC, R26 ;line 8 -- write 0x02 with RS=0 (set to 4-bit mode)
+000082 d02a                      	rcall lcd_strobe
                                  
-000082 d039                      	rcall delay_5ms ; line 9
+000083 d039                      	rcall delay_5ms ; line 9
                                  		
-000083 e0a2                      	ldi R26, 0x02
-000084 b9a8                      	out PORTC, R26 ; line 10a -- write 28 hex (upper nibble then lower nibble) 
-000085 d026                      	rcall lcd_strobe
+000084 e0a2                      	ldi R26, 0x02
+000085 b9a8                      	out PORTC, R26 ; line 10a -- write 28 hex (upper nibble then lower nibble) 
+000086 d026                      	rcall lcd_strobe
                                  
-000086 d03d                      	rcall delay_200us
+000087 d03d                      	rcall delay_200us
                                  
-000087 e0a8                      	ldi R26, 0x08
-000088 b9a8                      	out PORTC, R26; line 10b -- lower nibble
-000089 d022                      	rcall lcd_strobe
+000088 e0a8                      	ldi R26, 0x08
+000089 b9a8                      	out PORTC, R26; line 10b -- lower nibble
+00008a d022                      	rcall lcd_strobe
                                  
-00008a d039                      	rcall delay_200us
+00008b d039                      	rcall delay_200us
                                  
-00008b e0a0                      	ldi R26, 0x00
-00008c b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
-00008d d01e                      	rcall lcd_strobe
+00008c e0a0                      	ldi R26, 0x00
+00008d b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
+00008e d01e                      	rcall lcd_strobe
                                  
-00008e d035                      	rcall delay_200us
+00008f d035                      	rcall delay_200us
                                  	
-00008f e0a8                      	ldi R26, 0x08
-000090 b9a8                      	out PORTC, R26 ; line 11b -- lower nibble
-000091 d01a                      	rcall lcd_strobe
+000090 e0a8                      	ldi R26, 0x08
+000091 b9a8                      	out PORTC, R26 ; line 11b -- lower nibble
+000092 d01a                      	rcall lcd_strobe
                                  
-000092 d031                      	rcall delay_200us
+000093 d031                      	rcall delay_200us
                                  
-000093 e0a0                      	ldi R26, 0x00
-000094 b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
-000095 d016                      	rcall lcd_strobe
+000094 e0a0                      	ldi R26, 0x00
+000095 b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
+000096 d016                      	rcall lcd_strobe
                                  
-000096 d02d                      	rcall delay_200us
+000097 d02d                      	rcall delay_200us
                                  	
-000097 e0a1                      	ldi R26, 0x01
-000098 b9a8                      	out PORTC, R26 ; line 11b -- lower nibble
-000099 d012                      	rcall lcd_strobe
+000098 e0a1                      	ldi R26, 0x01
+000099 b9a8                      	out PORTC, R26 ; line 11b -- lower nibble
+00009a d012                      	rcall lcd_strobe
                                  
-00009a d021                      	rcall delay_5ms 
+00009b d021                      	rcall delay_5ms 
                                  
-00009b e0a0                      	ldi R26, 0x00
-00009c b9a8                      	out PORTC, R26 ; line 12a -- write 01 hex (upper nibble then lower nibble)
-00009d d00e                      	rcall lcd_strobe
+00009c e0a0                      	ldi R26, 0x00
+00009d b9a8                      	out PORTC, R26 ; line 12a -- write 01 hex (upper nibble then lower nibble)
+00009e d00e                      	rcall lcd_strobe
                                  
-00009e d025                      	rcall delay_200us
+00009f d025                      	rcall delay_200us
                                  
-00009f e0a6                      	ldi R26, 0x06
-0000a0 b9a8                      	out PORTC, R26 ; line 12b -- lower nibble
-0000a1 d00a                      	rcall lcd_strobe
+0000a0 e0a6                      	ldi R26, 0x06
+0000a1 b9a8                      	out PORTC, R26 ; line 12b -- lower nibble
+0000a2 d00a                      	rcall lcd_strobe
                                  
-0000a2 d019                      	rcall delay_5ms
+0000a3 d019                      	rcall delay_5ms
                                  
-0000a3 e0a0                      	ldi R26, 0x00
-0000a4 b9a8                      	out PORTC, R26; line 13a -- write 06 hex (upper nibble then lower nibble)
-0000a5 d006                      	rcall lcd_strobe
+0000a4 e0a0                      	ldi R26, 0x00
+0000a5 b9a8                      	out PORTC, R26; line 13a -- write 06 hex (upper nibble then lower nibble)
+0000a6 d006                      	rcall lcd_strobe
                                  
-0000a6 d01d                      	rcall delay_200us
+0000a7 d01d                      	rcall delay_200us
                                  
-0000a7 e0ac                      	ldi R26, 0x0C
-0000a8 b9a8                      	out PORTC, R26 ; line 13b -- lower nibble
-0000a9 d002                      	rcall lcd_strobe
+0000a8 e0ac                      	ldi R26, 0x0C
+0000a9 b9a8                      	out PORTC, R26 ; line 13b -- lower nibble
+0000aa d002                      	rcall lcd_strobe
                                  
-0000aa d011                      	rcall delay_5ms
-0000ab 9508                      	ret
+0000ab d011                      	rcall delay_5ms
+0000ac 9508                      	ret
                                  
                                  lcd_strobe:
-0000ac 982b                      	cbi PORTB, 3 ; drive E low
-0000ad d016                      	rcall delay_200us ; delay
-0000ae 9a2b                      	sbi PORTB, 3 ; drive E hight 
-0000af d014                      	rcall delay_200us
-0000b0 982b                      	cbi PORTB, 3 ; drive E low
-0000b1 9508                      	ret
+0000ad 982b                      	cbi PORTB, 3 ; drive E low
+0000ae d016                      	rcall delay_200us ; delay
+0000af 9a2b                      	sbi PORTB, 3 ; drive E hight 
+0000b0 d014                      	rcall delay_200us
+0000b1 982b                      	cbi PORTB, 3 ; drive E low
+0000b2 9508                      	ret
                                  
                                  
                                  delay_100ms:
                                      ; 100ms at 8 MHz
-0000b2 e026                      		ldi  r18, 6
-0000b3 e03f                      		ldi  r19, 15
-0000b4 ef42                      		ldi  r20, 242
-0000b5 954a                      	L1: dec  r20
-0000b6 f7f1                      		brne L1
-0000b7 953a                      		dec  r19
-0000b8 f7e1                      		brne L1
-0000b9 952a                      		dec  r18
-0000ba f7d1                      		brne L1
-0000bb 9508                      		ret
+0000b3 e026                      		ldi  r18, 6
+0000b4 e03f                      		ldi  r19, 15
+0000b5 ef42                      		ldi  r20, 242
+0000b6 954a                      	L1: dec  r20
+0000b7 f7f1                      		brne L1
+0000b8 953a                      		dec  r19
+0000b9 f7e1                      		brne L1
+0000ba 952a                      		dec  r18
+0000bb f7d1                      		brne L1
+0000bc 9508                      		ret
                                  
                                  delay_5ms:
-0000bc e325                      		ldi  r18, 53
-0000bd ef32                      		ldi  r19, 242
-0000be 953a                      	L2: dec  r19
-0000bf f7f1                      		brne L2
-0000c0 952a                      		dec  r18
-0000c1 f7e1                      		brne L2
-0000c2 0000                      		nop
-0000c3 9508                      		ret
+0000bd e325                      		ldi  r18, 53
+0000be ef32                      		ldi  r19, 242
+0000bf 953a                      	L2: dec  r19
+0000c0 f7f1                      		brne L2
+0000c1 952a                      		dec  r18
+0000c2 f7e1                      		brne L2
+0000c3 0000                      		nop
+0000c4 9508                      		ret
                                  
                                  delay_200us:
-0000c4 e024                      		ldi  r18, 4
-0000c5 e133                      		ldi  r19, 19
-0000c6 953a                      	L3: dec  r19
-0000c7 f7f1                      		brne L3
-0000c8 952a                      		dec  r18
-0000c9 f7e1                      		brne L3
+0000c5 e024                      		ldi  r18, 4
+0000c6 e133                      		ldi  r19, 19
+0000c7 953a                      	L3: dec  r19
+0000c8 f7f1                      		brne L3
+0000c9 952a                      		dec  r18
+0000ca f7e1                      		brne L3
 
 
 RESOURCE USE INFORMATION
@@ -1362,39 +1365,39 @@ counted separately from r26..r31 here.
 .dseg memory usage only counts static data declared with .byte
 
 "ATmega88PA" register use summary:
-x  :   0 y  :   0 z  :   1 r0 :   6 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
+x  :   0 y  :   0 z  :   2 r0 :  12 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:   0 r17:   7 r18:   8 r19:   6 r20:  11 
-r21:   5 r22:   0 r23:   0 r24:   0 r25:   0 r26:  44 r27:   2 r28:   0 
+r13:   0 r14:   0 r15:   0 r16:   4 r17:   7 r18:   8 r19:   6 r20:  11 
+r21:   5 r22:   0 r23:   2 r24:   0 r25:   0 r26:  36 r27:   2 r28:   0 
 r29:   0 r30:   7 r31:   1 
-Registers used: 11 out of 35 (31.4%)
+Registers used: 13 out of 35 (37.1%)
 
 "ATmega88PA" instruction use summary:
 .lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
 andi  :   3 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   0 break :   0 breq  :   7 brge  :   0 brhc  :   0 
+brcc  :   0 brcs  :   0 break :   0 breq  :   8 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
 brne  :  10 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
 brvs  :   0 bset  :   0 bst   :   0 cbi   :   6 cbr   :   0 clc   :   0 
 clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 clt   :   0 
 clv   :   0 clz   :   0 com   :   0 cp    :   2 cpc   :   0 cpi   :   6 
 cpse  :   0 dec   :   8 eor   :   2 fmul  :   0 fmuls :   0 fmulsu:   0 
-icall :   0 ijmp  :   0 in    :   6 inc   :   1 ld    :   0 ldd   :   0 
-ldi   :  31 lds   :   0 lpm   :   1 lsl   :   0 lsr   :   0 mov   :   2 
+icall :   0 ijmp  :   0 in    :   6 inc   :   1 ld    :   1 ldd   :   0 
+ldi   :  30 lds   :   0 lpm   :   1 lsl   :   0 lsr   :   0 mov   :   2 
 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 neg   :   0 nop   :   1 
-or    :   0 ori   :   0 out   :  25 pop   :   0 push  :   0 rcall :  50 
+or    :   0 ori   :   0 out   :  26 pop   :   0 push  :   0 rcall :  47 
 ret   :  12 reti  :   0 rjmp  :  10 rol   :   0 ror   :   0 sbc   :   0 
-sbci  :   0 sbi   :  13 sbic  :   0 sbis  :   0 sbiw  :   0 sbr   :   0 
+sbci  :   0 sbi   :  12 sbic  :   0 sbis  :   0 sbiw  :   0 sbr   :   0 
 sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 sei   :   0 sen   :   0 
 ser   :   0 ses   :   0 set   :   0 sev   :   0 sez   :   0 sleep :   0 
 spm   :   0 st    :   0 std   :   0 sts   :   0 sub   :   0 subi  :   0 
-swap  :   2 tst   :   2 wdr   :   0 
-Instructions used: 21 out of 111 (18.9%)
+swap  :   4 tst   :   3 wdr   :   0 
+Instructions used: 22 out of 111 (19.8%)
 
 "ATmega88PA" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000196    400      6    406    8192   5.0%
+[.cseg] 0x000000 0x000198    402      6    408    8192   5.0%
 [.dseg] 0x000100 0x000100      0      0      0    1024   0.0%
 [.eseg] 0x000000 0x000000      0      0      0     512   0.0%
 

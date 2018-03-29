@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Wed Mar 28 17:31:07 2018
+AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Thu Mar 29 11:34:30 2018
 
 
 EQU  SIGNATURE_000 0000001e
@@ -696,35 +696,31 @@ EQU  SPMRaddr     00000019
 EQU  INT_VECTORS_SIZE 0000001a
 DEF  curr         r20
 DEF  prev         r21
-DEF  count_temp   r19
-DEF  tmp1         r23
-DEF  tmp2         r24
-DEF  count_30     r25
-DEF  count_rpg    r22
-DEF  count_rpg_2  r16
-CSEG lcd_init     00000072
+DEF  write        r16
+DEF  duty_cycle   r23
+CSEG lcd_init     00000073
 CSEG msg1         0000000d
-CSEG displayCString 00000030
-CSEG timer_config 0000006b
-CSEG rpg_listener 0000003b
-CSEG endloop      00000015
-CSEG delay_100ms  000000b2
-CSEG write_letter_A_to_lcd 0000001a
-CSEG lcd_strobe   000000ac
-CSEG write_letter_E_to_lcd 00000025
-CSEG done         0000003a
-CSEG lighton      0000004e
-CSEG lightoff     00000050
-CSEG rpg_handler  00000044
-CSEG test_rpg     00000052
-CSEG stationary   0000005b
-CSEG counterclockwise 00000064
-CSEG clockwise    0000005c
-CSEG exor_prev    00000059
-CSEG incr         00000061
-CSEG decr         00000068
-CSEG delay_5ms    000000bc
-CSEG delay_200us  000000c4
-CSEG L1           000000b5
-CSEG L2           000000be
-CSEG L3           000000c6
+CSEG display_static 00000026
+CSEG timer_config 0000006c
+CSEG rpg_listener 0000003c
+CSEG delay_100ms  000000b3
+CSEG write_letter_A_to_lcd 0000001b
+CSEG lcd_strobe   000000ad
+CSEG done_static  00000030
+CSEG display_dynamic 00000031
+CSEG done_dynamic 0000003b
+CSEG lighton      0000004f
+CSEG lightoff     00000051
+CSEG rpg_handler  00000045
+CSEG test_rpg     00000053
+CSEG stationary   0000005c
+CSEG counterclockwise 00000065
+CSEG clockwise    0000005d
+CSEG exor_prev    0000005a
+CSEG incr         00000062
+CSEG decr         00000069
+CSEG delay_5ms    000000bd
+CSEG delay_200us  000000c5
+CSEG L1           000000b6
+CSEG L2           000000bf
+CSEG L3           000000c7

@@ -18,22 +18,20 @@ sbi DDRC, 2 ; output PC2 - D6
 sbi DDRC, 1 ; output PC1 - D5
 sbi DDRC, 0 ; output PC0 - D4
 
-; SETUP WORK 
+;; RPG readings
 .def curr = R20 ; R20 is the current rpg reading
 .def prev = R21 ; R21 is the previous rpg reading
-.def count_temp = R19
 
-.def tmp1 = R23
-.def tmp2 = R24
-.def count_30 = R25
-.def count_rpg = R22
-.def count_rpg_2 = R16
-//.def temp_var = R29
+;; LCD data
+.def write = R16
+.def duty_cycle = R23
+
+;; free registers: R24, R25, R22, R16, R29
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PUBLIC STATIC VOID MAIN 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 cbi PORTB, 5 ; set to command mode
 rcall lcd_init
 sbi PORTB, 5 ; set to data mode
@@ -42,15 +40,14 @@ msg1: .DB "DC = ", 0x00
 ldi r30, LOW(2*msg1)
 ldi r31, HIGH(2*msg1)
 
-rcall displayCString
+rcall display_static
 
 rcall timer_config
 
+ldi duty_cycle, 100
+out OCR0B, duty_cycle
 rjmp rpg_listener
 
-endloop: rjmp endloop
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; END MAIN
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -70,37 +67,23 @@ write_letter_A_to_lcd:
 	; set to data mode
 	sbi PORTB, 5
 	; write upper nibble
-	ldi R26, 0b00000100
-	out PORTC, R26
-	rcall lcd_strobe
-	rcall delay_100ms
-	; write lower nibble
-	ldi R26, 0b00000001
-	out PORTC, R26
-	rcall lcd_strobe
-	rcall delay_100ms
-	ret
+	ldi write, 0b00000100
+	out PORTC, write
 
-write_letter_E_to_lcd:
-	rcall delay_100ms
-	; set to data mode
-	sbi PORTB, 5
-	; write upper nibble
-	ldi R26, 0b00000100
-	out PORTC, R26
 	rcall lcd_strobe
 	rcall delay_100ms
+
 	; write lower nibble
-	ldi R26, 0b00000101
-	out PORTC, R26
+	ldi write, 0b00000001
+	out PORTC, write
 	rcall lcd_strobe
 	rcall delay_100ms
 	ret
 	
-displayCString:
+display_static:
 	lpm r0,Z+ ; r0 <-- first byte
 	tst r0 ; Reached end of message ?
-	breq done ; Yes => quit
+	breq done_static ; Yes => quit
 	swap r0 ; Upper nibble in place
 	out PORTC,r0 ; Send upper nibble out
 	rcall lcd_strobe ; Latch nibble
@@ -109,9 +92,29 @@ displayCString:
 	out PORTC,r0 ; Send lower nibble out
 	rcall lcd_strobe ; Latch nibble
 	//rcall delay_200us
-	rjmp displayCstring
-done:
+	rjmp display_static
+  done_static:
 	ret
+
+display_dynamic:
+	ld R0, Z+
+	tst R0
+	breq done_dynamic
+
+	;; write upper nibble
+	swap R0
+	out PORTC, R0
+	rcall lcd_strobe
+
+	;; write lower nibble
+	swap R0
+	out PORTC, R0
+	rcall lcd_strobe
+
+	rjmp display_dynamic
+  done_dynamic:
+	ret
+
 
 rpg_listener:
 	;rcall lightoff
