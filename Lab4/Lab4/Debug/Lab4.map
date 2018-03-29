@@ -1,5 +1,5 @@
 
-AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Thu Mar 29 11:34:30 2018
+AVRASM ver. 2.2.7  C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm Thu Mar 29 18:08:34 2018
 
 
 EQU  SIGNATURE_000 0000001e
@@ -698,29 +698,36 @@ DEF  curr         r20
 DEF  prev         r21
 DEF  write        r16
 DEF  duty_cycle   r23
-CSEG lcd_init     00000073
-CSEG msg1         0000000d
-CSEG display_static 00000026
-CSEG timer_config 0000006c
-CSEG rpg_listener 0000003c
-CSEG delay_100ms  000000b3
-CSEG write_letter_A_to_lcd 0000001b
-CSEG lcd_strobe   000000ad
-CSEG done_static  00000030
-CSEG display_dynamic 00000031
-CSEG done_dynamic 0000003b
-CSEG lighton      0000004f
-CSEG lightoff     00000051
-CSEG rpg_handler  00000045
-CSEG test_rpg     00000053
-CSEG stationary   0000005c
-CSEG counterclockwise 00000065
-CSEG clockwise    0000005d
-CSEG exor_prev    0000005a
-CSEG incr         00000062
-CSEG decr         00000069
-CSEG delay_5ms    000000bd
-CSEG delay_200us  000000c5
-CSEG L1           000000b6
-CSEG L2           000000bf
-CSEG L3           000000c7
+DEF  mode         r29
+CSEG lcd_init     000000a8
+CSEG skip         0000001d
+CSEG msg1         00000010
+CSEG msg2         00000013
+CSEG msg3         00000018
+CSEG display_modeA 00000031
+CSEG timer_config 000000a1
+CSEG rpg_listener 0000006f
+CSEG delay_100ms  000000e8
+CSEG write_letter 00000026
+CSEG lcd_strobe   000000e2
+CSEG display_static 00000053
+CSEG delay_200us  000000fa
+CSEG display_modeB 00000042
+CSEG done_static  0000005d
+CSEG display_dynamic 0000005e
+CSEG done_dynamic 00000068
+CSEG set_mode     00000069
+CSEG lighton      00000084
+CSEG lightoff     00000086
+CSEG rpg_handler  0000007a
+CSEG test_rpg     00000088
+CSEG stationary   00000091
+CSEG counterclockwise 0000009a
+CSEG clockwise    00000092
+CSEG exor_prev    0000008f
+CSEG incr         00000097
+CSEG decr         0000009e
+CSEG delay_5ms    000000f2
+CSEG L1           000000eb
+CSEG L2           000000f4
+CSEG L3           000000fc

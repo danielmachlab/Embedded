@@ -2,7 +2,7 @@
 ;; Lab 4
 ;; Ted Paulsen, Daniel Machlab
 ;;
-;; cbi is input sbi is output
+;; LINES TO RPG
 cbi DDRB, 0 ; input - from A
 cbi DDRB, 1 ; input - from B
 sbi DDRB, 2 ; output - clockwise (A side) LED
@@ -11,6 +11,11 @@ sbi DDRD, 5 ; set pwm pin as output
 ;; E & RS LINES TO LCD
 sbi DDRB, 3 ; output to E
 sbi DDRB, 5 ; output to RS line of lcd
+
+;; DATA LINE TO PUSHBUTTON
+;cbi DDRB, 2 ; input from pushbutton
+cbi DDRD, 2 ; input from onboard pushbutton
+
 
 ;; DATA LINES TO LCD
 sbi DDRC, 3 ; output PC3 - D7
@@ -25,8 +30,10 @@ sbi DDRC, 0 ; output PC0 - D4
 ;; LCD data
 .def write = R16
 .def duty_cycle = R23
+.def mode = R29 ; 0x00 is mode a, 0x01 is mode b
 
-;; free registers: R24, R25, R22, R16, R29
+ldi mode, 0x00
+;; free registers: R24, R25, R26, R28, R29
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -36,11 +43,19 @@ cbi PORTB, 5 ; set to command mode
 rcall lcd_init
 sbi PORTB, 5 ; set to data mode
 
-msg1: .DB "DC = ", 0x00
-ldi r30, LOW(2*msg1)
-ldi r31, HIGH(2*msg1)
+rjmp skip
 
-rcall display_static
+msg1: .DB "DC = ", 0x00
+msg2: .DB "Mode A: ", 0x00, 0x00
+msg3: .DB "Mode B: ", 0x00, 0x00
+
+skip:
+
+
+
+;rcall display_static
+;rcall write_letter
+rcall display_modeA
 
 rcall timer_config
 
@@ -62,7 +77,7 @@ rcall delay_100ms ; delay a lil bit
 ;msg1: .db "DC = ", 0x00 ;;mem reserved with .db must be an even number of bytes. If odd, padded with extra byte by assembler. 
 ;msg2: .db "% =", 0x00
 
-write_letter_A_to_lcd:
+write_letter:
 	rcall delay_100ms
 	; set to data mode
 	sbi PORTB, 5
@@ -79,7 +94,50 @@ write_letter_A_to_lcd:
 	rcall lcd_strobe
 	rcall delay_100ms
 	ret
+
+display_modeA:
+	ldi r30, LOW(2*msg1)
+	ldi r31, HIGH(2*msg1)
+	rcall display_static
+
+	cbi PORTB, 5 ; set to command mode
+	rcall delay_200us 
+	ldi R26, 0b1100
+	out PORTC, R26 
+	rcall lcd_strobe
+	rcall delay_200us
+	ldi R26, 0b0000
+	out PORTC, R26 
+	rcall lcd_strobe
+	sbi PORTB, 5 ; set to data mode
+
+	ldi r30, LOW(2*msg2)
+	ldi r31, HIGH(2*msg2)
+	rcall display_static
+	rjmp rpg_listener
+
+display_modeB:
+	ldi r30, LOW(2*msg1)
+	ldi r31, HIGH(2*msg1)
+	rcall display_static
+
+	cbi PORTB, 5 ; set to command mode
+	rcall delay_200us 
+	ldi R26, 0b1100
+	out PORTC, R26 
+	rcall lcd_strobe
+	rcall delay_200us
+	ldi R26, 0b0000
+	out PORTC, R26 
+	rcall lcd_strobe
+	sbi PORTB, 5 ; set to data mode
+
+	ldi r30, LOW(2*msg3)
+	ldi r31, HIGH(2*msg3)
+	rcall display_static
+	rjmp rpg_listener
 	
+
 display_static:
 	lpm r0,Z+ ; r0 <-- first byte
 	tst r0 ; Reached end of message ?
@@ -115,21 +173,28 @@ display_dynamic:
   done_dynamic:
 	ret
 
+set_mode:
+	ldi R26, 0x01
+	eor mode, R26 ; 0x00 eor 0x01 = 0x01, 0x01 eor 0x01 = 0x00	
+	
+	cpi mode, 0x00
+	brne display_modeA
+	rjmp display_modeB
+
+	ret
 
 rpg_listener:
+	;; button listener
+	sbis PIND, 2
+	rcall set_mode
 	;rcall lightoff
 	in prev, PINB
 	andi prev, 0b00000011
-
 	rcall lighton
-
-	;; delay
-
 	rcall lightoff
-
-	;rcall delay
 	in curr, PINB
 	andi curr, 0b00000011
+
 	cp prev, curr
 	brne rpg_handler
 	rjmp rpg_listener 

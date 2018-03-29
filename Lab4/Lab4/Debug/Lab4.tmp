@@ -1,18 +1,18 @@
 <ASSEMBLER_INFO>
  <VERSION>2.2.7</VERSION>
  <DEVICE>"ATmega88PA"</DEVICE>
- <WORKING_DIR>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\Debug</WORKING_DIR>
+ <WORKING_DIR>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\Debug</WORKING_DIR>
  <INCLUDE_PATH>
   <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc</DIR>
   <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
   <DIR></DIR>
  </INCLUDE_PATH>
- <SOURCE_FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</SOURCE_FILE>
+ <SOURCE_FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</SOURCE_FILE>
  <INCLUDED_FILES>
   <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc\m88padef.inc</FILE>
  </INCLUDED_FILES>
  <OBJECT_FILES>
-  <FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\Debug\Lab4.obj</FILE>
+  <FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\Debug\Lab4.obj</FILE>
  </OBJECT_FILES>
  <HEX_FILES>
   <FILE>Lab4.hex</FILE>
@@ -22,31 +22,37 @@
   <FILE>Lab4.lss</FILE>
  </OUTPUT_FILES>
  <LABELS>
-  <lcd_init><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>237</LINE></lcd_init>
-  <msg1><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>39</LINE></msg1>
-  <display_static><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>83</LINE></display_static>
-  <timer_config><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>228</LINE></timer_config>
-  <rpg_listener><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>119</LINE></rpg_listener>
-  <delay_100ms><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>334</LINE></delay_100ms>
-  <write_letter_A_to_lcd><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>65</LINE></write_letter_A_to_lcd>
-  <lcd_strobe><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>325</LINE></lcd_strobe>
-  <done_static><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>96</LINE></done_static>
-  <display_dynamic><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>99</LINE></display_dynamic>
-  <done_dynamic><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>115</LINE></done_dynamic>
-  <lighton><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>164</LINE></lighton>
-  <lightoff><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>168</LINE></lightoff>
-  <rpg_handler><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>139</LINE></rpg_handler>
-  <test_rpg><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>180</LINE></test_rpg>
-  <stationary><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>198</LINE></stationary>
-  <counterclockwise><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>218</LINE></counterclockwise>
-  <clockwise><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>204</LINE></clockwise>
-  <exor_prev><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>191</LINE></exor_prev>
-  <incr><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>210</LINE></incr>
-  <decr><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>223</LINE></decr>
-  <delay_5ms><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>347</LINE></delay_5ms>
-  <delay_200us><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>357</LINE></delay_200us>
-  <L1><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>339</LINE></L1>
-  <L2><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>350</LINE></L2>
-  <L3><FILE>C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm</FILE><LINE>360</LINE></L3>
+  <lcd_init><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>302</LINE></lcd_init>
+  <skip><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>52</LINE></skip>
+  <msg1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>48</LINE></msg1>
+  <msg2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>49</LINE></msg2>
+  <msg3><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>50</LINE></msg3>
+  <display_modeA><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>98</LINE></display_modeA>
+  <timer_config><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>293</LINE></timer_config>
+  <rpg_listener><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>186</LINE></rpg_listener>
+  <delay_100ms><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>399</LINE></delay_100ms>
+  <write_letter><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>80</LINE></write_letter>
+  <lcd_strobe><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>390</LINE></lcd_strobe>
+  <display_static><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>141</LINE></display_static>
+  <delay_200us><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>422</LINE></delay_200us>
+  <display_modeB><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>119</LINE></display_modeB>
+  <done_static><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>154</LINE></done_static>
+  <display_dynamic><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>157</LINE></display_dynamic>
+  <done_dynamic><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>173</LINE></done_dynamic>
+  <set_mode><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>176</LINE></set_mode>
+  <lighton><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>229</LINE></lighton>
+  <lightoff><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>233</LINE></lightoff>
+  <rpg_handler><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>204</LINE></rpg_handler>
+  <test_rpg><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>245</LINE></test_rpg>
+  <stationary><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>263</LINE></stationary>
+  <counterclockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>283</LINE></counterclockwise>
+  <clockwise><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>269</LINE></clockwise>
+  <exor_prev><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>256</LINE></exor_prev>
+  <incr><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>275</LINE></incr>
+  <decr><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>288</LINE></decr>
+  <delay_5ms><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>412</LINE></delay_5ms>
+  <L1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>404</LINE></L1>
+  <L2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>415</LINE></L2>
+  <L3><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>425</LINE></L3>
  </LABELS>
 </ASSEMBLER_INFO>
