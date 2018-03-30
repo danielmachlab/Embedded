@@ -9,13 +9,16 @@ cbi DDRB, 1 ; input - from B
 sbi DDRB, 2 ; output - clockwise (A side) LED
 sbi DDRD, 5 ; set pwm pin as output
 
+cbi DDRD, 1 ; recieve tach input
+cbi DDRD, 2 ; PCINT for end timer
+
 ;; E & RS LINES TO LCD
 sbi DDRB, 3 ; output to E
 sbi DDRB, 5 ; output to RS line of lcd
 
 ;; DATA LINE TO PUSHBUTTON
 ;cbi DDRB, 2 ; input from pushbutton
-cbi DDRD, 2 ; input from onboard pushbutton
+cbi DDRD, 3 ; input from onboard pushbutton
 
 ;; DATA LINES TO LCD
 sbi DDRC, 3 ; output PC3 - D7
@@ -61,14 +64,44 @@ rcall display_modeA
 rcall timer_config
 ldi duty_cycle, 153
 out OCR0B, duty_cycle
+
+rcall interrupt_init
+
 rjmp system_listener
 
 ;; END MAIN
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+interrupt_init:
+	;; set timer config bits
+	;; WGM13:10 = 0100
+	ldi R20, 0b00001001 ; no prescale
+	sts TCCR1B, R20
+
+	ldi R20, 0b11111111 ; set TOP = 65535
+	sts OCR1AH, R20 
+	sts OCR1AL, R20
+
+	;; set interrupt bits
+	ldi R20, 0b00000100
+	sts PCICR, R20
+	ldi R20, 0b00000100
+	sts PCIFR, R20
+	ldi R20, 0b00000110
+	sts PCMSK2, R20
+	ret
+
+timer_end_INT:
+	
+	reti
+
+tach_edge_INT:
+	
+	reti
+
 system_listener:
 	;; button listener
-	sbis PIND, 2
+	sbis PIND, 3
 	rcall set_modeAB
 
 	;rcall lightoff
