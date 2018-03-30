@@ -2,6 +2,9 @@
 ;; Lab 4
 ;; Ted Paulsen, Daniel Machlab
 ;;
+
+.include "m88padef.inc"
+
 ;; cbi is input sbi is output
 cbi DDRB, 0 ; input - from A
 cbi DDRB, 1 ; input - from B
@@ -23,24 +26,27 @@ sbi DDRC, 0 ; output PC0 - D4
 .def prev = R21 ; R21 is the previous rpg reading
 
 ;; LCD data
-.def write = R16
+.def write = R22
 .def duty_cycle = R23
 
-;; free registers: R24, R25, R22, R16, R29
+;; divide registers
+.def drem16uL= r14
+.def drem16uH= r15
+.def dres16uL= r16
+.def dres16uH= r17
+.def dd16uL	= r16
+.def dd16uH	= r17
+.def dv16uL	= r18
+.def dv16uH	= r19
+
+;; free registers: R24, R25, R26, R28
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PUBLIC STATIC VOID MAIN 
 
-cbi PORTB, 5 ; set to command mode
-rcall lcd_init
-sbi PORTB, 5 ; set to data mode
-
-msg1: .DB "DC = ", 0x00
-ldi r30, LOW(2*msg1)
-ldi r31, HIGH(2*msg1)
-
-rcall display_static
+rcall mem_init
+rcall start
 
 rcall timer_config
 
@@ -51,6 +57,36 @@ rjmp rpg_listener
 ;; END MAIN
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+mem_init:
+	msg1: .db "DC = ", 0x00
+	msg2: .db "  %  ", 0x00
+	ret
+
+start:
+	;; INIT LCD
+	cbi PORTB, 5 ; set to command mode
+	rcall lcd_init
+	sbi PORTB, 5 ; set to data mode
+
+disp:
+	;; DISPLAY "DC = "
+	ldi r30, low(2*msg1)
+	ldi r31, high(2*msg1)
+	rcall displayCstring
+
+	;; DISPLAY DC VALUE
+	ldi R25, low(OCR0B)
+	ldi R26, high(OCR0B)
+	rcall computeDC
+	
+	ldi R30, low(dtxt)
+	ldi R31, high(dtxt)
+
+	rcall displayDstring
+
+	ret
+	
+	
 
 ; load both prev and curr with same initial readings
 in curr, PINB ; load inputs into prev
@@ -80,23 +116,70 @@ write_letter_A_to_lcd:
 	rcall delay_100ms
 	ret
 	
-display_static:
+displayCstring:
 	lpm r0,Z+ ; r0 <-- first byte
 	tst r0 ; Reached end of message ?
 	breq done_static ; Yes => quit
+
 	swap r0 ; Upper nibble in place
 	out PORTC,r0 ; Send upper nibble out
 	rcall lcd_strobe ; Latch nibble
+
 	//rcall delay_200us
 	swap r0 ; Lower nibble in place
 	out PORTC,r0 ; Send lower nibble out
 	rcall lcd_strobe ; Latch nibble
 	//rcall delay_200us
-	rjmp display_static
+	rjmp displayCstring
   done_static:
 	ret
 
-display_dynamic:
+computeDC:
+  .dseg
+	dtxt: .BYTE 5 ; allocate mem
+
+  .cseg
+	;; set dividend
+	mov dd16uL, R25
+	mov dd16uH, R26
+
+	;; set divisor
+	ldi dv16uL, low(OCR0A) ; OCR0B
+	ldi dv16uH, high(OCR0A)
+
+	; store terminating char for string
+	ldi R20, 0x00
+	sts dtxt+4, R20
+
+	; divide the number by 10 and format
+	rcall div16u
+	ldi R20, 0x30
+	add R14, R20
+	sts dtxt+3, R14
+
+	; generate decimal point
+	ldi R20, 0x2e
+	sts dtxt+2, R20
+
+	mov dd16uL, R16
+	mov dd16uH, R17
+
+	rcall div16u
+	ldi R20, 0x30
+	add R14, R20
+	sts dtxt+1, R14
+
+	mov dd16uL, R16
+	mov dd16uH, R17
+
+	rcall div16u
+	ldi R20, 0x30
+	add R14, R20
+	sts dtxt, R14
+	
+	ret
+
+displayDstring:
 	ld R0, Z+
 	tst R0
 	breq done_dynamic
@@ -111,7 +194,7 @@ display_dynamic:
 	out PORTC, R0
 	rcall lcd_strobe
 
-	rjmp display_dynamic
+	rjmp displayDstring
   done_dynamic:
 	ret
 
@@ -137,6 +220,7 @@ rpg_listener:
 ; This is the infinite loop which reads new inputs
 ; and handles the changes
 rpg_handler:
+	rcall disp
 	;rcall lighton
 	
 	;rcall read_input
@@ -149,7 +233,7 @@ rpg_handler:
 
 	; check if AB == 01
 	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
-	breq counterclockwise; originally clockwise ; branch if Z flag set, else continue
+	breq counterclockwise ; originally clockwise ; branch if Z flag set, else continue
 
 	; check if AB == 10
 	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
@@ -362,3 +446,221 @@ delay_200us:
 		dec  r18
 		brne L3
 		ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Divide 16 bit number routine from Atmel ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+div16u:	clr	drem16uL	;clear remainder Low byte
+	sub	drem16uH,drem16uH;clear remainder High byte and carry
+
+	rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_1		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_2		;else
+d16u_1:	sec			;    set carry to be shifted into result
+
+d16u_2:	rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_3		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_4		;else
+d16u_3:	sec			;    set carry to be shifted into result
+
+d16u_4:	rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_5		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_6		;else
+d16u_5:	sec			;    set carry to be shifted into result
+
+d16u_6:	rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_7		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_8		;else
+d16u_7:	sec			;    set carry to be shifted into result
+
+d16u_8:	rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_9		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_10		;else
+d16u_9:	sec			;    set carry to be shifted into result
+
+d16u_10:rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_11		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_12		;else
+d16u_11:sec			;    set carry to be shifted into result
+
+d16u_12:rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_13		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_14		;else
+d16u_13:sec			;    set carry to be shifted into result
+
+d16u_14:rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_15		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_16		;else
+d16u_15:sec			;    set carry to be shifted into result
+
+d16u_16:rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_17		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_18		;else
+d16u_17:	sec			;    set carry to be shifted into result
+
+d16u_18:rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_19		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_20		;else
+d16u_19:sec			;    set carry to be shifted into result
+
+d16u_20:rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_21		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_22		;else
+d16u_21:sec			;    set carry to be shifted into result
+
+d16u_22:rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_23		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_24		;else
+d16u_23:sec			;    set carry to be shifted into result
+
+d16u_24:rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_25		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_26		;else
+d16u_25:sec			;    set carry to be shifted into result
+
+d16u_26:rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_27		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_28		;else
+d16u_27:sec			;    set carry to be shifted into result
+
+d16u_28:rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_29		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_30		;else
+d16u_29:sec			;    set carry to be shifted into result
+
+d16u_30:rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	rol	drem16uL	;shift dividend into remainder
+	rol	drem16uH
+	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+	sbc	drem16uH,dv16uH	;
+	brcc	d16u_31		;if result negative
+	add	drem16uL,dv16uL	;    restore remainder
+	adc	drem16uH,dv16uH
+	clc			;    clear carry to be shifted into result
+	rjmp	d16u_32		;else
+d16u_31:sec			;    set carry to be shifted into result
+
+d16u_32:rol	dd16uL		;shift left dividend
+	rol	dd16uH
+	ret

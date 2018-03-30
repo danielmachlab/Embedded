@@ -1,8 +1,12 @@
 
-AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Thu Mar 29 11:34:30 2018
+AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Thu Mar 29 20:05:06 2018
 
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc\m88padef.inc'
+C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm(6): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc\m88padef.inc'
+C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm(37): warning: Register r16 already defined by the .DEF directive
+C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm(38): warning: Register r17 already defined by the .DEF directive
 [builtin](2): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc\m88padef.inc'
+C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm(6): Including file 'C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc\m88padef.inc'
                                  
                                  ;;
                                  
@@ -987,6 +991,52 @@ AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Thu
                                  ;; Lab 4
                                  ;; Ted Paulsen, Daniel Machlab
                                  ;;
+                                 
+                                 .include "m88padef.inc"
+                                 
+                                 ;***** Created: 2011-02-09 12:03 ******* Source: ATmega88PA.xml **********
+                                 ;*************************************************************************
+                                 ;* A P P L I C A T I O N   N O T E   F O R   T H E   A V R   F A M I L Y
+                                 ;* 
+                                 ;* Number            : AVR000
+                                 ;* File Name         : "m88PAdef.inc"
+                                 ;* Title             : Register/Bit Definitions for the ATmega88PA
+                                 ;* Date              : 2011-02-09
+                                 ;* Version           : 2.35
+                                 ;* Support E-mail    : avr@atmel.com
+                                 ;* Target MCU        : ATmega88PA
+                                 ;* 
+                                 ;* DESCRIPTION
+                                 ;* When including this file in the assembly program file, all I/O register 
+                                 ;* names and I/O register bit names appearing in the data book can be used.
+                                 ;* In addition, the six registers forming the three data pointers X, Y and 
+                                 ;* Z have been assigned names XL - ZH. Highest RAM address for Internal 
+                                 ;* SRAM is also defined 
+                                 ;* 
+                                 ;* The Register names are represented by their hexadecimal address.
+                                 ;* 
+                                 ;* The Register Bit names are represented by their bit number (0-7).
+                                 ;* 
+                                 ;* Please observe the difference in using the bit names with instructions
+                                 ;* such as "sbr"/"cbr" (set/clear bit in register) and "sbrs"/"sbrc"
+                                 ;* (skip if bit in register set/cleared). The following example illustrates
+                                 ;* this:
+                                 ;* 
+                                 ;* in    r16,PORTB             ;read PORTB latch
+                                 ;* sbr   r16,(1<<PB6)+(1<<PB5) ;set PB6 and PB5 (use masks, not bit#)
+                                 ;* out   PORTB,r16             ;output to PORTB
+                                 ;* 
+                                 ;* in    r16,TIFR              ;read the Timer Interrupt Flag Register
+                                 ;* sbrc  r16,TOV0              ;test the overflow flag (use bit#)
+                                 ;* rjmp  TOV0_is_set           ;jump if set
+                                 ;* ...                         ;otherwise do something else
+                                 ;*************************************************************************
+                                 
+                                 #ifndef _M88PADEF_INC_
+                                 #endif  /* _M88PADEF_INC_ */
+                                 
+                                 ; ***** END OF FILE ******************************************************
+                                 
                                  ;; cbi is input sbi is output
 000000 9820                      cbi DDRB, 0 ; input - from A
 000001 9821                      cbi DDRB, 1 ; input - from B
@@ -1008,153 +1058,236 @@ AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Thu
                                  .def prev = R21 ; R21 is the previous rpg reading
                                  
                                  ;; LCD data
-                                 .def write = R16
+                                 .def write = R22
                                  .def duty_cycle = R23
                                  
-                                 ;; free registers: R24, R25, R22, R16, R29
+                                 ;; divide registers
+                                 .def drem16uL= r14
+                                 .def drem16uH= r15
+                                 .def dres16uL= r16
+                                 .def dres16uH= r17
+                                 .def dd16uL	= r16
+                                 .def dd16uH	= r17
+                                 .def dv16uL	= r18
+                                 .def dv16uH	= r19
+                                 
+                                 ;; free registers: R24, R25, R26, R28
                                  
                                  
                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                  ;; PUBLIC STATIC VOID MAIN 
                                  
-00000a 982d                      cbi PORTB, 5 ; set to command mode
-00000b d067                      rcall lcd_init
-00000c 9a2d                      sbi PORTB, 5 ; set to data mode
+00000a d005                      rcall mem_init
+00000b d00b                      rcall start
                                  
-00000d 4344
-00000e 3d20
-00000f 0020                      msg1: .DB "DC = ", 0x00
-000010 e1ea                      ldi r30, LOW(2*msg1)
-000011 e0f0                      ldi r31, HIGH(2*msg1)
+00000c d08b                      rcall timer_config
                                  
-000012 d013                      rcall display_static
-                                 
-000013 d058                      rcall timer_config
-                                 
-000014 e674                      ldi duty_cycle, 100
-000015 bd78                      out OCR0B, duty_cycle
-000016 c025                      rjmp rpg_listener
+00000d e674                      ldi duty_cycle, 100
+00000e bd78                      out OCR0B, duty_cycle
+00000f c057                      rjmp rpg_listener
                                  
                                  ;; END MAIN
                                  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                  
+                                 mem_init:
+000010 4344
+000011 3d20
+000012 0020                      	msg1: .db "DC = ", 0x00
+000013 2020
+000014 2025
+000015 0020                      	msg2: .db "  %  ", 0x00
+000016 9508                      	ret
+                                 
+                                 start:
+                                 	;; INIT LCD
+000017 982d                      	cbi PORTB, 5 ; set to command mode
+000018 d086                      	rcall lcd_init
+000019 9a2d                      	sbi PORTB, 5 ; set to data mode
+                                 
+                                 disp:
+                                 	;; DISPLAY "DC = "
+00001a e2e0                      	ldi r30, low(2*msg1)
+00001b e0f0                      	ldi r31, high(2*msg1)
+00001c d016                      	rcall displayCstring
+                                 
+                                 	;; DISPLAY DC VALUE
+00001d e298                      	ldi R25, low(OCR0B)
+00001e e0a0                      	ldi R26, high(OCR0B)
+00001f d01e                      	rcall computeDC
+                                 	
+000020 e0e0                      	ldi R30, low(dtxt)
+000021 e0f1                      	ldi R31, high(dtxt)
+                                 
+000022 d039                      	rcall displayDstring
+                                 
+000023 9508                      	ret
+                                 	
+                                 	
                                  
                                  ; load both prev and curr with same initial readings
-000017 b143                      in curr, PINB ; load inputs into prev
-000018 7043                      andi curr, 0b00000011 ; mask out all signals but A & B
-000019 2f54                      mov prev, curr ; copy contents of curr into prev
-00001a d098                      rcall delay_100ms ; delay a lil bit
+000024 b143                      in curr, PINB ; load inputs into prev
+000025 7043                      andi curr, 0b00000011 ; mask out all signals but A & B
+000026 2f54                      mov prev, curr ; copy contents of curr into prev
+000027 d0b7                      rcall delay_100ms ; delay a lil bit
                                  
                                  ; create static strings in memory
                                  ;msg1: .db "DC = ", 0x00 ;;mem reserved with .db must be an even number of bytes. If odd, padded with extra byte by assembler. 
                                  ;msg2: .db "% =", 0x00
                                  
                                  write_letter_A_to_lcd:
-00001b d097                      	rcall delay_100ms
+000028 d0b6                      	rcall delay_100ms
                                  	; set to data mode
-00001c 9a2d                      	sbi PORTB, 5
+000029 9a2d                      	sbi PORTB, 5
                                  	; write upper nibble
-00001d e004                      	ldi write, 0b00000100
-00001e b908                      	out PORTC, write
+00002a e064                      	ldi write, 0b00000100
+00002b b968                      	out PORTC, write
                                  
-00001f d08d                      	rcall lcd_strobe
-000020 d092                      	rcall delay_100ms
+00002c d0ac                      	rcall lcd_strobe
+00002d d0b1                      	rcall delay_100ms
                                  
                                  	; write lower nibble
-000021 e001                      	ldi write, 0b00000001
-000022 b908                      	out PORTC, write
-000023 d089                      	rcall lcd_strobe
-000024 d08e                      	rcall delay_100ms
-000025 9508                      	ret
+00002e e061                      	ldi write, 0b00000001
+00002f b968                      	out PORTC, write
+000030 d0a8                      	rcall lcd_strobe
+000031 d0ad                      	rcall delay_100ms
+000032 9508                      	ret
                                  	
-                                 display_static:
-000026 9005                      	lpm r0,Z+ ; r0 <-- first byte
-000027 2000                      	tst r0 ; Reached end of message ?
-000028 f039                      	breq done_static ; Yes => quit
-000029 9402                      	swap r0 ; Upper nibble in place
-00002a b808                      	out PORTC,r0 ; Send upper nibble out
-00002b d081                      	rcall lcd_strobe ; Latch nibble
-                                 	//rcall delay_200us
-00002c 9402                      	swap r0 ; Lower nibble in place
-00002d b808                      	out PORTC,r0 ; Send lower nibble out
-00002e d07e                      	rcall lcd_strobe ; Latch nibble
-                                 	//rcall delay_200us
-00002f cff6                      	rjmp display_static
-                                   done_static:
-000030 9508                      	ret
+                                 displayCstring:
+000033 9005                      	lpm r0,Z+ ; r0 <-- first byte
+000034 2000                      	tst r0 ; Reached end of message ?
+000035 f039                      	breq done_static ; Yes => quit
                                  
-                                 display_dynamic:
-000031 9001                      	ld R0, Z+
-000032 2000                      	tst R0
-000033 f039                      	breq done_dynamic
+000036 9402                      	swap r0 ; Upper nibble in place
+000037 b808                      	out PORTC,r0 ; Send upper nibble out
+000038 d0a0                      	rcall lcd_strobe ; Latch nibble
+                                 
+                                 	//rcall delay_200us
+000039 9402                      	swap r0 ; Lower nibble in place
+00003a b808                      	out PORTC,r0 ; Send lower nibble out
+00003b d09d                      	rcall lcd_strobe ; Latch nibble
+                                 	//rcall delay_200us
+00003c cff6                      	rjmp displayCstring
+                                   done_static:
+00003d 9508                      	ret
+                                 
+                                 computeDC:
+                                   .dseg
+000100                           	dtxt: .BYTE 5 ; allocate mem
+                                 
+                                   .cseg
+                                 	;; set dividend
+00003e 2f09                      	mov dd16uL, R25
+00003f 2f1a                      	mov dd16uH, R26
+                                 
+                                 	;; set divisor
+000040 e227                      	ldi dv16uL, low(OCR0A) ; OCR0B
+000041 e030                      	ldi dv16uH, high(OCR0A)
+                                 
+                                 	; store terminating char for string
+000042 e040                      	ldi R20, 0x00
+000043 9340 0104                 	sts dtxt+4, R20
+                                 
+                                 	; divide the number by 10 and format
+000045 d0b2                      	rcall div16u
+000046 e340                      	ldi R20, 0x30
+000047 0ee4                      	add R14, R20
+000048 92e0 0103                 	sts dtxt+3, R14
+                                 
+                                 	; generate decimal point
+00004a e24e                      	ldi R20, 0x2e
+00004b 9340 0102                 	sts dtxt+2, R20
+                                 
+00004d 2f00                      	mov dd16uL, R16
+00004e 2f11                      	mov dd16uH, R17
+                                 
+00004f d0a8                      	rcall div16u
+000050 e340                      	ldi R20, 0x30
+000051 0ee4                      	add R14, R20
+000052 92e0 0101                 	sts dtxt+1, R14
+                                 
+000054 2f00                      	mov dd16uL, R16
+000055 2f11                      	mov dd16uH, R17
+                                 
+000056 d0a1                      	rcall div16u
+000057 e340                      	ldi R20, 0x30
+000058 0ee4                      	add R14, R20
+000059 92e0 0100                 	sts dtxt, R14
+                                 	
+00005b 9508                      	ret
+                                 
+                                 displayDstring:
+00005c 9001                      	ld R0, Z+
+00005d 2000                      	tst R0
+00005e f039                      	breq done_dynamic
                                  
                                  	;; write upper nibble
-000034 9402                      	swap R0
-000035 b808                      	out PORTC, R0
-000036 d076                      	rcall lcd_strobe
+00005f 9402                      	swap R0
+000060 b808                      	out PORTC, R0
+000061 d077                      	rcall lcd_strobe
                                  
                                  	;; write lower nibble
-000037 9402                      	swap R0
-000038 b808                      	out PORTC, R0
-000039 d073                      	rcall lcd_strobe
+000062 9402                      	swap R0
+000063 b808                      	out PORTC, R0
+000064 d074                      	rcall lcd_strobe
                                  
-00003a cff6                      	rjmp display_dynamic
+000065 cff6                      	rjmp displayDstring
                                    done_dynamic:
-00003b 9508                      	ret
+000066 9508                      	ret
                                  
                                  
                                  rpg_listener:
                                  	;rcall lightoff
-00003c b153                      	in prev, PINB
-00003d 7053                      	andi prev, 0b00000011
+000067 b153                      	in prev, PINB
+000068 7053                      	andi prev, 0b00000011
                                  
-00003e d010                      	rcall lighton
+000069 d011                      	rcall lighton
                                  
                                  	;; delay
                                  
-00003f d011                      	rcall lightoff
+00006a d012                      	rcall lightoff
                                  
                                  	;rcall delay
-000040 b143                      	in curr, PINB
-000041 7043                      	andi curr, 0b00000011
-000042 1754                      	cp prev, curr
-000043 f409                      	brne rpg_handler
-000044 cff7                      	rjmp rpg_listener 
+00006b b143                      	in curr, PINB
+00006c 7043                      	andi curr, 0b00000011
+00006d 1754                      	cp prev, curr
+00006e f409                      	brne rpg_handler
+00006f cff7                      	rjmp rpg_listener 
                                  
                                  ; This is the infinite loop which reads new inputs
                                  ; and handles the changes
                                  rpg_handler:
+000070 dfa9                      	rcall disp
                                  	;rcall lighton
                                  	
                                  	;rcall read_input
                                  	;rcall delay
-000045 d00d                      	rcall test_rpg
+000071 d00d                      	rcall test_rpg
                                  		
                                  	; check if AB == 00
-000046 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
-000047 f0a1                      	breq stationary ; branch if Z flag set, else continue
+000072 3010                      	cpi R17, 0b00000000 ; sets Z flag if R17 is 0
+000073 f0a1                      	breq stationary ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 01
-000048 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
-000049 f0d9                      	breq counterclockwise; originally clockwise ; branch if Z flag set, else continue
+000074 3011                      	cpi R17, 0b00000001 ; sets Z flag if the result of the dec operation is 0
+000075 f0d9                      	breq counterclockwise ; originally clockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 10
-00004a 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
-00004b f089                      	breq clockwise; originally counterclockwise ; branch if Z flag set, else continue
+000076 3012                      	cpi R17, 0b00000010 ; sets Z flag if the result of the dec operation is 0
+000077 f089                      	breq clockwise; originally counterclockwise ; branch if Z flag set, else continue
                                  
                                  	; check if AB == 11
-00004c 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
-00004d f071                      	breq stationary ; branch if Z flag set, else continue
+000078 3013                      	cpi R17, 0b00000011 ; sets Z flag if the result of the dec operation is 0
+000079 f071                      	breq stationary ; branch if Z flag set, else continue
                                  
-00004e cff6                      	rjmp rpg_handler ; finally, continue the loop
+00007a cff5                      	rjmp rpg_handler ; finally, continue the loop
                                  
                                  lighton:
-00004f 9a2a                      	sbi PORTB, 2
-000050 9508                      	ret
+00007b 9a2a                      	sbi PORTB, 2
+00007c 9508                      	ret
                                  
                                  lightoff:
-000051 982a                      	cbi PORTB, 2
-000052 9508                      	ret
+00007d 982a                      	cbi PORTB, 2
+00007e 9508                      	ret
                                  
                                  ; subroutine which transfers curr into prev
                                  ; and then loads new reading into curr
@@ -1165,189 +1298,407 @@ AVRASM ver. 2.2.7  C:\Users\ted\Dropbox\embedded\Embedded\Lab4\Lab4\main.asm Thu
                                  ;	ret
                                  
                                  test_rpg:
-000053 3040                      	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
-000054 f029                      	breq exor_prev
+00007f 3040                      	cpi curr, 0b00000000 ; if curr is 00, immediately xor with prev
+000080 f029                      	breq exor_prev
                                  
-000055 3043                      	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
-000056 f019                      	breq exor_prev
+000081 3043                      	cpi curr, 0b00000011 ; if curr is 11, immediately xor with prev
+000082 f019                      	breq exor_prev
                                  
-000057 2f14                      	mov R17, curr 
-000058 e023                      	ldi R18, 0b00000011 
-000059 2712                      	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
+000083 2f14                      	mov R17, curr 
+000084 e023                      	ldi R18, 0b00000011 
+000085 2712                      	eor R17, R18 ; if curr had 10, R17 will be loaded with 01 
                                  
                                  exor_prev: 
-00005a 2715                      	eor R17, prev
-00005b 9508                      	ret
+000086 2715                      	eor R17, prev
+000087 9508                      	ret
                                  	
                                  
                                  ; subroutine to handle when the rpg is stationary
                                  ; currently it turns off both LEDs
                                  stationary:
-00005c cfdf                      	rjmp rpg_listener
+000088 cfde                      	rjmp rpg_listener
                                  
                                  ;; subroutine to hande when rpg is turning clockwise
                                  ;; if [OCR0B] == TOP -> do nothing
                                  ;; else increment
                                  clockwise:
-00005d b5a8                      	in R26, OCR0B ; current duty cycle
-00005e b5b7                      	in R27, OCR0A ; 200
-00005f 17ab                      	cp R26, R27
-000060 f409                      	brne incr
-000061 cfda                      	rjmp rpg_listener
+000089 b5a8                      	in R26, OCR0B ; current duty cycle
+00008a b5b7                      	in R27, OCR0A ; 200
+00008b 17ab                      	cp R26, R27
+00008c f409                      	brne incr
+00008d cfd9                      	rjmp rpg_listener
                                    incr:
-000062 95a3                      	inc R26
-000063 bda8                      	out OCR0B, R26
-000064 cfd7                      	rjmp rpg_listener
+00008e 95a3                      	inc R26
+00008f bda8                      	out OCR0B, R26
+000090 cfd6                      	rjmp rpg_listener
                                  
                                  ;; subroutine to hande when rpg is turning counter-clockwise
                                  ;; if [OCR0B] == 0 -> decrement
                                  ;; else keep at zero
                                  counterclockwise:
-000065 b5a8                      	in R26, OCR0B ; load value from OCROA
-000066 23aa                      	tst R26
-000067 f409                      	brne decr
-000068 cfd3                      	rjmp rpg_listener
+000091 b5a8                      	in R26, OCR0B ; load value from OCROA
+000092 23aa                      	tst R26
+000093 f409                      	brne decr
+000094 cfd2                      	rjmp rpg_listener
                                    decr:
-000069 95aa                      	dec R26
-00006a bda8                      	out OCR0B, R26
-00006b cfd0                      	rjmp rpg_listener
+000095 95aa                      	dec R26
+000096 bda8                      	out OCR0B, R26
+000097 cfcf                      	rjmp rpg_listener
                                  
                                  timer_config:
-00006c e2e3                      	ldi R30, 0b00100011 ; WGM01, WGM00 <= 1, 1
-00006d bde4                      	out TCCR0A, R30
-00006e e0e9                      	ldi R30, 0b00001001 ; No prescale
-00006f bde5                      	out TCCR0B, R30
-000070 ece8                      	ldi R30, 0xC8 ; OCRA <= 200 (set TOP to 200)
-000071 bde7                      	out OCR0A, R30
-000072 9508                      	ret
+000098 e2e3                      	ldi R30, 0b00100011 ; WGM01, WGM00 <= 1, 1
+000099 bde4                      	out TCCR0A, R30
+00009a e0e9                      	ldi R30, 0b00001001 ; No prescale
+00009b bde5                      	out TCCR0B, R30
+00009c ece8                      	ldi R30, 0xC8 ; OCRA <= 200 (set TOP to 200)
+00009d bde7                      	out OCR0A, R30
+00009e 9508                      	ret
                                  
                                  lcd_init:
-000073 d03f                      	rcall delay_100ms ; line 1 -- 100 ms
+00009f d03f                      	rcall delay_100ms ; line 1 -- 100 ms
                                  	
-000074 e0a3                      	ldi R26, 0x03
-000075 b9a8                      	out PORTC, R26 ; line 2 -- write 0x03 with RS=0 (set to 8-bit mode)
-000076 d036                      	rcall lcd_strobe
+0000a0 e0a3                      	ldi R26, 0x03
+0000a1 b9a8                      	out PORTC, R26 ; line 2 -- write 0x03 with RS=0 (set to 8-bit mode)
+0000a2 d036                      	rcall lcd_strobe
                                  
-000077 d045                      	rcall delay_5ms ; line 3 -- 5 ms
+0000a3 d045                      	rcall delay_5ms ; line 3 -- 5 ms
                                  	
-000078 e0a3                      	ldi R26, 0x03
-000079 b9a8                      	out PORTC, R26 ; line 4 -- write 0x03 with RS=0 (set to 8-bit mode)
-00007a d032                      	rcall lcd_strobe
+0000a4 e0a3                      	ldi R26, 0x03
+0000a5 b9a8                      	out PORTC, R26 ; line 4 -- write 0x03 with RS=0 (set to 8-bit mode)
+0000a6 d032                      	rcall lcd_strobe
                                  
-00007b d049                      	rcall delay_200us ; line 5	
+0000a7 d049                      	rcall delay_200us ; line 5	
                                  	 
-00007c e0a3                      	ldi R26, 0x03
-00007d b9a8                      	out PORTC, R26 ;line 6 -- write 0x03 with RS=0 (set to 8-bit mode)
-00007e d02e                      	rcall lcd_strobe
+0000a8 e0a3                      	ldi R26, 0x03
+0000a9 b9a8                      	out PORTC, R26 ;line 6 -- write 0x03 with RS=0 (set to 8-bit mode)
+0000aa d02e                      	rcall lcd_strobe
                                  
-00007f d045                      	rcall delay_200us ; line 7 	 
+0000ab d045                      	rcall delay_200us ; line 7 	 
                                  
-000080 e0a2                      	ldi R26, 0x02
-000081 b9a8                      	out PORTC, R26 ;line 8 -- write 0x02 with RS=0 (set to 4-bit mode)
-000082 d02a                      	rcall lcd_strobe
+0000ac e0a2                      	ldi R26, 0x02
+0000ad b9a8                      	out PORTC, R26 ;line 8 -- write 0x02 with RS=0 (set to 4-bit mode)
+0000ae d02a                      	rcall lcd_strobe
                                  
-000083 d039                      	rcall delay_5ms ; line 9
+0000af d039                      	rcall delay_5ms ; line 9
                                  		
-000084 e0a2                      	ldi R26, 0x02
-000085 b9a8                      	out PORTC, R26 ; line 10a -- write 28 hex (upper nibble then lower nibble) 
-000086 d026                      	rcall lcd_strobe
+0000b0 e0a2                      	ldi R26, 0x02
+0000b1 b9a8                      	out PORTC, R26 ; line 10a -- write 28 hex (upper nibble then lower nibble) 
+0000b2 d026                      	rcall lcd_strobe
                                  
-000087 d03d                      	rcall delay_200us
+0000b3 d03d                      	rcall delay_200us
                                  
-000088 e0a8                      	ldi R26, 0x08
-000089 b9a8                      	out PORTC, R26; line 10b -- lower nibble
-00008a d022                      	rcall lcd_strobe
+0000b4 e0a8                      	ldi R26, 0x08
+0000b5 b9a8                      	out PORTC, R26; line 10b -- lower nibble
+0000b6 d022                      	rcall lcd_strobe
                                  
-00008b d039                      	rcall delay_200us
+0000b7 d039                      	rcall delay_200us
                                  
-00008c e0a0                      	ldi R26, 0x00
-00008d b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
-00008e d01e                      	rcall lcd_strobe
+0000b8 e0a0                      	ldi R26, 0x00
+0000b9 b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
+0000ba d01e                      	rcall lcd_strobe
                                  
-00008f d035                      	rcall delay_200us
+0000bb d035                      	rcall delay_200us
                                  	
-000090 e0a8                      	ldi R26, 0x08
-000091 b9a8                      	out PORTC, R26 ; line 11b -- lower nibble
-000092 d01a                      	rcall lcd_strobe
+0000bc e0a8                      	ldi R26, 0x08
+0000bd b9a8                      	out PORTC, R26 ; line 11b -- lower nibble
+0000be d01a                      	rcall lcd_strobe
                                  
-000093 d031                      	rcall delay_200us
+0000bf d031                      	rcall delay_200us
                                  
-000094 e0a0                      	ldi R26, 0x00
-000095 b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
-000096 d016                      	rcall lcd_strobe
+0000c0 e0a0                      	ldi R26, 0x00
+0000c1 b9a8                      	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
+0000c2 d016                      	rcall lcd_strobe
                                  
-000097 d02d                      	rcall delay_200us
+0000c3 d02d                      	rcall delay_200us
                                  	
-000098 e0a1                      	ldi R26, 0x01
-000099 b9a8                      	out PORTC, R26 ; line 11b -- lower nibble
-00009a d012                      	rcall lcd_strobe
+0000c4 e0a1                      	ldi R26, 0x01
+0000c5 b9a8                      	out PORTC, R26 ; line 11b -- lower nibble
+0000c6 d012                      	rcall lcd_strobe
                                  
-00009b d021                      	rcall delay_5ms 
+0000c7 d021                      	rcall delay_5ms 
                                  
-00009c e0a0                      	ldi R26, 0x00
-00009d b9a8                      	out PORTC, R26 ; line 12a -- write 01 hex (upper nibble then lower nibble)
-00009e d00e                      	rcall lcd_strobe
+0000c8 e0a0                      	ldi R26, 0x00
+0000c9 b9a8                      	out PORTC, R26 ; line 12a -- write 01 hex (upper nibble then lower nibble)
+0000ca d00e                      	rcall lcd_strobe
                                  
-00009f d025                      	rcall delay_200us
+0000cb d025                      	rcall delay_200us
                                  
-0000a0 e0a6                      	ldi R26, 0x06
-0000a1 b9a8                      	out PORTC, R26 ; line 12b -- lower nibble
-0000a2 d00a                      	rcall lcd_strobe
+0000cc e0a6                      	ldi R26, 0x06
+0000cd b9a8                      	out PORTC, R26 ; line 12b -- lower nibble
+0000ce d00a                      	rcall lcd_strobe
                                  
-0000a3 d019                      	rcall delay_5ms
+0000cf d019                      	rcall delay_5ms
                                  
-0000a4 e0a0                      	ldi R26, 0x00
-0000a5 b9a8                      	out PORTC, R26; line 13a -- write 06 hex (upper nibble then lower nibble)
-0000a6 d006                      	rcall lcd_strobe
+0000d0 e0a0                      	ldi R26, 0x00
+0000d1 b9a8                      	out PORTC, R26; line 13a -- write 06 hex (upper nibble then lower nibble)
+0000d2 d006                      	rcall lcd_strobe
                                  
-0000a7 d01d                      	rcall delay_200us
+0000d3 d01d                      	rcall delay_200us
                                  
-0000a8 e0ac                      	ldi R26, 0x0C
-0000a9 b9a8                      	out PORTC, R26 ; line 13b -- lower nibble
-0000aa d002                      	rcall lcd_strobe
+0000d4 e0ac                      	ldi R26, 0x0C
+0000d5 b9a8                      	out PORTC, R26 ; line 13b -- lower nibble
+0000d6 d002                      	rcall lcd_strobe
                                  
-0000ab d011                      	rcall delay_5ms
-0000ac 9508                      	ret
+0000d7 d011                      	rcall delay_5ms
+0000d8 9508                      	ret
                                  
                                  lcd_strobe:
-0000ad 982b                      	cbi PORTB, 3 ; drive E low
-0000ae d016                      	rcall delay_200us ; delay
-0000af 9a2b                      	sbi PORTB, 3 ; drive E hight 
-0000b0 d014                      	rcall delay_200us
-0000b1 982b                      	cbi PORTB, 3 ; drive E low
-0000b2 9508                      	ret
+0000d9 982b                      	cbi PORTB, 3 ; drive E low
+0000da d016                      	rcall delay_200us ; delay
+0000db 9a2b                      	sbi PORTB, 3 ; drive E hight 
+0000dc d014                      	rcall delay_200us
+0000dd 982b                      	cbi PORTB, 3 ; drive E low
+0000de 9508                      	ret
                                  
                                  
                                  delay_100ms:
                                      ; 100ms at 8 MHz
-0000b3 e026                      		ldi  r18, 6
-0000b4 e03f                      		ldi  r19, 15
-0000b5 ef42                      		ldi  r20, 242
-0000b6 954a                      	L1: dec  r20
-0000b7 f7f1                      		brne L1
-0000b8 953a                      		dec  r19
-0000b9 f7e1                      		brne L1
-0000ba 952a                      		dec  r18
-0000bb f7d1                      		brne L1
-0000bc 9508                      		ret
+0000df e026                      		ldi  r18, 6
+0000e0 e03f                      		ldi  r19, 15
+0000e1 ef42                      		ldi  r20, 242
+0000e2 954a                      	L1: dec  r20
+0000e3 f7f1                      		brne L1
+0000e4 953a                      		dec  r19
+0000e5 f7e1                      		brne L1
+0000e6 952a                      		dec  r18
+0000e7 f7d1                      		brne L1
+0000e8 9508                      		ret
                                  
                                  delay_5ms:
-0000bd e325                      		ldi  r18, 53
-0000be ef32                      		ldi  r19, 242
-0000bf 953a                      	L2: dec  r19
-0000c0 f7f1                      		brne L2
-0000c1 952a                      		dec  r18
-0000c2 f7e1                      		brne L2
-0000c3 0000                      		nop
-0000c4 9508                      		ret
+0000e9 e325                      		ldi  r18, 53
+0000ea ef32                      		ldi  r19, 242
+0000eb 953a                      	L2: dec  r19
+0000ec f7f1                      		brne L2
+0000ed 952a                      		dec  r18
+0000ee f7e1                      		brne L2
+0000ef 0000                      		nop
+0000f0 9508                      		ret
                                  
                                  delay_200us:
-0000c5 e024                      		ldi  r18, 4
-0000c6 e133                      		ldi  r19, 19
-0000c7 953a                      	L3: dec  r19
-0000c8 f7f1                      		brne L3
-0000c9 952a                      		dec  r18
-0000ca f7e1                      		brne L3
+0000f1 e024                      		ldi  r18, 4
+0000f2 e133                      		ldi  r19, 19
+0000f3 953a                      	L3: dec  r19
+0000f4 f7f1                      		brne L3
+0000f5 952a                      		dec  r18
+0000f6 f7e1                      		brne L3
+0000f7 9508                      		ret
+                                 
+                                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                                 ;; Divide 16 bit number routine from Atmel ;;
+                                 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0000f8 24ee                      div16u:	clr	drem16uL	;clear remainder Low byte
+0000f9 18ff                      	sub	drem16uH,drem16uH;clear remainder High byte and carry
+                                 
+0000fa 1f00                      	rol	dd16uL		;shift left dividend
+0000fb 1f11                      	rol	dd16uH
+0000fc 1cee                      	rol	drem16uL	;shift dividend into remainder
+0000fd 1cff                      	rol	drem16uH
+0000fe 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+0000ff 0af3                      	sbc	drem16uH,dv16uH	;
+000100 f420                      	brcc	d16u_1		;if result negative
+000101 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+000102 1ef3                      	adc	drem16uH,dv16uH
+000103 9488                      	clc			;    clear carry to be shifted into result
+000104 c001                      	rjmp	d16u_2		;else
+000105 9408                      d16u_1:	sec			;    set carry to be shifted into result
+                                 
+000106 1f00                      d16u_2:	rol	dd16uL		;shift left dividend
+000107 1f11                      	rol	dd16uH
+000108 1cee                      	rol	drem16uL	;shift dividend into remainder
+000109 1cff                      	rol	drem16uH
+00010a 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+00010b 0af3                      	sbc	drem16uH,dv16uH	;
+00010c f420                      	brcc	d16u_3		;if result negative
+00010d 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+00010e 1ef3                      	adc	drem16uH,dv16uH
+00010f 9488                      	clc			;    clear carry to be shifted into result
+000110 c001                      	rjmp	d16u_4		;else
+000111 9408                      d16u_3:	sec			;    set carry to be shifted into result
+                                 
+000112 1f00                      d16u_4:	rol	dd16uL		;shift left dividend
+000113 1f11                      	rol	dd16uH
+000114 1cee                      	rol	drem16uL	;shift dividend into remainder
+000115 1cff                      	rol	drem16uH
+000116 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+000117 0af3                      	sbc	drem16uH,dv16uH	;
+000118 f420                      	brcc	d16u_5		;if result negative
+000119 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+00011a 1ef3                      	adc	drem16uH,dv16uH
+00011b 9488                      	clc			;    clear carry to be shifted into result
+00011c c001                      	rjmp	d16u_6		;else
+00011d 9408                      d16u_5:	sec			;    set carry to be shifted into result
+                                 
+00011e 1f00                      d16u_6:	rol	dd16uL		;shift left dividend
+00011f 1f11                      	rol	dd16uH
+000120 1cee                      	rol	drem16uL	;shift dividend into remainder
+000121 1cff                      	rol	drem16uH
+000122 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+000123 0af3                      	sbc	drem16uH,dv16uH	;
+000124 f420                      	brcc	d16u_7		;if result negative
+000125 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+000126 1ef3                      	adc	drem16uH,dv16uH
+000127 9488                      	clc			;    clear carry to be shifted into result
+000128 c001                      	rjmp	d16u_8		;else
+000129 9408                      d16u_7:	sec			;    set carry to be shifted into result
+                                 
+00012a 1f00                      d16u_8:	rol	dd16uL		;shift left dividend
+00012b 1f11                      	rol	dd16uH
+00012c 1cee                      	rol	drem16uL	;shift dividend into remainder
+00012d 1cff                      	rol	drem16uH
+00012e 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+00012f 0af3                      	sbc	drem16uH,dv16uH	;
+000130 f420                      	brcc	d16u_9		;if result negative
+000131 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+000132 1ef3                      	adc	drem16uH,dv16uH
+000133 9488                      	clc			;    clear carry to be shifted into result
+000134 c001                      	rjmp	d16u_10		;else
+000135 9408                      d16u_9:	sec			;    set carry to be shifted into result
+                                 
+000136 1f00                      d16u_10:rol	dd16uL		;shift left dividend
+000137 1f11                      	rol	dd16uH
+000138 1cee                      	rol	drem16uL	;shift dividend into remainder
+000139 1cff                      	rol	drem16uH
+00013a 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+00013b 0af3                      	sbc	drem16uH,dv16uH	;
+00013c f420                      	brcc	d16u_11		;if result negative
+00013d 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+00013e 1ef3                      	adc	drem16uH,dv16uH
+00013f 9488                      	clc			;    clear carry to be shifted into result
+000140 c001                      	rjmp	d16u_12		;else
+000141 9408                      d16u_11:sec			;    set carry to be shifted into result
+                                 
+000142 1f00                      d16u_12:rol	dd16uL		;shift left dividend
+000143 1f11                      	rol	dd16uH
+000144 1cee                      	rol	drem16uL	;shift dividend into remainder
+000145 1cff                      	rol	drem16uH
+000146 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+000147 0af3                      	sbc	drem16uH,dv16uH	;
+000148 f420                      	brcc	d16u_13		;if result negative
+000149 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+00014a 1ef3                      	adc	drem16uH,dv16uH
+00014b 9488                      	clc			;    clear carry to be shifted into result
+00014c c001                      	rjmp	d16u_14		;else
+00014d 9408                      d16u_13:sec			;    set carry to be shifted into result
+                                 
+00014e 1f00                      d16u_14:rol	dd16uL		;shift left dividend
+00014f 1f11                      	rol	dd16uH
+000150 1cee                      	rol	drem16uL	;shift dividend into remainder
+000151 1cff                      	rol	drem16uH
+000152 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+000153 0af3                      	sbc	drem16uH,dv16uH	;
+000154 f420                      	brcc	d16u_15		;if result negative
+000155 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+000156 1ef3                      	adc	drem16uH,dv16uH
+000157 9488                      	clc			;    clear carry to be shifted into result
+000158 c001                      	rjmp	d16u_16		;else
+000159 9408                      d16u_15:sec			;    set carry to be shifted into result
+                                 
+00015a 1f00                      d16u_16:rol	dd16uL		;shift left dividend
+00015b 1f11                      	rol	dd16uH
+00015c 1cee                      	rol	drem16uL	;shift dividend into remainder
+00015d 1cff                      	rol	drem16uH
+00015e 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+00015f 0af3                      	sbc	drem16uH,dv16uH	;
+000160 f420                      	brcc	d16u_17		;if result negative
+000161 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+000162 1ef3                      	adc	drem16uH,dv16uH
+000163 9488                      	clc			;    clear carry to be shifted into result
+000164 c001                      	rjmp	d16u_18		;else
+000165 9408                      d16u_17:	sec			;    set carry to be shifted into result
+                                 
+000166 1f00                      d16u_18:rol	dd16uL		;shift left dividend
+000167 1f11                      	rol	dd16uH
+000168 1cee                      	rol	drem16uL	;shift dividend into remainder
+000169 1cff                      	rol	drem16uH
+00016a 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+00016b 0af3                      	sbc	drem16uH,dv16uH	;
+00016c f420                      	brcc	d16u_19		;if result negative
+00016d 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+00016e 1ef3                      	adc	drem16uH,dv16uH
+00016f 9488                      	clc			;    clear carry to be shifted into result
+000170 c001                      	rjmp	d16u_20		;else
+000171 9408                      d16u_19:sec			;    set carry to be shifted into result
+                                 
+000172 1f00                      d16u_20:rol	dd16uL		;shift left dividend
+000173 1f11                      	rol	dd16uH
+000174 1cee                      	rol	drem16uL	;shift dividend into remainder
+000175 1cff                      	rol	drem16uH
+000176 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+000177 0af3                      	sbc	drem16uH,dv16uH	;
+000178 f420                      	brcc	d16u_21		;if result negative
+000179 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+00017a 1ef3                      	adc	drem16uH,dv16uH
+00017b 9488                      	clc			;    clear carry to be shifted into result
+00017c c001                      	rjmp	d16u_22		;else
+00017d 9408                      d16u_21:sec			;    set carry to be shifted into result
+                                 
+00017e 1f00                      d16u_22:rol	dd16uL		;shift left dividend
+00017f 1f11                      	rol	dd16uH
+000180 1cee                      	rol	drem16uL	;shift dividend into remainder
+000181 1cff                      	rol	drem16uH
+000182 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+000183 0af3                      	sbc	drem16uH,dv16uH	;
+000184 f420                      	brcc	d16u_23		;if result negative
+000185 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+000186 1ef3                      	adc	drem16uH,dv16uH
+000187 9488                      	clc			;    clear carry to be shifted into result
+000188 c001                      	rjmp	d16u_24		;else
+000189 9408                      d16u_23:sec			;    set carry to be shifted into result
+                                 
+00018a 1f00                      d16u_24:rol	dd16uL		;shift left dividend
+00018b 1f11                      	rol	dd16uH
+00018c 1cee                      	rol	drem16uL	;shift dividend into remainder
+00018d 1cff                      	rol	drem16uH
+00018e 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+00018f 0af3                      	sbc	drem16uH,dv16uH	;
+000190 f420                      	brcc	d16u_25		;if result negative
+000191 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+000192 1ef3                      	adc	drem16uH,dv16uH
+000193 9488                      	clc			;    clear carry to be shifted into result
+000194 c001                      	rjmp	d16u_26		;else
+000195 9408                      d16u_25:sec			;    set carry to be shifted into result
+                                 
+000196 1f00                      d16u_26:rol	dd16uL		;shift left dividend
+000197 1f11                      	rol	dd16uH
+000198 1cee                      	rol	drem16uL	;shift dividend into remainder
+000199 1cff                      	rol	drem16uH
+00019a 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+00019b 0af3                      	sbc	drem16uH,dv16uH	;
+00019c f420                      	brcc	d16u_27		;if result negative
+00019d 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+00019e 1ef3                      	adc	drem16uH,dv16uH
+00019f 9488                      	clc			;    clear carry to be shifted into result
+0001a0 c001                      	rjmp	d16u_28		;else
+0001a1 9408                      d16u_27:sec			;    set carry to be shifted into result
+                                 
+0001a2 1f00                      d16u_28:rol	dd16uL		;shift left dividend
+0001a3 1f11                      	rol	dd16uH
+0001a4 1cee                      	rol	drem16uL	;shift dividend into remainder
+0001a5 1cff                      	rol	drem16uH
+0001a6 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+0001a7 0af3                      	sbc	drem16uH,dv16uH	;
+0001a8 f420                      	brcc	d16u_29		;if result negative
+0001a9 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+0001aa 1ef3                      	adc	drem16uH,dv16uH
+0001ab 9488                      	clc			;    clear carry to be shifted into result
+0001ac c001                      	rjmp	d16u_30		;else
+0001ad 9408                      d16u_29:sec			;    set carry to be shifted into result
+                                 
+0001ae 1f00                      d16u_30:rol	dd16uL		;shift left dividend
+0001af 1f11                      	rol	dd16uH
+0001b0 1cee                      	rol	drem16uL	;shift dividend into remainder
+0001b1 1cff                      	rol	drem16uH
+0001b2 1ae2                      	sub	drem16uL,dv16uL	;remainder = remainder - divisor
+0001b3 0af3                      	sbc	drem16uH,dv16uH	;
+0001b4 f420                      	brcc	d16u_31		;if result negative
+0001b5 0ee2                      	add	drem16uL,dv16uL	;    restore remainder
+0001b6 1ef3                      	adc	drem16uH,dv16uH
+0001b7 9488                      	clc			;    clear carry to be shifted into result
+0001b8 c001                      	rjmp	d16u_32		;else
+0001b9 9408                      d16u_31:sec			;    set carry to be shifted into result
+                                 
+0001ba 1f00                      d16u_32:rol	dd16uL		;shift left dividend
+0001bb 1f11                      	rol	dd16uH
 
 
 RESOURCE USE INFORMATION
@@ -1367,38 +1718,38 @@ counted separately from r26..r31 here.
 "ATmega88PA" register use summary:
 x  :   0 y  :   0 z  :   2 r0 :  12 r1 :   0 r2 :   0 r3 :   0 r4 :   0 
 r5 :   0 r6 :   0 r7 :   0 r8 :   0 r9 :   0 r10:   0 r11:   0 r12:   0 
-r13:   0 r14:   0 r15:   0 r16:   4 r17:   7 r18:   8 r19:   6 r20:  11 
-r21:   5 r22:   0 r23:   2 r24:   0 r25:   0 r26:  36 r27:   2 r28:   0 
-r29:   0 r30:   7 r31:   1 
-Registers used: 13 out of 35 (37.1%)
+r13:   0 r14:  55 r15:  50 r16:  22 r17:  29 r18:  41 r19:  39 r20:  21 
+r21:   5 r22:   4 r23:   2 r24:   0 r25:   2 r26:  38 r27:   2 r28:   0 
+r29:   0 r30:   8 r31:   2 
+Registers used: 17 out of 35 (48.6%)
 
 "ATmega88PA" instruction use summary:
-.lds  :   0 .sts  :   0 adc   :   0 add   :   0 adiw  :   0 and   :   0 
+.lds  :   0 .sts  :   0 adc   :  16 add   :  19 adiw  :   0 and   :   0 
 andi  :   3 asr   :   0 bclr  :   0 bld   :   0 brbc  :   0 brbs  :   0 
-brcc  :   0 brcs  :   0 break :   0 breq  :   8 brge  :   0 brhc  :   0 
+brcc  :  16 brcs  :   0 break :   0 breq  :   8 brge  :   0 brhc  :   0 
 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 brlt  :   0 brmi  :   0 
 brne  :  10 brpl  :   0 brsh  :   0 brtc  :   0 brts  :   0 brvc  :   0 
-brvs  :   0 bset  :   0 bst   :   0 cbi   :   6 cbr   :   0 clc   :   0 
-clh   :   0 cli   :   0 cln   :   0 clr   :   0 cls   :   0 clt   :   0 
+brvs  :   0 bset  :   0 bst   :   0 cbi   :   6 cbr   :   0 clc   :  16 
+clh   :   0 cli   :   0 cln   :   0 clr   :   1 cls   :   0 clt   :   0 
 clv   :   0 clz   :   0 com   :   0 cp    :   2 cpc   :   0 cpi   :   6 
 cpse  :   0 dec   :   8 eor   :   2 fmul  :   0 fmuls :   0 fmulsu:   0 
 icall :   0 ijmp  :   0 in    :   6 inc   :   1 ld    :   1 ldd   :   0 
-ldi   :  30 lds   :   0 lpm   :   1 lsl   :   0 lsr   :   0 mov   :   2 
+ldi   :  41 lds   :   0 lpm   :   1 lsl   :   0 lsr   :   0 mov   :   8 
 movw  :   0 mul   :   0 muls  :   0 mulsu :   0 neg   :   0 nop   :   1 
-or    :   0 ori   :   0 out   :  26 pop   :   0 push  :   0 rcall :  47 
-ret   :  12 reti  :   0 rjmp  :  10 rol   :   0 ror   :   0 sbc   :   0 
+or    :   0 ori   :   0 out   :  26 pop   :   0 push  :   0 rcall :  55 
+ret   :  16 reti  :   0 rjmp  :  26 rol   :  66 ror   :   0 sbc   :  16 
 sbci  :   0 sbi   :  12 sbic  :   0 sbis  :   0 sbiw  :   0 sbr   :   0 
-sbrc  :   0 sbrs  :   0 sec   :   0 seh   :   0 sei   :   0 sen   :   0 
+sbrc  :   0 sbrs  :   0 sec   :  16 seh   :   0 sei   :   0 sen   :   0 
 ser   :   0 ses   :   0 set   :   0 sev   :   0 sez   :   0 sleep :   0 
-spm   :   0 st    :   0 std   :   0 sts   :   0 sub   :   0 subi  :   0 
+spm   :   0 st    :   0 std   :   0 sts   :   5 sub   :  17 subi  :   0 
 swap  :   4 tst   :   3 wdr   :   0 
-Instructions used: 22 out of 111 (19.8%)
+Instructions used: 32 out of 111 (28.8%)
 
 "ATmega88PA" memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x000198    402      6    408    8192   5.0%
-[.dseg] 0x000100 0x000100      0      0      0    1024   0.0%
+[.cseg] 0x000000 0x00037a    878     12    890    8192  10.9%
+[.dseg] 0x000100 0x000105      0      5      5    1024   0.5%
 [.eseg] 0x000000 0x000000      0      0      0     512   0.0%
 
-Assembly complete, 0 errors, 0 warnings
+Assembly complete, 0 errors, 2 warnings
