@@ -3,6 +3,23 @@
 
 .include "m88padef.inc"
 
+.org 0x000 rjmp RESET
+.org 0x002 rjmp set_modeAB ;change modes
+.org 0x01A
+RESET:
+
+
+;EIMSK
+ldi R22, 0b00000010
+out EIMSK, R22
+;EICRA
+ldi R22, 0b00000101
+sts EICRA, R22
+;EIFR
+;ldi R22, 0x02
+;sts 
+
+
 ;; LINES TO RPG
 cbi DDRB, 0 ; input - from A
 cbi DDRB, 1 ; input - from B
@@ -15,7 +32,7 @@ sbi DDRB, 5 ; output to RS line of lcd
 
 ;; DATA LINE TO PUSHBUTTON
 ;cbi DDRB, 2 ; input from pushbutton
-cbi DDRD, 2 ; input from onboard pushbutton
+cbi DDRD, 3 ; input from onboard pushbutton
 
 ;; DATA LINES TO LCD
 sbi DDRC, 3 ; output PC3 - D7
@@ -56,11 +73,12 @@ rjmp skip
 	msg3: .DB "Mode B: ", 0x00, 0x00
 skip:
 
-rcall display_modeA
+;rcall display_modeA
 
 rcall timer_config
 ldi duty_cycle, 153
 out OCR0B, duty_cycle
+sei
 rjmp system_listener
 
 ;; END MAIN
@@ -68,8 +86,8 @@ rjmp system_listener
 
 system_listener:
 	;; button listener
-	sbis PIND, 2
-	rcall set_modeAB
+	;sbis PIND, 2
+	;rcall set_modeAB
 
 	;rcall lightoff
 	in prev, PINB
@@ -83,12 +101,14 @@ system_listener:
 	brne to_rpg_handler
 	rjmp system_listener
 
+
+
 set_modeAB:
 	ldi R26, 0x01
 	eor mode, R26 ; 0x00 eor 0x01 = 0x01, 0x01 eor 0x01 = 0x00	
 	cbi PORTB, 5 ; set to command mode
-	rcall lcd_clear
-	rcall cursor_home
+	;rcall lcd_clear
+	;rcall cursor_home
 	sbi PORTB, 5
 	cpi mode, 0x00
 	brne display_modeA
@@ -99,14 +119,14 @@ display_modeA:
 	ldi r30, LOW(2*msg2)
 	ldi r31, HIGH(2*msg2)
 	rcall display_static
-	ret
+	reti
 
 display_modeB:
 	rcall bottom_line_mode
 	ldi r30, LOW(2*msg3)
 	ldi r31, HIGH(2*msg3)
 	rcall display_static
-	ret
+	reti
 
 display_static:
 	lpm r0,Z+ ; r0 <-- first byte
