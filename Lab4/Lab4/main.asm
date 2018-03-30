@@ -48,7 +48,6 @@ rjmp skip
 msg1: .DB "DC = ", 0x00
 msg2: .DB "Mode A: ", 0x00, 0x00
 msg3: .DB "Mode B: ", 0x00, 0x00
-
 skip:
 
 
@@ -96,31 +95,32 @@ write_letter:
 	ret
 
 display_modeA:
-	ldi r30, LOW(2*msg1)
-	ldi r31, HIGH(2*msg1)
-	rcall display_static
-
-	cbi PORTB, 5 ; set to command mode
-	rcall delay_200us 
-	ldi R26, 0b1100
-	out PORTC, R26 
-	rcall lcd_strobe
-	rcall delay_200us
-	ldi R26, 0b0000
-	out PORTC, R26 
-	rcall lcd_strobe
-	sbi PORTB, 5 ; set to data mode
+	rcall display_dutycycle
+	rcall bottom_line_mode
 
 	ldi r30, LOW(2*msg2)
 	ldi r31, HIGH(2*msg2)
 	rcall display_static
-	rjmp rpg_listener
+	;rjmp rpg_listener
+	ret
 
 display_modeB:
+	rcall display_dutycycle
+	rcall bottom_line_mode
+	ldi r30, LOW(2*msg3)
+	ldi r31, HIGH(2*msg3)
+	rcall display_static
+	;rjmp rpg_listener
+	ret
+
+display_dutycycle:
+	sbi PORTB, 5 ; set to data mode
 	ldi r30, LOW(2*msg1)
 	ldi r31, HIGH(2*msg1)
 	rcall display_static
+	ret
 
+bottom_line_mode:
 	cbi PORTB, 5 ; set to command mode
 	rcall delay_200us 
 	ldi R26, 0b1100
@@ -131,12 +131,8 @@ display_modeB:
 	out PORTC, R26 
 	rcall lcd_strobe
 	sbi PORTB, 5 ; set to data mode
+	ret
 
-	ldi r30, LOW(2*msg3)
-	ldi r31, HIGH(2*msg3)
-	rcall display_static
-	rjmp rpg_listener
-	
 
 display_static:
 	lpm r0,Z+ ; r0 <-- first byte
@@ -153,6 +149,8 @@ display_static:
 	rjmp display_static
   done_static:
 	ret
+
+
 
 display_dynamic:
 	ld R0, Z+
@@ -176,12 +174,14 @@ display_dynamic:
 set_mode:
 	ldi R26, 0x01
 	eor mode, R26 ; 0x00 eor 0x01 = 0x01, 0x01 eor 0x01 = 0x00	
-	
+	cbi PORTB, 5 ; set to command mode
+	rcall lcd_clear
+	rcall cursor_home
+	sbi PORTB, 5
 	cpi mode, 0x00
 	brne display_modeA
 	rjmp display_modeB
 
-	ret
 
 rpg_listener:
 	;; button listener
@@ -350,17 +350,7 @@ lcd_init:
 
 	rcall delay_200us
 
-	ldi R26, 0x00
-	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
-	rcall lcd_strobe
-
-	rcall delay_200us
-	
-	ldi R26, 0x01
-	out PORTC, R26 ; line 11b -- lower nibble
-	rcall lcd_strobe
-
-	rcall delay_5ms 
+	rcall lcd_clear
 
 	ldi R26, 0x00
 	out PORTC, R26 ; line 12a -- write 01 hex (upper nibble then lower nibble)
@@ -387,6 +377,36 @@ lcd_init:
 	rcall delay_5ms
 	ret
 
+cursor_home:
+	rcall delay_200us
+	ldi R26, 0b1000
+	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
+	rcall lcd_strobe
+
+	rcall delay_200us
+	
+	ldi R26, 0x00
+	out PORTC, R26 ; line 11b -- lower nibble
+	rcall lcd_strobe
+
+	rcall delay_5ms 
+	ret
+
+lcd_clear:
+	rcall delay_200us
+	ldi R26, 0x00
+	out PORTC, R26 ; line 11a -- write 08 hex (upper nibble then lower nibble)
+	rcall lcd_strobe
+
+	rcall delay_200us
+	
+	ldi R26, 0x01
+	out PORTC, R26 ; line 11b -- lower nibble
+	rcall lcd_strobe
+
+	rcall delay_5ms 
+	ret
+
 lcd_strobe:
 	cbi PORTB, 3 ; drive E low
 	rcall delay_200us ; delay
@@ -394,6 +414,8 @@ lcd_strobe:
 	rcall delay_200us
 	cbi PORTB, 3 ; drive E low
 	ret
+
+
 
 
 delay_100ms:

@@ -23,23 +23,27 @@
  </OUTPUT_FILES>
  <LABELS>
   <lcd_init><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>302</LINE></lcd_init>
-  <skip><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>52</LINE></skip>
+  <skip><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>51</LINE></skip>
   <msg1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>48</LINE></msg1>
   <msg2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>49</LINE></msg2>
   <msg3><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>50</LINE></msg3>
-  <display_modeA><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>98</LINE></display_modeA>
+  <display_modeA><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>97</LINE></display_modeA>
   <timer_config><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>293</LINE></timer_config>
   <rpg_listener><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>186</LINE></rpg_listener>
-  <delay_100ms><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>399</LINE></delay_100ms>
-  <write_letter><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>80</LINE></write_letter>
-  <lcd_strobe><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>390</LINE></lcd_strobe>
-  <display_static><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>141</LINE></display_static>
-  <delay_200us><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>422</LINE></delay_200us>
-  <display_modeB><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>119</LINE></display_modeB>
-  <done_static><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>154</LINE></done_static>
-  <display_dynamic><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>157</LINE></display_dynamic>
-  <done_dynamic><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>173</LINE></done_dynamic>
-  <set_mode><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>176</LINE></set_mode>
+  <delay_100ms><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>421</LINE></delay_100ms>
+  <write_letter><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>79</LINE></write_letter>
+  <lcd_strobe><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>410</LINE></lcd_strobe>
+  <display_dutycycle><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>116</LINE></display_dutycycle>
+  <bottom_line_mode><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>123</LINE></bottom_line_mode>
+  <display_static><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>137</LINE></display_static>
+  <display_modeB><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>107</LINE></display_modeB>
+  <delay_200us><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>444</LINE></delay_200us>
+  <done_static><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>150</LINE></done_static>
+  <display_dynamic><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>155</LINE></display_dynamic>
+  <done_dynamic><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>171</LINE></done_dynamic>
+  <set_mode><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>174</LINE></set_mode>
+  <lcd_clear><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>395</LINE></lcd_clear>
+  <cursor_home><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>380</LINE></cursor_home>
   <lighton><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>229</LINE></lighton>
   <lightoff><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>233</LINE></lightoff>
   <rpg_handler><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>204</LINE></rpg_handler>
@@ -50,9 +54,9 @@
   <exor_prev><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>256</LINE></exor_prev>
   <incr><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>275</LINE></incr>
   <decr><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>288</LINE></decr>
-  <delay_5ms><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>412</LINE></delay_5ms>
-  <L1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>404</LINE></L1>
-  <L2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>415</LINE></L2>
-  <L3><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>425</LINE></L3>
+  <delay_5ms><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>434</LINE></delay_5ms>
+  <L1><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>426</LINE></L1>
+  <L2><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>437</LINE></L2>
+  <L3><FILE>C:\Users\danie\OneDrive\Embedded Systems\Labs\Lab4\Lab4\main.asm</FILE><LINE>447</LINE></L3>
  </LABELS>
 </ASSEMBLER_INFO>
