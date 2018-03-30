@@ -165,11 +165,11 @@ computeDC:
   continue:
 	;; set numerator
 	mov dd16uL, R22
-	andi dd16uL, 0b00001111
-
-	mov dd16uH, R22
-	andi dd16uH, 0b11110000
-	swap dd16uH
+	;andi dd16uL, 0b00001111
+	ldi dd16uH, 0x00
+	;mov dd16uH, R22
+	;andi dd16uH, 0b11110000
+	;swap dd16uH
 
 	;; set denomonator
 	ldi dv16uL, low(10)
