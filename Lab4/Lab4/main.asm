@@ -1,38 +1,31 @@
 ;; Lab 4
-;; Ted Paulsen, Daniel Machlab - iD
+;; Ted Paulsen, Daniel Machlab
 
 .include "m88padef.inc"
 
 .org 0x000 rjmp RESET
-.org 0x002 rjmp set_modeAB ;change modes
+.org 0x001 rjmp set_modeAB ;change modes
+.org 0x00D rjmp timer_end_INT ; handle timer end event (called when TIMER1 overflows)
 .org 0x01A
 RESET:
-
-
-;EIMSK
-ldi R22, 0b00000010
-out EIMSK, R22
-;EICRA
-ldi R22, 0b00000101
-sts EICRA, R22
-;EIFR
-;ldi R22, 0x02
-;sts 
-
 
 ;; LINES TO RPG
 cbi DDRB, 0 ; input - from A
 cbi DDRB, 1 ; input - from B
 sbi DDRB, 2 ; output - clockwise (A side) LED
 sbi DDRD, 5 ; set pwm pin as output
+sbi DDRD, 3 ;
 
 ;; E & RS LINES TO LCD
 sbi DDRB, 3 ; output to E
 sbi DDRB, 5 ; output to RS line of lcd
 
 ;; DATA LINE TO PUSHBUTTON
-;cbi DDRB, 2 ; input from pushbutton
-cbi DDRD, 3 ; input from onboard pushbutton
+cbi DDRD, 2 ; input from onboard pushbutton
+
+;; TACHOMETER LINES
+cbi DDRD, 1 ; recieve tach input
+cbi DDRD, 2 ; PCINT for timer
 
 ;; DATA LINES TO LCD
 sbi DDRC, 3 ; output PC3 - D7
@@ -76,27 +69,69 @@ skip:
 ;rcall display_modeA
 
 rcall timer_config
-ldi duty_cycle, 153
+ldi duty_cycle, 100
 out OCR0B, duty_cycle
-sei
+
+rcall interrupt_init
+rcall display_dutycycle
+rcall set_modeAB
+
 rjmp system_listener
 
 ;; END MAIN
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-system_listener:
-	;; button listener
-	;sbis PIND, 2
-	;rcall set_modeAB
+interrupt_init:
+	;EIMSK
+	ldi R22, 0b00000001 ; set only INT0 active
+	out EIMSK, R22
+	;EICRA
+	ldi R22, 0b00001011 ; falling edge triggers INT1, rising edge triggers INT0
+	sts EICRA, R22
+	;EIFR
+	;ldi R22, 0x02
+	;sts 
 
-	;rcall lightoff
+	;; set timer config bits
+	;; WGM13:10 = 0100
+	ldi R20, 0b00001001 ; no prescale
+	sts TCCR1B, R20
+
+	ldi R20, 0b11111111 ; set TOP = 65535
+	sts OCR1AH, R20 
+	sts OCR1AL, R20
+
+	;; set interrupt bits
+	ldi R20, 0b00000100
+	sts PCICR, R20
+	ldi R20, 0b00000100
+	sts PCIFR, R20
+	ldi R20, 0b00000110
+	sts PCMSK2, R20
+	
+	sei
+	ret
+
+timer_end_INT:
+	
+	reti
+
+tach_edge_INT:
+	
+	reti
+
+system_listener:
+	;; read prev
 	in prev, PINB
 	andi prev, 0b00000011
 
 	rcall delay_200us
 
+	;; read curr
 	in curr, PINB
 	andi curr, 0b00000011
+
+	;; compare and handle
 	cp prev, curr
 	brne to_rpg_handler
 	rjmp system_listener
@@ -270,6 +305,7 @@ stationary:
 clockwise:
 	in R26, OCR0B ; current duty cycle
 	in R27, OCR0A ; 200
+	dec R27
 	cp R26, R27
 	brne incr
 	rjmp system_listener
