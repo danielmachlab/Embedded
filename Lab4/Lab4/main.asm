@@ -5,7 +5,7 @@
 
 .org 0x000 rjmp RESET
 .org 0x001 rjmp set_modeAB ;change modes
-.org 0x00D rjmp timer_end_INT ; handle timer end event (called when TIMER1 overflows)
+;.org 0x00D rjmp timer_end_INT ; handle timer end event (called when TIMER1 overflows)
 .org 0x01A
 RESET:
 
@@ -64,6 +64,10 @@ rjmp skip
 	msg1: .DB "DC = ", 0x00
 	msg2: .DB "Mode A: ", 0x00, 0x00
 	msg3: .DB "Mode B: ", 0x00, 0x00
+	msg4: .DB " %", 0x00, 0x00
+	msg5: .DB "OK     ", 0x00
+	msg6: .DB "ALARM  ", 0x00
+	msg7: .DB "LOW RPM" , 0x00
 skip:
 
 ;rcall display_modeA
@@ -94,20 +98,20 @@ interrupt_init:
 
 	;; set timer config bits
 	;; WGM13:10 = 0100
-	ldi R20, 0b00001001 ; no prescale
-	sts TCCR1B, R20
+	;ldi R20, 0b00001001 ; no prescale
+	;sts TCCR1B, R20
 
-	ldi R20, 0b11111111 ; set TOP = 65535
-	sts OCR1AH, R20 
-	sts OCR1AL, R20
+	;ldi R20, 0b11111111 ; set TOP = 65535
+	;sts OCR1AH, R20 
+	;sts OCR1AL, R20
 
 	;; set interrupt bits
-	ldi R20, 0b00000100
-	sts PCICR, R20
-	ldi R20, 0b00000100
-	sts PCIFR, R20
-	ldi R20, 0b00000110
-	sts PCMSK2, R20
+	;ldi R20, 0b00000100
+	;sts PCICR, R20
+	;ldi R20, 0b00000100
+	;sts PCIFR, R20
+	;ldi R20, 0b00000110
+	;sts PCMSK2, R20
 	
 	sei
 	ret
@@ -154,12 +158,20 @@ display_modeA:
 	ldi r30, LOW(2*msg2)
 	ldi r31, HIGH(2*msg2)
 	rcall display_static
+
+	ldi r30, low(2*msg6)
+	ldi r31, high(2*msg6)
+	rcall display_static
 	reti
 
 display_modeB:
 	rcall bottom_line_mode
 	ldi r30, LOW(2*msg3)
 	ldi r31, HIGH(2*msg3)
+	rcall display_static
+
+	ldi r30, low(2*msg7)
+	ldi r31, high(2*msg7)
 	rcall display_static
 	reti
 
@@ -180,16 +192,21 @@ display_static:
 display_dutycycle:
 	rcall cursor_home
 
+	;; DISPLAY "DC = "
 	ldi r30, LOW(2*msg1)
 	ldi r31, HIGH(2*msg1)
 	rcall display_static
 
 	;; DISPLAY DC VALUE
 	rcall computeDC
-
 	ldi R30, low(dtxt)
 	ldi R31, high(dtxt)
 	rcall displayDC
+
+	;; DISPLAY " %"
+	ldi r30, low(2*msg4)
+	ldi r31, high(2*msg4)
+	rcall display_static
 
 	ret
 
