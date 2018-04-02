@@ -5,7 +5,7 @@
 
 .org 0x000 rjmp RESET
 .org 0x001 rjmp set_modeAB ;change modes
-;.org 0x00D rjmp timer_end_INT ; handle timer end event (called when TIMER1 overflows)
+.org 0x00D rjmp timer_end_INT ; handle timer end event (called when TIMER1 overflows)
 .org 0x01A
 RESET:
 
@@ -96,14 +96,25 @@ interrupt_init:
 	;ldi R22, 0x02
 	;sts 
 
-	;; set timer config bits
-	;; WGM13:10 = 0100
-	;ldi R20, 0b00001001 ; no prescale
-	;sts TCCR1B, R20
+	;; COM1A1:0 = 10, COM1B1:0 = 10, WGM11:10 = 11
+	ldi R20, 0b10100011
+	sts TCCR1A, R20
+	;; WGM13:12 = 11, CS12:10 = 001
+	ldi R20, 0b00011001 ; no prescale
+	sts TCCR1B, R20
 
-	;ldi R20, 0b11111111 ; set TOP = 65535
-	;sts OCR1AH, R20 
-	;sts OCR1AL, R20
+	ldi R20, 0b0001000 ; set TOP
+	sts OCR1AL, R20
+	sts OCR1BL, R20
+	ldi R20, 0b00000000
+	sts OCR1AH, R20
+	sts OCR1BH, R20
+
+	ldi R20, 0b00000100 ; timer 1 will trigger interrupt when TCNT1 == OCR1A
+	out TIFR1, R20
+
+	ldi R20, 0b00000001
+	sts TIMSK1, R20
 
 	;; set interrupt bits
 	;ldi R20, 0b00000100
@@ -117,7 +128,7 @@ interrupt_init:
 	ret
 
 timer_end_INT:
-	
+	nop
 	reti
 
 tach_edge_INT:
