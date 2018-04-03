@@ -4,9 +4,10 @@
 .include "m88padef.inc"
 
 .org 0x000 rjmp RESET
-.org 0x001 rjmp set_modeAB ;change modes
+.org 0x001 rjmp set_modeAB ;change modes INT0
+.org 0x002 rjmp taco_edge_INT ; INT1
 .org 0x00D rjmp timer_end_INT ; handle timer end event (called when TIMER1 overflows)
-.org 0x01A
+.org 0x01A 
 RESET:
 
 ;; LINES TO RPG
@@ -14,7 +15,6 @@ cbi DDRB, 0 ; input - from A
 cbi DDRB, 1 ; input - from B
 sbi DDRB, 2 ; output - clockwise (A side) LED
 sbi DDRD, 5 ; set pwm pin as output
-sbi DDRD, 3 ;
 
 ;; E & RS LINES TO LCD
 sbi DDRB, 3 ; output to E
@@ -24,14 +24,15 @@ sbi DDRB, 5 ; output to RS line of lcd
 cbi DDRD, 2 ; input from onboard pushbutton
 
 ;; TACHOMETER LINES
-cbi DDRD, 1 ; recieve tach input
-cbi DDRD, 2 ; PCINT for timer
+cbi DDRD, 3 ; recieve tach input
 
 ;; DATA LINES TO LCD
 sbi DDRC, 3 ; output PC3 - D7
 sbi DDRC, 2 ; output PC2 - D6
 sbi DDRC, 1 ; output PC1 - D5
 sbi DDRC, 0 ; output PC0 - D4
+
+sbi DDRD, 7
 
 ;; RPG READINGS
 .def curr = R20 ; R20 is the current rpg reading
@@ -52,7 +53,10 @@ sbi DDRC, 0 ; output PC0 - D4
 .def dv16uH	= r19
 .def dcnt16u = r20
 
-;; free registers: R24, R25, R26, R28
+;COUNTING REGISTERS
+.def taco_count = R25
+
+;; free registers: R24, R26, R28
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PUBLIC STATIC VOID MAIN 
 ldi mode, 0x00
@@ -72,7 +76,7 @@ skip:
 
 ;rcall display_modeA
 
-rcall timer_config
+rcall fan_config
 ldi duty_cycle, 100
 out OCR0B, duty_cycle
 
@@ -87,30 +91,28 @@ rjmp system_listener
 
 interrupt_init:
 	;EIMSK
-	ldi R22, 0b00000001 ; set only INT0 active
+	ldi R22, 0b00000011 ; set only INT0/1 active
 	out EIMSK, R22
 	;EICRA
-	ldi R22, 0b00001011 ; falling edge triggers INT1, rising edge triggers INT0
+	ldi R22, 0b00001111 ; rising edge triggers INT1, rising edge triggers INT0
 	sts EICRA, R22
-	;EIFR
-	;ldi R22, 0x02
-	;sts 
+
 
 	;; COM1A1:0 = 10, COM1B1:0 = 10, WGM11:10 = 11
-	ldi R20, 0b10100011
+	ldi R20, 0b00000011 ;0b10100000
 	sts TCCR1A, R20
 	;; WGM13:12 = 11, CS12:10 = 001
-	ldi R20, 0b00011001 ; no prescale
+	ldi R20, 0b00011011 ; 0b00001011 ; no prescale ;dm pg117 was on normal mode
 	sts TCCR1B, R20
 
-	ldi R20, 0b0001000 ; set TOP
+	ldi R20, 0x24 ; set TOP
 	sts OCR1AL, R20
 	sts OCR1BL, R20
-	ldi R20, 0b00000000
+	ldi R20, 0xF4
 	sts OCR1AH, R20
 	sts OCR1BH, R20
 
-	ldi R20, 0b00000100 ; timer 1 will trigger interrupt when TCNT1 == OCR1A
+	ldi R20, 0b00000110 ; timer 1 will trigger interrupt when TCNT1 == OCR1A
 	out TIFR1, R20
 
 	ldi R20, 0b00000001
@@ -128,11 +130,18 @@ interrupt_init:
 	ret
 
 timer_end_INT:
-	nop
+	sbi PORTD, 7
+	rcall delay_100ms
+	cbi PORTD, 7
+	;rcall delay_100ms
+	;read count register
+	;divide by register time
+
+	;display message
 	reti
 
-tach_edge_INT:
-	
+taco_edge_INT:
+	inc taco_count
 	reti
 
 system_listener:
@@ -354,7 +363,7 @@ counterclockwise:
 	rcall display_dutycycle
 	rjmp system_listener
 
-timer_config:
+fan_config:
 	ldi R30, 0b00100011 ; WGM01, WGM00 <= 1, 1
 	out TCCR0A, R30
 	ldi R30, 0b00001001 ; No prescale
