@@ -66,10 +66,10 @@ rjmp skip
 	msg1: .DB "DC = ", 0x00
 	msg2: .DB "Mode A: ", 0x00, 0x00
 	msg3: .DB "Mode B: ", 0x00, 0x00
-	msg4: .DB " %", 0x00, 0x00
-	msg5: .DB "OK     ", 0x00
-	msg6: .DB "ALARM  ", 0x00
-	msg7: .DB "LOW RPM" , 0x00
+	msg4: .DB " %      ", 0x00, 0x00
+	msg5: .DB "OK      ", 0x00
+	msg6: .DB "ALARM   ", 0x00
+	msg7: .DB "LOW RPM ", 0x00
 skip:
 
 ;rcall display_modeA
@@ -108,9 +108,12 @@ interrupt_init:
 	ldi R20, 0xFF ; set TOP
 	;sts OCR1AL, R20
 	;sts OCR1BL, R20
-	ldi R20, 0xFF
-	;sts OCR1AH, R20
-	sts OCR1BH, R20
+	ldi R20, 0xF3
+	sts OCR1AH, R20
+	ldi R20, 0x2F
+	sts OCR1AL, R20
+	;sts OCR1BH, R20
+	;sts OCR1BL, R20
 
 	ldi R20, 0b00000100 ; timer 1 will trigger interrupt when TCNT1 == OCR1A
 	out TIFR1, R20
@@ -130,13 +133,6 @@ interrupt_init:
 	ret
 
 timer_end_INT:
-	;; read tach_count
-	;; if mode A
-		;; if tach_count == 0 write 'Alarm'
-		;; else write 'ok'
-	;; else
-		;; if tach_count < threshold write low rpm
-		;; else write ok
 	rcall cursor_mode_msg
 	cpi mode, 0x00
 	brne mdA
@@ -144,8 +140,8 @@ timer_end_INT:
 
   mdA:
 	cpi tach_count, 0x00
-	brne writeAlarm
-	rjmp writeOk
+	brne writeOk
+	rjmp writeAlarm
 
   mdB:
     cpi tach_count, 0x20
