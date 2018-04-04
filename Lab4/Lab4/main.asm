@@ -4,10 +4,10 @@
 .include "m88padef.inc"
 
 .org 0x000 rjmp RESET
-.org 0x001 rjmp set_modeAB ;change modes INT0
-.org 0x002 rjmp taco_edge_INT ; INT1
+.org 0x001 rjmp set_modeAB ;change modes
+.org 0x002 rjmp tach_edge_INT ; INT1
 .org 0x00D rjmp timer_end_INT ; handle timer end event (called when TIMER1 overflows)
-.org 0x01A 
+.org 0x01A
 RESET:
 
 ;; LINES TO RPG
@@ -24,15 +24,13 @@ sbi DDRB, 5 ; output to RS line of lcd
 cbi DDRD, 2 ; input from onboard pushbutton
 
 ;; TACHOMETER LINES
-cbi DDRD, 3 ; recieve tach input
+cbi DDRD, 3 ; set as tach input
 
 ;; DATA LINES TO LCD
 sbi DDRC, 3 ; output PC3 - D7
 sbi DDRC, 2 ; output PC2 - D6
 sbi DDRC, 1 ; output PC1 - D5
 sbi DDRC, 0 ; output PC0 - D4
-
-sbi DDRD, 7
 
 ;; RPG READINGS
 .def curr = R20 ; R20 is the current rpg reading
@@ -41,6 +39,9 @@ sbi DDRD, 7
 ;; LCD DATA
 .def duty_cycle = R23
 .def mode = R29 ; 0x00 is mode a, 0x01 is mode b
+
+;; TACHOMETER COUNT REG
+.def tach_count = R25
 
 ;; DIVIDE REGISTERS
 .def drem16uL = r14
@@ -53,10 +54,7 @@ sbi DDRD, 7
 .def dv16uH	= r19
 .def dcnt16u = r20
 
-;COUNTING REGISTERS
-.def taco_count = R25
-
-;; free registers: R24, R26, R28
+;; free registers: R24, R25, R26, R28
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PUBLIC STATIC VOID MAIN 
 ldi mode, 0x00
@@ -76,7 +74,7 @@ skip:
 
 ;rcall display_modeA
 
-rcall fan_config
+rcall timer_config
 ldi duty_cycle, 100
 out OCR0B, duty_cycle
 
@@ -91,28 +89,30 @@ rjmp system_listener
 
 interrupt_init:
 	;EIMSK
-	ldi R22, 0b00000011 ; set only INT0/1 active
+	ldi R22, 0b00000011 ; set only INT0 active
 	out EIMSK, R22
 	;EICRA
-	ldi R22, 0b00001111 ; rising edge triggers INT1, rising edge triggers INT0
+	ldi R22, 0b00001011 ; falling edge triggers INT1, rising edge triggers INT0
 	sts EICRA, R22
-
+	;EIFR
+	;ldi R22, 0x02
+	;sts 
 
 	;; COM1A1:0 = 10, COM1B1:0 = 10, WGM11:10 = 11
-	ldi R20, 0b00000011 ;0b10100000
+	ldi R20, 0b10100011 ; PWM mode
 	sts TCCR1A, R20
 	;; WGM13:12 = 11, CS12:10 = 001
-	ldi R20, 0b00011011 ; 0b00001011 ; no prescale ;dm pg117 was on normal mode
+	ldi R20, 0b00011011 ; PWM, prescale 64
 	sts TCCR1B, R20
 
-	ldi R20, 0x24 ; set TOP
-	sts OCR1AL, R20
-	sts OCR1BL, R20
-	ldi R20, 0xF4
-	sts OCR1AH, R20
+	ldi R20, 0xFF ; set TOP
+	;sts OCR1AL, R20
+	;sts OCR1BL, R20
+	ldi R20, 0xFF
+	;sts OCR1AH, R20
 	sts OCR1BH, R20
 
-	ldi R20, 0b00000110 ; timer 1 will trigger interrupt when TCNT1 == OCR1A
+	ldi R20, 0b00000100 ; timer 1 will trigger interrupt when TCNT1 == OCR1A
 	out TIFR1, R20
 
 	ldi R20, 0b00000001
@@ -130,18 +130,53 @@ interrupt_init:
 	ret
 
 timer_end_INT:
-	sbi PORTD, 7
-	rcall delay_100ms
-	cbi PORTD, 7
-	;rcall delay_100ms
-	;read count register
-	;divide by register time
+	;; read tach_count
+	;; if mode A
+		;; if tach_count == 0 write 'Alarm'
+		;; else write 'ok'
+	;; else
+		;; if tach_count < threshold write low rpm
+		;; else write ok
+	rcall cursor_mode_msg
+	cpi mode, 0x00
+	brne mdA
+	rjmp mdB
 
-	;display message
+  mdA:
+	cpi tach_count, 0x00
+	brne writeAlarm
+	rjmp writeOk
+
+  mdB:
+    cpi tach_count, 0x20
+	brcs writeLRPS
+	rjmp writeOk
+
+  writeLRPS:
+	;; do it
+	ldi r30, low(2*msg7)
+	ldi r31, high(2*msg7)
+	rcall display_static
+	rjmp rst
+
+  writeOk:
+	ldi r30, low(2*msg5)
+	ldi r31, high(2*msg5)
+	rcall display_static
+	rjmp rst
+
+  writeAlarm:
+	ldi r30, low(2*msg6)
+	ldi r31, high(2*msg6)
+	rcall display_static
+	rjmp rst
+
+  rst:
+	ldi tach_count, 0x00
 	reti
 
-taco_edge_INT:
-	inc taco_count
+tach_edge_INT:
+	inc tach_count
 	reti
 
 system_listener:
@@ -188,10 +223,6 @@ display_modeB:
 	rcall bottom_line_mode
 	ldi r30, LOW(2*msg3)
 	ldi r31, HIGH(2*msg3)
-	rcall display_static
-
-	ldi r30, low(2*msg7)
-	ldi r31, high(2*msg7)
 	rcall display_static
 	reti
 
@@ -363,7 +394,7 @@ counterclockwise:
 	rcall display_dutycycle
 	rjmp system_listener
 
-fan_config:
+timer_config:
 	ldi R30, 0b00100011 ; WGM01, WGM00 <= 1, 1
 	out TCCR0A, R30
 	ldi R30, 0b00001001 ; No prescale
@@ -432,6 +463,19 @@ bottom_line_mode:
 	rcall lcd_strobe
 	rcall delay_200us
 	ldi R26, 0b0000 ; 1100 0000 lower nibble
+	out PORTC, R26 
+	rcall lcd_strobe
+	sbi PORTB, 5 ; set to data mode
+	ret
+
+cursor_mode_msg:
+	cbi PORTB, 5 ; set to command mode
+	rcall delay_200us 
+	ldi R26, 0b1100 ; 1100 1000 upper nibble
+	out PORTC, R26 
+	rcall lcd_strobe
+	rcall delay_200us
+	ldi R26, 0b1000 ; 1100 1000 lower nibble
 	out PORTC, R26 
 	rcall lcd_strobe
 	sbi PORTB, 5 ; set to data mode
