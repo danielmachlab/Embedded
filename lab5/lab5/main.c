@@ -1,4 +1,4 @@
-/************************************************************************/
+//************************************************************************/
 /* UART functions written by A. Kruger 2010                             */
 /************************************************************************/
 
@@ -41,7 +41,8 @@ const char fdata[] PROGMEM = "My name is Ted\n";  // String in Flash
 int main(void) {
 	unsigned char c;
 	char str[25];
-	float v;
+	char msgs[50];
+	int v;
 	sei();
 
 	usart_init();
@@ -55,10 +56,11 @@ int main(void) {
 
 		if (c == 'G') {
 			get_adc(&v);
-			sprintf(str, "v = %.3fV\n\r", v);
+			sprintf(&msgs, "v = %.3f V\n\r", v);
 			char response[] = "you typed G\n\r";
+			usart_prints(msgs);
 			usart_prints(response);
-			usart_prints(str);
+			
 			
 			//float v = getSingleADC();
 			// todo: do something with this v
@@ -163,7 +165,8 @@ int adc_read()//0-1023, convert to float
 void get_adc(float *v)
 {
 	int temp = adc_read();   
-	*v = (float)(temp*5.0)/1023.0
+	*v = (float)(temp*5.0)/1023.0;
+	//*v = (temp*5)/1023;
 }
 
 // Configures the USART for serial 8N1 with
