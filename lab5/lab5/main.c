@@ -43,15 +43,16 @@ const char sdata[40] = "Hello World!\n\r";          // String in SRAM
 const char fdata[] PROGMEM = "My name is Ted\n";  // String in Flash
 
 int main(void) {
+
 	char msgs[50];
 	int v_int;
 	float v_float;
-	
+
 	sei();
 
 	usart_init();
 	adc_init();
-	
+
 	const char msg[] = "Hi welcome to chili's\n\r";
 	usart_prints(msg);
 
@@ -70,8 +71,7 @@ int main(void) {
 			
 			sprintf(msgs, "v = %.3f V\n\r", v_float);
 			
-			usart_prints(msgs);
-			
+			usart_prints(msgs);	
 			
 			//float v = getSingleADC();
 			// todo: do something with this v
@@ -179,6 +179,45 @@ ISR(USART_RX_vect) {
 	} else {
 		rx_buffer_head++;
 	}
+}
+
+
+
+void adc_init()
+{
+	// AREF = AVcc
+	ADMUX = (1<<REFS0);
+	
+	// ADC Enable and prescaler of 128
+	// 16000000/128 = 125000
+	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
+}
+
+int adc_read()//0-1023, convert to float
+{
+	// select the corresponding channel 0~7
+	// ANDing with ’7′ will always keep the value
+	// of ‘ch’ between 0 and 7
+	//ch &= 0b00000111;  // AND operation with 7
+	ADMUX = (ADMUX & 0xF8); // clears the bottom 3 bits before ORing
+	
+	// start single convertion
+	// write ’1′ to ADSC
+	ADCSRA |= (1<<ADSC);
+	
+	// wait for conversion to complete
+	// ADSC becomes ’0′ again
+	// till then, run loop continuously
+	while(ADCSRA & (1<<ADSC));
+	
+	return (ADC);
+}
+
+void get_adc(float *v)
+{
+	int temp = adc_read();   
+	*v = (float)(temp*5.0)/1023.0;
+	//*v = (temp*5)/1023;
 }
 
 // Configures the USART for serial 8N1 with
