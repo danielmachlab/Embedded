@@ -1,4 +1,4 @@
-/************************************************************************/
+//************************************************************************/
 /* UART functions written by A. Kruger 2010                             */
 /************************************************************************/
 
@@ -6,7 +6,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-#include <util/delay.h>
+// #include <util/delay.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,12 +25,17 @@ float getSingleADC();
 float * getMultipleADC(int n, int dt);
 void setADC(int c, float v);
 
+// More function prototypes
+void get_adc(float *v);
+int adc_read();
+
 // UART function prototypes.
 unsigned char uart_buffer_empty(void);
 void usart_prints(const char *ptr);
 void usart_printf(const char *ptr);
 void usart_init(void);
 void usart_putc(const char c);
+void adc_init(void);
 unsigned char usart_getc(void);
 
 // sample strings in SRAM and Flash, used for examples.
@@ -38,23 +43,37 @@ const char sdata[40] = "Hello World!\n\r";          // String in SRAM
 const char fdata[] PROGMEM = "My name is Ted\n";  // String in Flash
 
 int main(void) {
-	unsigned char c;
-	char str[25];
-
+	char msgs[50];
+	int v_int;
+	float v_float;
+	
 	sei();
 
 	usart_init();
-	const char msg[] = "I now h v an iphone\n\r";
+	adc_init();
+	
+	const char msg[] = "Hi welcome to chili's\n\r";
 	usart_prints(msg);
 
 	// listen for user input
 	while (1) {
-		c = usart_getc();
+		char c = usart_getc();
+		
+		// this is a sprint/usart_printf test
+		char arr[5];
+		float f = 4.09;
+		sprintf(arr, "%.2f", f);
+		usart_printf(arr);
 
 		if (c == 'G') {
-			char response[] = "you typed G\n\r";
-			usart_prints(response);
-			float v = getSingleADC();
+			get_adc(&v_float);
+			
+			sprintf(msgs, "v = %.3f V\n\r", v_float);
+			
+			usart_prints(msgs);
+			
+			
+			//float v = getSingleADC();
 			// todo: do something with this v
 
 		} else if (c == 'M') {
@@ -109,6 +128,46 @@ void setADC(int c, float v) {
 	// todo
 }
 
+void adc_init() {
+	// AREF = AVcc
+	ADMUX = (1<<REFS0);
+	
+	// ADC Enable and prescaler of 128
+	// 16000000/128 = 125000
+	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
+}
+
+
+void get_adc(float *v) {
+	int temp = adc_read();
+	*v = (float)(temp*5.0)/1023.0;
+	//*v = (temp*5)/1023;
+}
+
+int adc_read() {
+	// select the corresponding channel 0~7
+	// ANDing with ’7? will always keep the value
+	// of ‘ch’ between 0 and 7
+	//ch &= 0b00000111;  // AND operation with 7
+	ADMUX = (ADMUX & 0xF8); // clears the bottom 3 bits before ORing
+	
+	// start single convertion
+	// write ’1? to ADSC
+	ADCSRA |= (1<<ADSC);
+	
+	// wait for conversion to complete
+	// ADSC becomes ’0? again
+	// till then, run loop continuously
+	while(ADCSRA & (1<<ADSC));
+	
+	return (ADC);
+}
+
+
+/************************************************************************/
+/* USART Library                                                        */
+/************************************************************************/
+
 // UART receive interrupt handler.
 // To do: check and warn if buffer overflows.
 ISR(USART_RX_vect) {
@@ -117,7 +176,7 @@ ISR(USART_RX_vect) {
 
 	if (rx_buffer_head == RX_BUFFER_SIZE - 1) {
 		rx_buffer_head = 0;
-		} else {
+	} else {
 		rx_buffer_head++;
 	}
 }
@@ -167,7 +226,7 @@ void usart_printf(const char *ptr) {
 // and can accept the next character.
 void usart_putc(const char c){
 	while (!(UCSR0A & (1<<UDRE0)))
-	;
+		;
 
 	UDR0 = c;
 }
@@ -178,7 +237,7 @@ void usart_putc(const char c){
 void usart_prints(const char *ptr) {
 	while(*ptr) {
 		while (!( UCSR0A & (1<<UDRE0)))
-		;
+			;
 
 		UDR0 = *(ptr++);
 	}
@@ -191,14 +250,14 @@ unsigned char usart_getc(void) {
 
 	// Wait for a character in the buffer.
 	while (rx_buffer_tail == rx_buffer_head)
-	;
+		;
 
 	c = rx_buffer[rx_buffer_tail];
 
 	if (rx_buffer_tail == RX_BUFFER_SIZE-1)
-	rx_buffer_tail = 0;
+		rx_buffer_tail = 0;
 	else
-	rx_buffer_tail++;
+		rx_buffer_tail++;
 
 	return c;
 }
