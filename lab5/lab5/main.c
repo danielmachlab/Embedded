@@ -6,7 +6,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
-// #include <util/delay.h>
+#include <util/delay.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,13 +21,15 @@ volatile unsigned char rx_buffer_head;
 volatile unsigned char rx_buffer_tail;
 
 // Function prototypes
-float getSingleADC();
+void print_adc();
 float * getMultipleADC(int n, int dt);
 void setADC(int c, float v);
 
 // More function prototypes
 void get_adc(float *v);
 int adc_read();
+
+void newLine();
 
 // UART function prototypes.
 unsigned char uart_buffer_empty(void);
@@ -42,47 +44,73 @@ unsigned char usart_getc(void);
 const char sdata[40] = "Hello World!\n\r";          // String in SRAM
 const char fdata[] PROGMEM = "My name is Ted\n";  // String in Flash
 
-int main(void) {
+const char v_str_1[] = "ADC Voltage = ";
+char v_str_val[5];
+const char v_str_2[] = "V\n\r";
+float v_float;
 
-	char msgs[50];
-	int v_int;
-	float v_float;
+int main(void) {
 
 	sei();
 
 	usart_init();
 	adc_init();
 
-	const char msg[] = "Hi welcome to chili's\n\r";
-	usart_prints(msg);
+	const char welcome[] = "Hi welcome to chili's\n\r---------------------\n\r";
+	usart_prints(welcome);
 
 	// listen for user input
 	while (1) {
 		char c = usart_getc();
-		
-		// this is a sprint/usart_printf test
-		char arr[5];
-		float f = 4.09;
-		sprintf(arr, "%.2f", f);
-		usart_printf(arr);
 
 		if (c == 'G') {
-			get_adc(&v_float);
-			
-			sprintf(msgs, "v = %.3f V\n\r", v_float);
-			
-			usart_prints(msgs);	
-			
-			//float v = getSingleADC();
-			// todo: do something with this v
+			usart_putc(c);
+			newLine();
+			print_adc();
 
 		} else if (c == 'M') {
-			char response[] = "you typed M\n\r";
-			usart_prints(response);
+			// Get parameters and echo them back
+			usart_putc(c);
 
-			int n = 5; // todo: read these values instead of hard coding
-			int dt = 10;
-			float *v = getMultipleADC(n, dt); // v is a pointer to the first element in a float array
+			char comma = usart_getc(); // ignore comma input
+			usart_putc(comma);
+
+			char n0 = usart_getc();
+			usart_putc(n0);
+			char n1 = usart_getc();
+			usart_putc(n1);
+
+			comma = usart_getc(); // ignore comma input
+			usart_putc(comma);
+			char dt0 = usart_getc();
+			usart_putc(dt0);
+			char dt1 = usart_getc();
+			usart_putc(dt1);
+
+			newLine();
+
+			char n_str[3];
+			n_str[0] = n0;
+			n_str[1] = n1;
+			n_str[2] = '\0';
+
+			char dt_str[3];
+			dt_str[0] = dt0;
+			dt_str[1] = dt1;
+			dt_str[2] = '\0';
+
+			int n = atoi(n_str);
+			int dt = atoi(dt_str);
+
+			for (int i = 0; i < n; i++) {
+				print_adc();
+				
+				// delay as long as it's not the last one
+				if (i+1 != n) {
+					_delay_ms(dt * 1000);
+				}
+			}
+
 			// todo: do something with v
 
 		} else if (c == 'S') {
@@ -94,18 +122,26 @@ int main(void) {
 			setADC(channel, voltage);
 		}
 
+		newLine();
+
 	}
 
 }
 
+void newLine() {
+	char nl[] = "\n\r";
+	usart_prints(nl);
+}
+
 // get a single voltage measurement from ADC
 // return: the current ADC voltage
-float getSingleADC() {
-	float a = 0.0;
-
-	// todo
-
-	return a;
+void print_adc() {
+	get_adc(&v_float);
+	dtostrf(v_float, 2, 2, v_str_val);
+	
+	usart_prints(v_str_1);
+	usart_prints(v_str_val);
+	usart_prints(v_str_2);
 }
 
 // get multiple measurements from ADC
@@ -179,45 +215,6 @@ ISR(USART_RX_vect) {
 	} else {
 		rx_buffer_head++;
 	}
-}
-
-
-
-void adc_init()
-{
-	// AREF = AVcc
-	ADMUX = (1<<REFS0);
-	
-	// ADC Enable and prescaler of 128
-	// 16000000/128 = 125000
-	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
-}
-
-int adc_read()//0-1023, convert to float
-{
-	// select the corresponding channel 0~7
-	// ANDing with ’7′ will always keep the value
-	// of ‘ch’ between 0 and 7
-	//ch &= 0b00000111;  // AND operation with 7
-	ADMUX = (ADMUX & 0xF8); // clears the bottom 3 bits before ORing
-	
-	// start single convertion
-	// write ’1′ to ADSC
-	ADCSRA |= (1<<ADSC);
-	
-	// wait for conversion to complete
-	// ADSC becomes ’0′ again
-	// till then, run loop continuously
-	while(ADCSRA & (1<<ADSC));
-	
-	return (ADC);
-}
-
-void get_adc(float *v)
-{
-	int temp = adc_read();   
-	*v = (float)(temp*5.0)/1023.0;
-	//*v = (temp*5)/1023;
 }
 
 // Configures the USART for serial 8N1 with
