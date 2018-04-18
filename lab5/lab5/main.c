@@ -1,5 +1,6 @@
 //************************************************************************/
 /* UART functions written by A. Kruger 2010                             */
+//1. get library, start wait, send 0x58 (slave address), write 0x00 or 0x01, write voltage value to display(0-255), stop
 /************************************************************************/
 
 #define F_CPU 8000000L
@@ -10,6 +11,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "i2cmaster.h"
 
 // Baud rate. The usart_int routine
 #define BAUD_RATE 9600
@@ -23,7 +25,7 @@ volatile unsigned char rx_buffer_tail;
 // Function prototypes
 void print_adc();
 float * getMultipleADC(int n, int dt);
-void setADC(int c, float v);
+void setADC(int c, int v);
 
 // More function prototypes
 void get_adc(float *v);
@@ -116,9 +118,8 @@ int main(void) {
 		} else if (c == 'S') {
 			char response[] = "you typed S\n\r";
 			usart_prints(response);
-
 			int channel = 0; // todo: read these values instead of hard coding
-			int voltage = 3;
+			int voltage = 200;
 			setADC(channel, voltage);
 		}
 
@@ -159,9 +160,16 @@ float * getMultipleADC(int n, int dt) {
 
 // set DAC output voltage
 // c: DAC channel number (0 or 1)
-// v: output voltage
-void setADC(int c, float v) {
-	// todo
+// v: output voltage (int between 0 and 255)
+void setADC(int c, int v) {
+	i2c_start_wait(0x58+I2C_WRITE); //slave address
+	char response[] = "debug statement\n\r";
+	usart_prints(response);
+	i2c_write(c); //select DAC channel
+	i2c_write(v); //write voltage value to display
+	i2c_stop(); //stop
+
+	
 }
 
 void adc_init() {
